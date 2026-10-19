@@ -1,0 +1,1044 @@
+/* ========== 浪漫主题 ========== */
+:root {
+  --bg-top: #fdf6f0;
+  --bg-bottom: #fce8e8;
+  --main: #d98c8c;
+  --main-light: #e8c4c4;
+  --text: #4a4a4a;
+  --text-light: #999;
+  --text-mid: #a87c7c;
+  --card-bg: #ffffff;
+  --dot-border: #fdf6f0;
+  --petal-bg: radial-gradient(circle at 30% 30%, #ffd1dc, #ffb7c5);
+}
+
+/* ========== 万兽之王主题 ========== */
+body.theme-fun {
+  --bg-top: #0a0a0f;
+  --bg-bottom: #1a1215;
+  --main: #c9a04a;
+  --main-light: #4a3a28;
+  --text: #e8dcc8;
+  --text-light: #8a7a68;
+  --text-mid: #b8a898;
+  --card-bg: #2a2117; /* 全局卡片底色统一调亮 */
+  --dot-border: #0a0a0f;
+  --petal-bg: none;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+  color: var(--text);
+  line-height: 1.8;
+  overflow-x: hidden;
+  transition: background 0.6s ease, color 0.6s ease;
+}
+
+/* ========== 掉落物层 ========== */
+#sakura {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+.petal {
+  position: absolute;
+  top: -30px;
+  background: var(--petal-bg);
+  border-radius: 50% 0 50% 50%;
+  opacity: 0.8;
+  animation: fall linear infinite;
+}
+/* 图片 / emoji 型掉落物 */
+.petal.img-petal {
+  background-color: transparent !important;
+  background-image: none !important;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+@keyframes fall {
+  0% {
+    transform: translateY(-30px) rotate(0deg) translateX(0);
+    opacity: 0;
+  }
+  10% { opacity: 0.9; }
+  90% { opacity: 0.9; }
+  100% {
+    transform: translateY(120vh) rotate(720deg) translateX(80px);
+    opacity: 0;
+  }
+}
+
+/* ========== 主题切换按钮 ========== */
+.theme-btn {
+  position: fixed;
+  top: auto;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--card-bg);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  font-size: 18px;
+  padding-bottom: 2px;
+  cursor: pointer;
+  z-index: 100;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+}
+
+/* ★ 当 body 有 hide-buttons 时，按钮向右滑出屏幕隐藏 */
+body.hide-buttons .theme-btn {
+  transform: translateX(100px) !important;
+}
+
+.theme-btn:hover {
+  transform: scale(1.1);
+}
+
+/* 照片墙导航按钮 */
+.photo-nav-btn {
+  bottom: 130px;
+}
+
+body.theme-fun .theme-btn {
+  background: #1a1a1a;
+  border: 1px solid #c9a04a;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
+
+body.theme-fun .theme-btn:hover {
+  box-shadow: 0 6px 20px rgba(201, 160, 74, 0.5);
+}
+
+/* ========== 顶部标题 ========== */
+header {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 20px 20px 40px;
+}
+header h1 {
+  font-family: "Kaiti SC", "KaiTi", "STKaiti", serif;
+  font-size: 3.2rem;
+  color: var(--main);
+  letter-spacing: 4px;
+  margin-bottom: 16px;
+  transition: color 0.6s ease, text-shadow 0.6s ease, font-family 0.3s ease;
+}
+header p {
+  color: var(--text-light);
+  font-size: 1rem;
+  transition: color 0.6s ease;
+}
+
+/* 万兽之王：标题 */
+body.theme-fun header h1 {
+  font-weight: 900;
+  letter-spacing: 4px;
+  text-shadow: 0 0 30px rgba(201, 160, 74, 0.35);
+}
+
+/* ========== 计数器 ========== */
+.counter {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  margin: 10px auto 20px;
+  padding: 10px 20px;
+  max-width: 600px;
+}
+.counter .label {
+  font-size: 0.8rem;
+  color: var(--text-mid);
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+.counter .number {
+  font-size: 4rem;
+  font-weight: bold;
+  color: var(--main);
+  line-height: 1;
+  text-shadow: 0 4px 20px rgba(217, 140, 140, 0.25);
+  transition: color 0.6s ease, text-shadow 0.6s ease;
+}
+body.theme-fun .counter .number {
+  text-shadow: 0 0 30px rgba(201, 160, 74, 0.4);
+}
+.counter .unit {
+  font-size: 1.2rem;
+  color: var(--text-mid);
+  margin-left: 8px;
+}
+.counter .detail {
+  margin-top: 18px;
+  font-size: 1.05rem;
+  color: var(--text-mid);
+  letter-spacing: 1px;
+  font-weight: 500;
+}
+.counter .detail .num {
+  display: inline-block;
+  min-width: 1.6em;
+  text-align: center;
+  color: var(--main);
+  font-weight: bold;
+  transition: transform 0.2s ease, color 0.6s ease;
+}
+.counter .detail .num.flip {
+  animation: flipNum 0.4s ease;
+}
+@keyframes flipNum {
+  0%   { transform: translateY(-6px) scale(1.15); opacity: 0.4; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.counter .since {
+  margin-top: 14px;
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+
+/* ========== 里程碑进度条 ========== */
+.milestone {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  margin: 40px auto 80px;
+  padding: 20px 30px;
+}
+
+.milestone-title {
+  text-align: center;
+  font-size: 1.1rem;
+  color: var(--main);
+  letter-spacing: 3px;
+  margin-bottom: 30px;
+  font-weight: bold;
+}
+
+.milestone-bar {
+  position: relative;
+  height: 60px;
+  margin-bottom: 10px;
+}
+
+/* 底线 */
+.milestone-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--main-light);
+  border-radius: 2px;
+  transform: translateY(-50%);
+  opacity: 0.4;
+}
+
+/* 已走过的部分 */
+.milestone-fill {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 4px;
+  width: 0%;
+  background: var(--main);
+  border-radius: 2px;
+  transform: translateY(-50%);
+  transition: width 3.5s ease-out;
+  box-shadow: 0 0 12px var(--main);
+}
+
+/* 里程碑节点 */
+.milestone-node {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--card-bg);
+  border: 2px solid var(--main-light);
+  transform: translate(-50%, -50%);
+  transition: background 0.6s ease, border-color 0.6s ease, box-shadow 0.6s ease;
+}
+
+/* 已经过的节点 */
+.milestone-node.passed {
+  background: var(--main);
+  border-color: var(--main);
+  box-shadow: 0 0 10px var(--main);
+}
+/* 经过时闪一下 */
+.milestone-node.pop {
+  animation: nodePop 0.6s ease;
+}
+@keyframes nodePop {
+  0%   { transform: translate(-50%, -50%) scale(1); }
+  50%  { transform: translate(-50%, -50%) scale(1.8); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+/* 爱心标记 */
+.milestone-marker {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  transform: translate(-50%, -50%);
+  transition: left 3.5s ease-out;
+  z-index: 3;
+}
+
+.milestone-marker img {
+  width: 90px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 0 6px var(--main));
+}
+
+/* 节点下方的年份标签 */
+.milestone-labels {
+  position: relative;
+  height: 30px;
+}
+.milestone-label {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  color: var(--text-light);
+  text-align: center;
+  white-space: nowrap;
+}
+.milestone-label.passed {
+  color: var(--main);
+  font-weight: bold;
+}
+
+/* 手机适配 */
+@media (max-width: 700px) {
+  .milestone {
+    padding: 20px 10px;
+  }
+  .milestone-label {
+    font-size: 0.6rem;
+  }
+  .milestone-title {
+    font-size: 0.95rem;
+    letter-spacing: 2px;
+  }
+  .milestone-marker img {
+    width: 45px;
+  }
+}
+
+/* ========== 倒计时区域 ========== */
+.countdown-section {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 20px auto 60px;
+  padding: 0 20px;
+  max-width: 800px;
+  flex-wrap: wrap;
+}
+
+.countdown-card {
+  background: var(--card-bg);
+  padding: 12px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  text-align: center;
+  min-width: 180px;
+  flex: 1;
+  max-width: 240px;
+  transition: transform 0.3s ease, background 0.6s ease, box-shadow 0.3s ease;
+  border: 1px solid transparent; 
+}
+
+/* ★ 1. 正常模式：倒计时卡片背景 */
+body.theme-fun .countdown-card {
+  background: #2a2117;
+  border: 1px solid #5a4a34;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(201,160,74,0.08);
+}
+
+.countdown-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+.countdown-title {
+  font-size: 0.7rem;
+  color: var(--text-mid);
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.countdown-value {
+  font-size: 1.1rem;
+  color: var(--text);
+}
+
+.countdown-value span {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--main);
+  line-height: 1;
+  margin-right: 4px;
+}
+
+.countdown-date {
+  margin-top: 8px;
+  font-size: 0.75rem;
+  color: var(--text-light);
+  letter-spacing: 0.5px;
+}
+
+/* 手机适配 */
+@media (max-width: 700px) {
+  .countdown-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 0 15px;
+    margin-bottom: 40px;
+  }
+  .countdown-card:first-child {
+    grid-column: 1 / -1;
+  }
+  .countdown-card {
+    min-width: 0;
+    padding: 12px 10px;
+    max-width: none;
+  }
+  .countdown-title {
+    font-size: 0.7rem;
+    white-space: nowrap;
+  }
+  .countdown-value span {
+    font-size: 2rem;
+  }
+  .countdown-date {
+    font-size: 0.7rem;
+  }
+}
+
+/* ========== 时间线 ========== */
+.timeline {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px 120px;
+}
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--main-light);
+  transform: translateX(-50%);
+  transition: background 0.6s ease;
+}
+body.theme-fun .timeline::before {
+  background: linear-gradient(180deg, #3a2e24 0%, rgba(201,160,74,0.4) 50%, #3a2e24 100%);
+}
+.event {
+  position: relative;
+  width: 50%;
+  padding: 20px 40px;
+  opacity: 0;
+  /* 默认是往下掉一点点，等进入时往上浮 */
+  transform: translateY(40px);
+  transition: all 0.8s ease;
+}
+
+.event.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.event.fade-out {
+  opacity: 0;
+  /* 离开屏幕时，往下沉或往上飘都可以，这里用 -20px 让向上滚出时更自然 */
+  transform: translateY(-20px);
+  transition: all 0.6s ease;
+}
+
+.event.left { left: 0; text-align: right; }
+.event.right { left: 50%; text-align: left; }
+
+/* 圆点：颜色跟随主题 */
+.event::after {
+  content: "";
+  position: absolute;
+  top: 30px;
+  width: 14px;
+  height: 14px;
+  background: var(--main);
+  border: 3px solid var(--dot-border);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--main-light);
+  transition: background 0.6s ease, box-shadow 0.6s ease;
+}
+.event.left::after { right: -8px; }
+.event.right::after { left: -8px; }
+
+body.theme-fun .event::after {
+  background: url('images/specialtimepoint.png') center/contain no-repeat;
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  width: 40px;
+  height: 40px;
+}
+
+body.theme-fun .event.left::after { right: -20px; }
+body.theme-fun .event.right::after { left: -20px; }
+
+.event .date {
+  font-size: 0.9rem;
+  color: var(--main);
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  transition: color 0.6s ease;
+}
+.event .card {
+  background: var(--card-bg);
+  padding: 20px 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  display: inline-block;
+  text-align: left;
+  max-width: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.6s ease, border-color 0.3s ease;
+  border: 1px solid transparent;
+}
+.event .card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+/* ★ 2. 正常模式：时间线卡片背景 */
+body.theme-fun .event .card {
+  background: #2a2117;
+  border: 1px solid #5a4a34;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(201,160,74,0.08);
+}
+body.theme-fun .event .card:hover {
+  border-color: #c9a04a;
+  box-shadow: 0 10px 32px rgba(201,160,74,0.25), inset 0 1px 0 rgba(201,160,74,0.3);
+}
+.event .card h3 {
+  font-size: 1.1rem;
+  color: var(--text);
+  margin-bottom: 8px;
+  transition: color 0.6s ease;
+}
+.event .card p {
+  font-size: 0.95rem;
+  color: var(--text-mid);
+}
+.event .card img {
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 12px;
+  display: block;
+  cursor: pointer;
+}
+
+.ending {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 80px 20px 120px;
+  color: var(--main);
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  transition: color 0.6s ease;
+}
+
+/* ========== 图片放大遮罩 ========== */
+.lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 999;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+.lightbox.show { display: flex; }
+.lightbox img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+/* ========== 手机适配 ========== */
+@media (max-width: 700px) {
+  .timeline { padding-left: 0; padding-right: 0; }
+  .timeline::before { left: 18px; transform: none; }
+  .event, .event.left, .event.right {
+    width: 100% !important;
+    left: 0 !important;
+    text-align: left !important;
+    padding-left: 40px !important;
+    padding-right: 10px !important;
+    margin-left: 0 !important;
+  }
+  .event::after, .event.left::after, .event.right::after {
+    left: 18px !important;
+    right: auto !important;
+    transform: none !important;
+    margin-left: -10px !important;
+  }
+  .event .card { display: block; text-align: left; }
+  .event .date { text-align: left; }
+  .counter .number { font-size: 3rem; }
+  .counter .detail { font-size: 0.9rem; }
+
+  body.theme-fun .event::after,
+  body.theme-fun .event.left::after,
+  body.theme-fun .event.right::after {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* ========== 照片墙 ========== */
+.photo-wall-section {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  margin: 60px auto 100px;
+  padding: 0 20px;
+}
+
+.photo-wall-title {
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--main);
+  letter-spacing: 3px;
+  margin-bottom: 30px;
+  font-weight: bold;
+}
+
+.photo-wall {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.photo-wall img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.photo-wall img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  z-index: 3;
+  position: relative;
+}
+
+body.theme-fun .photo-wall img {
+  border: 1px solid #5a4a34;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+}
+
+@media (max-width: 700px) {
+  .photo-wall {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
+
+/* ========== 时钟按钮 ========== */
+.clock-btn {
+  bottom: 75px;
+  font-size: 20px;
+  z-index: 10000 !important;
+}
+
+/* 把主题按钮也提上来 */
+.theme-btn {
+  z-index: 10000 !important;
+}
+
+/* 隐藏照片墙按钮 */
+body.in-clock-mode .photo-nav-btn {
+  display: none !important;
+}
+
+/* ========== 时钟模式遮罩层 ========== */
+.clock-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-top);
+  z-index: 9998;
+  display: none;
+  flex-direction: column;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.clock-overlay.show {
+  display: flex;
+  opacity: 1;
+}
+
+/* 竖屏提示 */
+.rotate-hint {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+  color: var(--text);
+}
+.rotate-icon {
+  font-size: 4rem;
+  animation: rotatePhone 2s ease-in-out infinite;
+  margin-bottom: 20px;
+}
+@keyframes rotatePhone {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(90deg); }
+}
+
+/* 时钟布局 */
+.clock-container {
+  display: none;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 2vh 2vw;
+  box-sizing: border-box;
+}
+
+.clock-top {
+  flex: 8;
+  display: flex;
+  gap: 2vw;
+  margin-bottom: 2vh;
+}
+
+.clock-column {
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+}
+.left-col { flex: 1.5; }
+.center-col { flex: 7; }
+.right-col { flex: 1.5; }
+
+.clock-box {
+  background: var(--card-bg);
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid var(--main-light);
+  transition: background 0.6s ease, border-color 0.6s ease;
+}
+
+.left-col .clock-box,
+.right-col .clock-box {
+  flex: 1;
+}
+
+.center-col .clock-box {
+  flex: 1;
+  border: none; 
+  background: transparent; 
+  box-shadow: none;
+  position: relative;
+  justify-content: space-between;
+  padding: 4vh 0;
+}
+
+/* AM / PM 文字 */
+.clock-ampm {
+  height: 4vh;
+  font-size: 2vw;
+  font-weight: bold;
+  color: var(--main);
+  letter-spacing: 2px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+body.theme-fun .clock-ampm {
+  color: #c9a04a;
+}
+
+/* 切换按钮 */
+.clock-toggle-btn {
+  background: transparent;
+  border: 1px solid var(--main-light);
+  color: var(--text-mid);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.clock-toggle-btn:hover {
+  background: var(--main);
+  color: #fff;
+  border-color: var(--main);
+}
+body.theme-fun .clock-toggle-btn {
+  border-color: #5a4a34;
+  color: #b8a898;
+}
+body.theme-fun .clock-toggle-btn:hover {
+  background: #c9a04a;
+  color: #0a0a0f;
+  border-color: #c9a04a;
+}
+
+/* ★ 3. 全屏模式：总天数卡片、倒计时卡片背景 */
+body.theme-fun .clock-box {
+  background: #2a2117;
+  border-color: #5a4a34;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+}
+
+/* 万兽之王模式下，中间时钟大盒子的背景 */
+body.theme-fun .center-col .clock-box {
+  background: #1a1215; 
+  border: 1px solid #3a2e24; 
+  border-radius: 20px;       
+  box-shadow: 0 4px 24px rgba(0,0,0,0.6); 
+}
+
+.box-days .c-label {
+  font-size: 1rem;
+  color: var(--text-mid);
+  margin-bottom: 1vh;
+  text-align: center;
+}
+.box-days .c-value {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+.box-days .c-value #clock-days {
+  font-size: 3vw; 
+  font-weight: bold;
+  color: var(--main);
+  margin-bottom: 4px; 
+}
+.box-days .c-unit { 
+  font-size: 1rem; 
+  color: var(--text-mid);
+  font-weight: normal; 
+}
+.box-cd .c-cd-title {
+  font-size: 1rem;
+  color: var(--text-mid);
+  margin-bottom: 1vh;
+  text-align: center;
+}
+.box-cd .c-cd-value {
+  font-size: 1.2rem;
+  color: var(--text-mid);
+}
+.box-cd .c-cd-value span {
+  font-size: 3vw;
+  font-weight: bold;
+  color: var(--main);
+}
+
+/* 中间时钟数字 */
+.flip-clock {
+  display: flex;
+  align-items: center;
+  gap: 0.5vw;
+  font-size: 11vw; 
+  font-weight: bold;
+  color: var(--main);
+  font-family: "Courier New", Courier, monospace; 
+}
+
+.flip-digit {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--bg-bottom);
+  border-radius: 16px;
+  padding: 0; 
+  width: 0.65em; 
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+body.theme-fun .flip-digit {
+  background: #1a1215;
+  border: 1px solid #3a2e24;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 0 10px rgba(201, 160, 74, 0.1);
+}
+
+.flip-colon {
+  display: flex;
+  align-items: center;
+  font-size: 7vw;
+  transform: translateY(-5%);
+}
+
+/* 底部里程碑 */
+.clock-bottom {
+  flex: 2;
+  display: flex;
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 10px 20px;
+  align-items: center;
+  border: 1px solid var(--main-light);
+}
+
+/* ★ 4. 全屏模式：里程碑卡片背景 */
+body.theme-fun .clock-bottom {
+  background: #2a2117;
+  border-color: #5a4a34;
+}
+.clock-milestone {
+  width: 100%;
+  position: relative;
+}
+.clock-m-bar {
+  position: relative;
+  height: 6px;
+  background: var(--main-light);
+  border-radius: 3px;
+  width: 90%;
+  margin: 0 auto;
+}
+.clock-m-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: var(--main);
+  border-radius: 3px;
+  width: 0%;
+  box-shadow: 0 0 10px var(--main);
+  transition: width 1s ease-out;
+}
+.clock-m-marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transition: left 1s ease-out;
+}
+.clock-m-marker img {
+  width: 40px;
+  height: auto;
+  filter: drop-shadow(0 0 5px var(--main));
+}
+.clock-m-labels {
+  position: relative;
+  width: 90%;
+  margin: 10px auto 0;
+  height: 20px;
+}
+.clock-m-label {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  color: var(--text-light);
+  white-space: nowrap; 
+}
+.clock-m-label.passed {
+  color: var(--main);
+  font-weight: bold;
+}
+
+/* 全屏模式里程碑的圆点 */
+.clock-m-node {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--card-bg);
+  border: 2px solid var(--main-light);
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+.clock-m-node.passed {
+  background: var(--main);
+  border-color: var(--main);
+  box-shadow: 0 0 10px var(--main);
+}
+
+/* ================= 响应式 ================= */
+@media (orientation: portrait) and (max-width: 700px) {
+  .rotate-hint { display: flex; }
+  .clock-container { display: none; }
+}
+
+@media (orientation: landscape), (min-width: 701px) {
+  .rotate-hint { display: none; }
+  .clock-container { 
+    display: flex; 
+    height: 100dvh; 
+    height: 100vh; 
+    overflow: hidden; 
+  }
+}
+
+/* ================= 手机横屏专属微调 ================= */
+@media (orientation: landscape) and (max-height: 500px) {
+  .clock-container { padding: 1vh 2vw; }
+  .clock-top { margin-bottom: 1vh; gap: 1.5vw; }
+  .clock-column { gap: 1vh; }
+  
+  .box-days .c-label { font-size: 0.85rem; margin-bottom: 0.5vh; }
+  .box-days .c-value #clock-days { font-size: 4vw; margin-bottom: 2px; }
+  .box-days .c-unit { font-size: 0.85rem; font-weight: normal; }
+  
+  .box-cd .c-cd-title { font-size: 0.85rem; margin-bottom: 0.5vh; }
+  .box-cd .c-cd-value span { font-size: 4vw; }
+
+  .flip-clock { font-size: 12vw; }
+  .flip-colon { font-size: 8vw; }
+  .flip-digit { border-radius: 10px; }
+
+  .clock-bottom { padding: 5px 15px; flex-shrink: 0; }
+  .clock-m-marker img { width: 30px; }
+  .clock-m-labels { margin-top: 5px; height: 15px; }
+  .clock-m-label { font-size: 0.65rem; white-space: nowrap; }
+  .clock-m-node { width: 10px; height: 10px; }
+  .center-col .clock-box { padding: 2vh 0; }
+  .clock-ampm { font-size: 3vw; height: 3vh; }
+  .clock-toggle-btn { font-size: 0.75rem; padding: 4px 12px; }
+}
