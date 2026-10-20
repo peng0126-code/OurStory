@@ -562,9 +562,8 @@ function updateClock() {
 }
 
 let clockTimer = null;
-let hideButtonsTimer = null; // ★ 新增：用来存储隐藏按钮的定时器
+let hideButtonsTimer = null; 
 
-// ★ 重置按钮隐藏的定时器
 function resetHideTimer() {
   if (!document.body.classList.contains("in-clock-mode")) return;
 
@@ -578,7 +577,7 @@ function resetHideTimer() {
     if (document.body.classList.contains("in-clock-mode")) {
       document.body.classList.add("hide-buttons");
     }
-  }, 3000); // 3秒后隐藏按钮
+  }, 3000);
 }
 
 function toggleClock(enter) {
@@ -586,6 +585,7 @@ function toggleClock(enter) {
     clockOverlay.classList.add("show");
     document.body.classList.add("in-clock-mode");
     document.body.style.overflow = "hidden"; 
+    document.documentElement.style.overflow = "hidden"; // ★ 加上这句，锁死 html 滚动
     
     if (document.documentElement.requestFullscreen) {
       document.documentElement.requestFullscreen().catch(() => {});
@@ -597,12 +597,13 @@ function toggleClock(enter) {
     clockBtn.textContent = "❌";
     clockBtn.title = "退出时钟模式";
 
-    resetHideTimer(); // ★ 启动隐藏定时器
+    resetHideTimer(); 
   } else {
     clockOverlay.classList.remove("show");
     document.body.classList.remove("in-clock-mode");
-    document.body.classList.remove("hide-buttons"); // ★ 清理隐藏状态
+    document.body.classList.remove("hide-buttons"); 
     document.body.style.overflow = ""; 
+    document.documentElement.style.overflow = ""; // ★ 加上这句，恢复 html 滚动
     
     if (document.fullscreenElement && document.exitFullscreen) {
       document.exitFullscreen().catch(() => {});
@@ -612,7 +613,7 @@ function toggleClock(enter) {
       clearInterval(clockTimer);
       clockTimer = null;
     }
-    if (hideButtonsTimer) { // ★ 清理定时器
+    if (hideButtonsTimer) { 
       clearTimeout(hideButtonsTimer);
     }
     
@@ -632,13 +633,11 @@ if (closeClockMobile) {
   });
 }
 
-// ★ 监听全屏状态下的屏幕点击，唤起按钮
 clockOverlay.addEventListener("click", (e) => {
   if (e.target.closest('.theme-btn')) return;
   resetHideTimer();
 });
 
-// ★ 鼠标防误触：悬浮时不隐藏
 clockBtn.addEventListener("mouseenter", () => {
   if (hideButtonsTimer) clearTimeout(hideButtonsTimer);
   document.body.classList.remove("hide-buttons");
