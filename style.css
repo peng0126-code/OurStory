@@ -696,13 +696,18 @@ body.in-clock-mode .photo-nav-btn {
 /* ========== 时钟模式遮罩层 ========== */
 .clock-overlay {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh; /* 基础兜底 */
+  height: 100dvh; /* 现代浏览器动态视口高度 */
   background: var(--bg-top);
   z-index: 9998;
   display: none;
   flex-direction: column;
   opacity: 0;
   transition: opacity 0.5s ease;
+  overflow: hidden; /* 防止内部的滚动条露出 */
 }
 
 .clock-overlay.show {
@@ -1010,8 +1015,9 @@ body.theme-fun .clock-bottom {
   .rotate-hint { display: none; }
   .clock-container { 
     display: flex; 
-    height: 100dvh; 
+    width: 100vw;
     height: 100vh; 
+    height: 100dvh; 
     overflow: hidden; 
   }
 }
