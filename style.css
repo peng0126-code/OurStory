@@ -716,7 +716,7 @@ body.in-clock-mode .photo-nav-btn {
   overflow: hidden; /* 防止内部的滚动条露出 */
   
   /* ★ 加一点内边距，把里面的容器推回屏幕正中间，这样卡片位置就不会动 */
-  padding: 100px;
+  padding: 1000px;
   box-sizing: border-box;
 }
 
