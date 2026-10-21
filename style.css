@@ -696,17 +696,11 @@ body.in-clock-mode .photo-nav-btn {
 /* ========== 时钟模式遮罩层 ========== */
 .clock-overlay {
   position: fixed;
-  /* ★ 关键：向外扩展 100px，强行盖住 iPad 底部的缝隙 */
-  top: -100px;
-  left: -100px;
-  right: -100px;
-  bottom: -100px;
-  
-  /* 宽高也跟着撑大，兜底用 */
-  width: calc(100vw + 200px);
-  height: calc(100vh + 200px);
-  height: calc(100dvh + 200px);
-  
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh; /* 基础兜底 */
+  height: 100dvh; /* 现代浏览器动态视口高度 */
   background: var(--bg-top);
   z-index: 9998;
   display: none;
@@ -714,10 +708,6 @@ body.in-clock-mode .photo-nav-btn {
   opacity: 0;
   transition: opacity 0.5s ease;
   overflow: hidden; /* 防止内部的滚动条露出 */
-  
-  /* ★ 加一点内边距，把里面的容器推回屏幕正中间，这样卡片位置就不会动 */
-  padding: 1000px;
-  box-sizing: border-box;
 }
 
 .clock-overlay.show {
