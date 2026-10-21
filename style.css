@@ -1048,3 +1048,16 @@ body.theme-fun .clock-bottom {
   .clock-ampm { font-size: 3vw; height: 3vh; }
   .clock-toggle-btn { font-size: 0.75rem; padding: 4px 12px; }
 }
+
+/* ★ 当进入时钟模式时，让普通页面的内容全部隐身 */
+body.in-clock-mode header,
+body.in-clock-mode .counter,
+body.in-clock-mode .milestone,
+body.in-clock-mode .countdown-section,
+body.in-clock-mode .timeline,
+body.in-clock-mode .ending,
+body.in-clock-mode .photo-wall-section {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: opacity 0.3s ease;
+}
