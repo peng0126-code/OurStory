@@ -380,7 +380,7 @@ body.theme-fun .countdown-card {
   z-index: 2;
   max-width: 900px;
   margin: 0 auto;
-  padding: 40px 20px 120px;
+  padding: 10px 20px 40px;
 }
 .timeline::before {
   content: "";
@@ -523,6 +523,7 @@ body.theme-fun .event .card:hover {
   margin-bottom: 10px;
 }
 
+/* 展开时的状态：背景稍深 */
 .year-header {
   display: flex;
   justify-content: center;
@@ -533,15 +534,14 @@ body.theme-fun .event .card:hover {
   color: var(--main);
   letter-spacing: 1px;
   
-  /* 胶囊样式 */
-  background: var(--card-bg);
+  background: #fce8e8; /* 展开时：淡粉色 */
   padding: 6px 20px;
   border-radius: 30px;
   border: 1px solid var(--main-light);
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   
   width: fit-content;
-  margin: 30px auto 20px;
+  margin: 10px auto 20px;
   cursor: pointer;
   transition: all 0.3s ease;
   user-select: none;
@@ -555,11 +555,28 @@ body.theme-fun .event .card:hover {
   box-shadow: 0 6px 16px rgba(0,0,0,0.08);
 }
 
+/* 折叠状态：背景变浅（纯白） */
+.year-group.collapsed .year-header {
+  background: var(--card-bg); 
+  border-color: var(--main-light);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  color: var(--text-mid);
+}
+
+/* 万兽之王主题下的展开状态 */
 body.theme-fun .year-header {
-  background: #2a2117;
+  background: #3a2e24; /* 展开时：亮一点的深铜色 */
   border-color: #5a4a34;
   box-shadow: 0 4px 15px rgba(0,0,0,0.6);
   color: var(--main);
+}
+
+/* 万兽之王主题下的折叠状态 */
+body.theme-fun .year-group.collapsed .year-header {
+  background: #1a1215; /* 折叠时：融于背景的极深色 */
+  border-color: #2a2117;
+  box-shadow: none;
+  color: #5a4a34;
 }
 
 /* ★ 方案二：带弹性的小三角 */
@@ -571,17 +588,29 @@ body.theme-fun .year-header {
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
   border-top: 6px solid var(--main); 
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); /* 弹性回弹效果 */
-  transform-origin: 50% 30%; /* 旋转中心稍微偏上一点 */
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), border-top-color 0.3s ease; 
+  transform-origin: 50% 30%; 
 }
 
-/* 折叠时：旋转 180 度 */
+/* 折叠时：旋转 180 度，且颜色变淡 */
 .year-group.collapsed .year-header .arrow {
+  border-top-color: var(--text-light);
   transform: rotate(180deg);
 }
 
+/* ★ 滚动展开/收缩的平滑动画 */
+.year-content {
+  overflow: hidden;
+  transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease, margin-bottom 0.6s ease;
+  opacity: 1;
+  /* 初始高度由 JS 控制，这里不需要写死 */
+}
+
+/* 折叠时，内容高度变 0，透明度变 0 */
 .year-group.collapsed .year-content {
-  display: none;
+  max-height: 0 !important;
+  opacity: 0;
+  margin-bottom: 0;
 }
 
 /* 为“现在”这个特殊事件增加一点顶部间距 */
@@ -589,12 +618,31 @@ body.theme-fun .year-header {
   margin-top: 40px;
 }
 
+/* ================= 手机端专属微调：时间线书签 ================= */
+@media (max-width: 700px) {
+  .year-header {
+    /* 左平右圆的书签样式 */
+    border-radius: 0 30px 30px 0;
+    /* 向左偏移，咬住时间线 */
+    margin: 10px 0 20px 10px; 
+    padding: 6px 20px 6px 16px;
+    /* 内容靠左对齐 */
+    justify-content: flex-start;
+    z-index: 5;
+  }
+
+  /* 手机端万兽主题的书签形状 */
+  body.theme-fun .year-header {
+    border-radius: 0 30px 30px 0;
+  }
+}
+
 /* ========== 结尾语 ========== */
 .ending {
   position: relative;
   z-index: 2;
   text-align: center;
-  padding: 80px 20px 120px;
+  padding: 30px 20px 120px;
   color: var(--main);
   font-size: 1.2rem;
   font-weight: bold;
