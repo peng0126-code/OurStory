@@ -86,7 +86,7 @@ const PETAL_COUNT = 25;
 const PETAL_INTERVAL = 1500;
 const MAX_PETALS = 25;
 
-const FUN_ICONS = ["🐺", "🦁", "🐯", "👑", "⚔️"];
+const FUN_ICONS = ["🦊", "🦁", "⛓️‍💥", "👑", "🗡️"];
 const USE_IMAGE = false;
 
 function createPetal(instant) {
