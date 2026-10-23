@@ -86,8 +86,20 @@ const PETAL_COUNT = 25;
 const PETAL_INTERVAL = 1500;
 const MAX_PETALS = 25;
 
-const FUN_ICONS = ["🦊", "🦁", "⛓️‍💥", "👑", "🗡️"];
-const USE_IMAGE = false;
+// ★★★★★ 核心开关：false 用 Emoji，true 用 PNG 图片 ★★★★★
+const USE_IMAGE = false; 
+
+// 当 USE_IMAGE 为 false 时，使用的 Emoji 列表
+const FUN_EMOJIS = ["🦊", "🦁", "⛓️‍💥", "👑", "🗡️"];
+
+// 当 USE_IMAGE 为 true 时，使用的 PNG 图片路径列表
+// （注意：确保 images 文件夹里有这些图片，名字大小写要完全一致）
+const FUN_IMAGES = [
+  "images/joker/bathjoker.png",
+  "images/joker/whitejoker.png",
+  "images/joker/studentjoker.png",
+  "images/joker/woffjoker.png"
+];
 
 function createPetal(instant) {
   if (sakuraContainer.children.length >= MAX_PETALS) return;
@@ -101,13 +113,22 @@ function createPetal(instant) {
 
   if (isFun) {
     petal.classList.add("img-petal");
-    const pick = FUN_ICONS[Math.floor(Math.random() * FUN_ICONS.length)];
+    
+    // 根据开关决定抽取哪个数组
+    let pick;
+    if (USE_IMAGE) {
+      pick = FUN_IMAGES[Math.floor(Math.random() * FUN_IMAGES.length)];
+    } else {
+      pick = FUN_EMOJIS[Math.floor(Math.random() * FUN_EMOJIS.length)];
+    }
 
     if (USE_IMAGE) {
-      petal.style.width = (size + 12) + "px";
-      petal.style.height = (size + 12) + "px";
+      // 用 PNG 图片的逻辑
+      petal.style.width = (size + 30) + "px";
+      petal.style.height = (size + 30) + "px";
       petal.style.backgroundImage = `url(${pick})`;
     } else {
+      // 用 Emoji 的逻辑
       petal.style.width = (size + 14) + "px";
       petal.style.height = (size + 14) + "px";
       petal.style.fontSize = (size + 8) + "px";
