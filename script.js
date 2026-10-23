@@ -93,7 +93,6 @@ const USE_IMAGE = false;
 const FUN_EMOJIS = ["🦊", "🦁", "⛓️‍💥", "👑", "🗡️"];
 
 // 当 USE_IMAGE 为 true 时，使用的 PNG 图片路径列表
-// （注意：确保 images 文件夹里有这些图片，名字大小写要完全一致）
 const FUN_IMAGES = [
   "images/joker/bathjoker.png",
   "images/joker/whitejoker.png",
@@ -229,6 +228,15 @@ if (timelineContainer && rawEvents.length > 0) {
     setTimeout(() => {
       content.style.maxHeight = content.scrollHeight + "px";
     }, 100);
+
+    // ★ 关键修复：监听内部图片加载，加载完后重新计算高度，防止图片没加载完导致高度不够被截断
+    content.querySelectorAll('img').forEach(img => {
+      img.addEventListener('load', () => {
+        if (!groupWrapper.classList.contains("collapsed")) {
+          content.style.maxHeight = content.scrollHeight + "px";
+        }
+      });
+    });
 
     // ★ 点击事件（丝滑展开/收缩）
     header.addEventListener("click", () => {
