@@ -89,14 +89,6 @@ const MAX_PETALS = 25;
 const FUN_ICONS = ["🐺", "🦁", "🐯", "👑", "⚔️"];
 const USE_IMAGE = false;
 
-/* 如果你有 PNG 图片，用这个替换上面那行：
-const FUN_ICONS = [
-  "images/wolf.png",
-  "images/lion.png",
-  "images/crown.png"
-];
-*/
-
 function createPetal(instant) {
   if (sakuraContainer.children.length >= MAX_PETALS) return;
 
@@ -201,7 +193,6 @@ if (timelineContainer && rawEvents.length > 0) {
 
     const header = document.createElement("div");
     header.className = "year-header";
-    // 新的极简样式：只放年份和一个小箭头
     header.innerHTML = `<span>${year}</span> <span class="arrow"></span>`;
     
     const content = document.createElement("div");
@@ -213,9 +204,36 @@ if (timelineContainer && rawEvents.length > 0) {
     groupWrapper.appendChild(content);
     timelineContainer.appendChild(groupWrapper);
 
-    // 点击事件折叠/展开
+    // ★ 初始化时，设置为展开状态的高度
+    setTimeout(() => {
+      content.style.maxHeight = content.scrollHeight + "px";
+    }, 100);
+
+    // ★ 点击事件（丝滑展开/收缩）
     header.addEventListener("click", () => {
-      groupWrapper.classList.toggle("collapsed");
+      if (groupWrapper.classList.contains("collapsed")) {
+        // 要展开
+        groupWrapper.classList.remove("collapsed");
+        content.style.maxHeight = content.scrollHeight + "px";
+        
+        // 动画结束后解除高度限制，防止图片加载后内容被截断
+        setTimeout(() => {
+          if (!groupWrapper.classList.contains("collapsed")) {
+            content.style.maxHeight = "none";
+          }
+        }, 600);
+        
+      } else {
+        // 要收缩
+        content.style.maxHeight = content.scrollHeight + "px";
+        
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            groupWrapper.classList.add("collapsed");
+            content.style.maxHeight = "0";
+          });
+        });
+      }
     });
   });
 
@@ -225,11 +243,10 @@ if (timelineContainer && rawEvents.length > 0) {
   }
 }
 
-// 滚动淡入 + 淡出（必须在重新排版后绑定）
+// 滚动淡入 + 淡出
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     const el = entry.target;
-    // 如果事件在折叠的年份里，不处理
     if (el.closest(".year-group.collapsed")) return;
 
     if (entry.isIntersecting) {
@@ -488,19 +505,17 @@ const ampmDisplay = document.getElementById("clock-ampm");
 
 let is12HourFormat = false;
 
-// 初始化时，读取本地存储的记忆
 if (localStorage.getItem("clockFormat") === "12") {
   is12HourFormat = true;
   if(toggleBtn) toggleBtn.textContent = "12小时制";
 }
 
-// 点击切换按钮
 if (toggleBtn) {
   toggleBtn.addEventListener("click", () => {
     is12HourFormat = !is12HourFormat;
     toggleBtn.textContent = is12HourFormat ? "12小时制" : "24小时制";
     localStorage.setItem("clockFormat", is12HourFormat ? "12" : "24");
-    updateClock(); // 立即刷新
+    updateClock();
   });
 }
 
@@ -646,7 +661,7 @@ function toggleClock(enter) {
     clockOverlay.classList.add("show");
     document.body.classList.add("in-clock-mode");
     document.body.style.overflow = "hidden"; 
-    document.documentElement.style.overflow = "hidden"; // ★ 加上这句，锁死 html 滚动
+    document.documentElement.style.overflow = "hidden"; 
     
     if (document.documentElement.requestFullscreen) {
       document.documentElement.requestFullscreen().catch(() => {});
@@ -664,7 +679,7 @@ function toggleClock(enter) {
     document.body.classList.remove("in-clock-mode");
     document.body.classList.remove("hide-buttons"); 
     document.body.style.overflow = ""; 
-    document.documentElement.style.overflow = ""; // ★ 加上这句，恢复 html 滚动
+    document.documentElement.style.overflow = ""; 
     
     if (document.fullscreenElement && document.exitFullscreen) {
       document.exitFullscreen().catch(() => {});
