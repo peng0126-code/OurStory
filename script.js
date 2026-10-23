@@ -89,6 +89,14 @@ const MAX_PETALS = 25;
 const FUN_ICONS = ["🐺", "🦁", "🐯", "👑", "⚔️"];
 const USE_IMAGE = false;
 
+/* 如果你有 PNG 图片，用这个替换上面那行：
+const FUN_ICONS = [
+  "images/wolf.png",
+  "images/lion.png",
+  "images/crown.png"
+];
+*/
+
 function createPetal(instant) {
   if (sakuraContainer.children.length >= MAX_PETALS) return;
 
@@ -161,19 +169,73 @@ document.addEventListener("visibilitychange", () => {
 });
 
 
-/* ========== 4. 滚动淡入 + 淡出 ========== */
-const events = document.querySelectorAll(".event");
+/* ========== 4. 时间线按年份折叠 + 滚动淡入淡出 ========== */
+const timelineContainer = document.querySelector(".timeline");
+const rawEvents = document.querySelectorAll(".event");
 
+if (timelineContainer && rawEvents.length > 0) {
+  const yearsData = {};
+  let nowEvent = null; // 用来存“现在”那一项
+
+  rawEvents.forEach(event => {
+    const dateText = event.querySelector(".date").textContent.trim();
+    // 如果是“现在”，单独拎出来，不参与年份分组
+    if (dateText === "现在") {
+      nowEvent = event;
+      return;
+    }
+    
+    // 否则提取前 4 位年份
+    const year = dateText.substring(0, 4); 
+    if (!yearsData[year]) yearsData[year] = [];
+    yearsData[year].push(event);
+  });
+
+  // 清空原容器
+  timelineContainer.innerHTML = "";
+
+  // 遍历年份，生成折叠面板
+  Object.keys(yearsData).forEach(year => {
+    const groupWrapper = document.createElement("div");
+    groupWrapper.className = "year-group";
+
+    const header = document.createElement("div");
+    header.className = "year-header";
+    // 新的极简样式：只放年份和一个小箭头
+    header.innerHTML = `<span>${year}</span> <span class="arrow">▼</span>`;
+    
+    const content = document.createElement("div");
+    content.className = "year-content";
+
+    yearsData[year].forEach(event => content.appendChild(event));
+
+    groupWrapper.appendChild(header);
+    groupWrapper.appendChild(content);
+    timelineContainer.appendChild(groupWrapper);
+
+    // 点击事件折叠/展开
+    header.addEventListener("click", () => {
+      groupWrapper.classList.toggle("collapsed");
+    });
+  });
+
+  // 把“现在”直接放到最后，不折叠
+  if (nowEvent) {
+    timelineContainer.appendChild(nowEvent);
+  }
+}
+
+// 滚动淡入 + 淡出（必须在重新排版后绑定）
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     const el = entry.target;
+    // 如果事件在折叠的年份里，不处理
+    if (el.closest(".year-group.collapsed")) return;
 
     if (entry.isIntersecting) {
-      // 当元素进入屏幕（无论从下面上来，还是从上面下来）
       el.classList.add("show");
       el.classList.remove("fade-out");
     } else {
-      // 当元素离开屏幕（无论从上面走，还是从下面走）
       el.classList.remove("show");
       el.classList.add("fade-out");
     }
@@ -183,7 +245,7 @@ const observer = new IntersectionObserver((entries) => {
   rootMargin: "-50px 0px -50px 0px"
 });
 
-events.forEach(event => observer.observe(event));
+document.querySelectorAll(".event").forEach(event => observer.observe(event));
 
 /* ========== 5. 图片点击放大 ========== */
 const lightbox = document.getElementById("lightbox");
@@ -199,7 +261,6 @@ document.querySelectorAll(".event .card img").forEach(img => {
 lightbox.addEventListener("click", () => {
   lightbox.classList.remove("show");
 });
-
 
 /* ========== 6. 主题切换 ========== */
 themeBtn.addEventListener("click", () => {
