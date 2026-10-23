@@ -56,9 +56,13 @@ body {
   opacity: 0.8;
   animation: fall linear infinite;
 }
+/* 图片 / emoji 型掉落物 */
 .petal.img-petal {
   background-color: transparent !important;
-  background-image: none !important;
+  /* ★ 修复：去掉了 background-image: none，并加上了大小限制 */
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
   border-radius: 0;
   display: flex;
   align-items: center;
