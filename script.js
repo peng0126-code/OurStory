@@ -202,7 +202,7 @@ if (timelineContainer && rawEvents.length > 0) {
     const header = document.createElement("div");
     header.className = "year-header";
     // 新的极简样式：只放年份和一个小箭头
-    header.innerHTML = `<span>${year}</span> <span class="arrow">▼</span>`;
+    header.innerHTML = `<span>${year}</span> <span class="arrow"></span>`;
     
     const content = document.createElement("div");
     content.className = "year-content";
