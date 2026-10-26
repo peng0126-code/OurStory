@@ -1,272 +1,766 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <!-- ★ 密码保护（送之前把这几行删掉即可） -->
-  <script>
-    if (prompt("输入测试") !== "6544") {
-      document.write("请刷新重试");
-      window.stop(); 
+/* ========== 1. 天数 + 年月日时分秒 ========== */
+const startDate = new Date("2023-01-05T00:00:00");
+
+function updateNum(id, value) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (el.textContent !== String(value)) {
+    el.textContent = value;
+    el.classList.remove("flip");
+    void el.offsetWidth;
+    el.classList.add("flip");
+  }
+}
+
+function updateCounter() {
+  const now = new Date();
+
+  const diffMs = now - startDate;
+  const totalDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const daysEl = document.getElementById("days");
+  if (daysEl) daysEl.textContent = totalDays.toLocaleString();
+
+  let years = now.getFullYear() - startDate.getFullYear();
+  let months = now.getMonth() - startDate.getMonth();
+  let days = now.getDate() - startDate.getDate();
+  let hours = now.getHours() - startDate.getHours();
+  let minutes = now.getMinutes() - startDate.getMinutes();
+  let seconds = now.getSeconds() - startDate.getSeconds();
+
+  if (seconds < 0) { seconds += 60; minutes--; }
+  if (minutes < 0) { minutes += 60; hours--; }
+  if (hours < 0)   { hours += 24; days--; }
+  if (days < 0) {
+    const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+    days += prevMonth;
+    months--;
+  }
+  if (months < 0) { months += 12; years--; }
+
+  updateNum("y", years);
+  updateNum("mo", months);
+  updateNum("d", days);
+  updateNum("h", hours);
+  updateNum("mi", minutes);
+  updateNum("s", seconds);
+}
+
+// 打开页面时，天数从 0 滚到真实值
+function animateNumber(el, target, duration = 3.5) {
+  const startTime = performance.now();
+
+  function step(now) {
+    const progress = Math.min((now - startTime) / duration, 1);
+    const value = Math.floor(target * progress);
+    el.textContent = value.toLocaleString();
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// 先算出真实天数
+const now = new Date();
+const realDays = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
+
+// 从 0 开始滚
+const daysEl = document.getElementById("days");
+daysEl.textContent = "0";
+setTimeout(() => {
+  animateNumber(daysEl, realDays, 3500);
+}, 300);
+
+// 之后每秒更新（但不再滚动，直接显示真实值）
+setTimeout(() => {
+  updateCounter();
+  setInterval(updateCounter, 1000);
+}, 3800);
+
+
+/* ========== 2. 默认主题（永远浪漫） ========== */
+const themeBtn = document.getElementById("theme-btn");
+themeBtn.textContent = "🌸";
+
+/* ========== 3. 掉落物 ========== */
+const sakuraContainer = document.getElementById("sakura");
+const PETAL_COUNT = 25;
+const PETAL_INTERVAL = 1500;
+const MAX_PETALS = 25;
+
+// ★★★★★ 核心开关：false 用 Emoji，true 用 PNG 图片 ★★★★★
+const USE_IMAGE = false; 
+
+// 当 USE_IMAGE 为 false 时，使用的 Emoji 列表
+const FUN_EMOJIS = ["🦊", "🦁", "⛓️‍💥", "👑", "🗡️"];
+
+// 当 USE_IMAGE 为 true 时，使用的 PNG 图片路径列表
+const FUN_IMAGES = [
+  "images/joker/bathjoker.png",
+  "images/joker/whitejoker.png",
+  "images/joker/studentjoker.png",
+  "images/joker/woffjoker.png"
+];
+
+function createPetal(instant) {
+  if (sakuraContainer.children.length >= MAX_PETALS) return;
+
+  const isFun = document.body.classList.contains("theme-fun");
+
+  const petal = document.createElement("div");
+  petal.className = "petal";
+
+  const size = Math.random() * 12 + 8;
+
+  if (isFun) {
+    petal.classList.add("img-petal");
+    
+    // 根据开关决定抽取哪个数组
+    let pick;
+    if (USE_IMAGE) {
+      pick = FUN_IMAGES[Math.floor(Math.random() * FUN_IMAGES.length)];
+    } else {
+      pick = FUN_EMOJIS[Math.floor(Math.random() * FUN_EMOJIS.length)];
     }
-  </script>
-  <!-- ★ 密码保护（送之前把这几行删掉即可） -->
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>我们的故事</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
 
-<!-- 掉落物容器 -->
-<div id="sakura"></div>
+    if (USE_IMAGE) {
+      // 用 PNG 图片的逻辑
+      petal.style.width = (size + 30) + "px";
+      petal.style.height = (size + 30) + "px";
+      petal.style.backgroundImage = `url(${pick})`;
+    } else {
+      // 用 Emoji 的逻辑
+      petal.style.width = (size + 14) + "px";
+      petal.style.height = (size + 14) + "px";
+      petal.style.fontSize = (size + 8) + "px";
+      petal.textContent = pick;
+    }
+  } else {
+    petal.style.width = size + "px";
+    petal.style.height = size + "px";
+  }
 
-<!-- 照片墙导航按钮 -->
-<button id="photo-nav-btn" class="theme-btn photo-nav-btn" title="前往照片墙">📸</button>
+  petal.style.left = Math.random() * 100 + "vw";
 
-<!-- 主题切换按钮 -->
-<button id="theme-btn" class="theme-btn">🌸</button>
+  const duration = Math.random() * 8 + 8; // 8~16 秒
+  petal.style.animationDuration = duration + "s";
 
-<!-- 时钟模式按钮 (最上层，永远显示) -->
-<button id="clock-btn" class="theme-btn clock-btn" title="进入时钟模式">⏰</button>
+  if (instant) {
+    petal.style.animationDelay = (-Math.random() * duration) + "s";
+  } else {
+    petal.style.animationDelay = Math.random() * 2 + "s";
+  }
 
-<header>
-  <h1>我们的故事</h1>
-  <p>从遇见你开始，每一刻都值得记住</p>
-</header>
+  petal.style.opacity = Math.random() * 0.5 + 0.4;
 
-<!-- 计数器 -->
-<div class="counter">
-  <div class="label">我们已经在一起</div>
-  <div>
-    <span class="number" id="days">0</span>
-    <span class="unit">天</span>
-  </div>
-  <div class="detail">
-    <span class="num" id="y">0</span> 年
-    <span class="num" id="mo">0</span> 月
-    <span class="num" id="d">0</span> 天
-    <span class="num" id="h">0</span> 小时
-    <span class="num" id="mi">0</span> 分
-    <span class="num" id="s">0</span> 秒
-  </div>
-  <div class="since">从 2023 年 1 月 5 日 至今</div>
-</div>
+  // 动画结束删掉
+  petal.addEventListener("animationend", () => {
+    petal.remove();
+  });
 
-<!-- 里程碑进度条 -->
-<div class="milestone">
-  <div class="milestone-title">我们的 10 年</div>
-  <div class="milestone-bar">
-    <div class="milestone-line"></div>
-    <div class="milestone-fill" id="milestone-fill"></div>
-    <div class="milestone-marker" id="milestone-marker">
-      <img src="images/walking.gif" alt="walking">
-    </div>
-  </div>
-  <div class="milestone-labels" id="milestone-labels"></div>
-</div>
+  sakuraContainer.appendChild(petal);
+}
 
-<!-- 倒计时区域 -->
-<div class="countdown-section">
-  <div class="countdown-card">
-    <div class="countdown-title" id="title-anniversary">距离周年纪念</div>
-    <div class="countdown-value"><span id="cd-anniversary">--</span> 天</div>
-    <div class="countdown-date">05 Jan</div>
-  </div>
-  <div class="countdown-card">
-    <div class="countdown-title" id="title-her">距离Cindy生日</div>
-    <div class="countdown-value"><span id="cd-her">--</span> 天</div>
-    <div class="countdown-date">03 Jun</div>
-  </div>
-  <div class="countdown-card">
-    <div class="countdown-title" id="title-him">距离Tang生日</div>
-    <div class="countdown-value"><span id="cd-him">--</span> 天</div>
-    <div class="countdown-date">26 Jan</div>
-  </div>
-</div>
+function fillPetals() {
+  sakuraContainer.innerHTML = "";
+  for (let i = 0; i < PETAL_COUNT; i++) {
+    createPetal(true);
+  }
+}
 
-<!-- 时间线 -->
-<div class="timeline">
-  <div class="event right">
-    <div class="date">2022 年 12 月</div>
-    <div class="card"><h3>Soul的相遇</h3><p>我们在Soul匹配到了，开始了我们的故事</p></div>
-  </div>
-  <div class="event left">
-    <div class="date">2023 年 1 月 5 日</div>
-    <div class="card"><h3>故事开始</h3><p>那一天，我们决定在一起了。从网友变成情侣的关系，现在看回去还是会觉得挺突然。</p></div>
-  </div>
-  <div class="event right">
-    <div class="date">2023 年 1 月</div>
-    <div class="card"><h3>第一次见面</h3><p>我驱车从新山到永平，第一次驾远路去见一个人。玩了一趟Batu Pahat后，送你到家前我们在车上聊了很久。</p></div>
-  </div>
-  <div class="event left">
-    <div class="date">2023 年 2 月</div>
-    <div class="card"><h3>数学补习</h3><p>我开始线上帮你补课数学，帮你准备应考SPM。</p></div>
-  </div>
-  <div class="event right">
-    <div class="date">2023 年 4 月</div>
-    <div class="card"><h3>你第一次来新山</h3><p>你第一次和朋友从永平打巴士下来玩，也是我第一次接触你的好朋友之一。</p></div>
-  </div>
-  <div class="event left">
-    <div class="date">2023 年 6 月 3 日</div>
-    <div class="card"><h3>Cindy的生日</h3><p>我去到永平和你的闺蜜们一起在韩式餐馆帮你庆祝生日。那也是我第一次接触你中学的闺蜜们</p><img src="images/cindybirthday2023.jpg"></div>
-  </div>
-  <div class="event right">
-    <div class="date">2023 年 6 月</div>
-    <div class="card"><h3>第一次小Trip</h3><p>我们和你的朋友一起驾老白去居銮玩，然后落宿在一家修车厂楼上的酒店。那时窗外一直传来噪音，你还帮驾车累了的我盖着耳朵入睡。</p></div>
-  </div>
-  <div class="event left">
-    <div class="date">2023 年 10 月 29 日</div>
-    <div class="card"><h3>去云顶咯</h3><p>我们一起去云顶玩，一起坐缆车，逛清水寺，晚上还买了自热火锅配茶仙子在房间里吃。冷冷的天配上这个真的是绝了！</p><img src="images/genting.jpg"></div>
-  </div>
-  <div class="event right">
-    <div class="date">2023 年 12 月</div>
-    <div class="card"><h3>日常</h3><p>每次去找你的隔天早上，其实都很想去你家对面的公园玩秋千。</p></div>
-  </div>
-  <div class="event left">
-    <div class="date">2024 年 1 月 5 日</div>
-    <div class="card"><h3>相恋一周年</h3><p>你特地去定制了很可爱的小蛋糕一起庆祝，上面还有我们的名字缩写。</p><img src="images/1stanniversary.jpg"></div>
-  </div>
-  <div class="event right">
-    <div class="date">2024 年 2 月 16 日</div>
-    <div class="card"><h3>我倒下了</h3><p>便血入院，医生检查后说是可能肿瘤。手术前一天你从永平独自一人搭巴士下来医院看我</p><img src="images/hospitalemergency.jpg"></div>
-  </div>
-  <div class="event left">
-    <div class="date">2024 年 3 月</div>
-    <div class="card"><h3>我出院了</h3><p>虽然你已经回永平工作了，但还是每天陪着我，帮我转移注意力。所幸检查报告出来不是肿瘤，但我这一生需要和克罗恩战斗了，谢谢你也没有因此而把我视作累赘。</p><img src="images/aftersurgical.jpg"></div>
-  </div>
-  <div class="event right">
-    <div class="date">2024 年 3 月 25 日</div>
-    <div class="card"><h3>你搬来和我一起</h3><p>你收拾行李离开了从小住到大的家，来到这里和我一起生活。</p></div>
-  </div>
-  <div class="event left">
-    <div class="date">2024 年 4 月</div>
-    <div class="card"><h3>康复后的普陀村</h3><p>我爸妈带我们去普陀村逛逛，那是在我康复后第一次去外面走走。</p><img src="images/putuovillage.jpg"></div>
-  </div>
-  <div class="event right">
-    <div class="date">2024 年 5 月</div>
-    <div class="card"><h3>你来到这里的第一份工作</h3><p>因为当时又没交通，你也不熟附近的路线。所以最后选择进入和我一样的公司。就这样从这天起，我们一起上下班。刚开始的几天，不懂电脑的你还因为倍感压力而落泪了，我一直相信你一定可以学会的。</p></div>
-  </div>
-  <div class="event left">
-    <div class="date">2025 年 1 月 5 日</div>
-    <div class="card"><h3>相恋二周年</h3><p>你亲手用扭扭棒做了一个蛋糕，打开里面还有我们一路来的合照。这份礼物真的看得出你很用心了，到现在我们还摆在桌上。</p><img src="images/2ndanniversary.jpg"></div>
-  </div>
-  <div class="event right">
-    <div class="date">2025 年 1 月 26 日</div>
-    <div class="card"><h3>Kai Peng生日</h3><p>因为病后不能吃太多奶油之类不消化的食物，所以你和我家人带了一个果冻蛋糕给我。对于我们家里生日就是买水果蛋糕这个传统持续了20多年的我来说，很新鲜哈哈哈。</p><img src="images/jellycake.jpg"></div>
-  </div>
-  <div class="event left">
-    <div class="date">2025 年 2 月 15 日</div>
-    <div class="card"><h3>我开始找你了！</h3><p>去到新加坡见薛之谦，我们都是第一次看演唱会。很幸运看的是薛之谦的《天外来物》，你也从此开启了谦友的身份，去认识了很多一样喜欢薛之谦的人，交了很多朋友。</p><img src="images/tianwailaiwu.jpg"></div>
-  </div>
-  <div class="event right">
-    <div class="date">2025 年 7 月 17 日</div>
-    <div class="card"><h3>大屏合照薛之谦</h3><p>这是老薛的生日，谦友出巨资的波底的mall里放大屏为他庆生，我们也去凑了一波热闹。</p><img src="images/jokerbirthday.jpg"></div>
-  </div>
-  <div class="event left">
-    <div class="date">2025 年 12 月</div>
-    <div class="card"><h3>去波底见大明星</h3><p>去见Dior大颖，但当天人流量真的太可怕了，要进去要出去都难。虽然其实我主要是去看BBK的Lucas和Jia Wen哈哈哈。</p></div>
-  </div>
-  <div class="event right">
-    <div class="date">2026 年 2 月</div>
-    <div class="card"><h3>辞职！！</h3><p>因为薪水和待遇问题，再加上你亲戚的推波助澜，你选择从这间公司离职，去到新加坡打工。看房时还是和我这家公司的同事Darren & Yu Wei 去看的，最后选择了一间性价比最高的，房东人看起来也很不错。虽然持续的时间不长，但你能独自进出新加坡，独自上下班，对我来说你就很厉害了。</p></div>
-  </div>
-  <div class="event left">
-    <div class="date">2026 年 3 月</div>
-    <div class="card"><h3>Cindy 入职</h3><p>你入职了一家音响公司做客服，薪水有质的飞跃，公司待遇也不错，看到你这样我也很为你开心。虽然傻逼顾客无处不在，但公司上下一致对外，至少不用搞办公室政治还是挺好的。</p></div>
-  </div>
-  <div class="event right">
-    <div class="date">2026 年 4 月</div>
-    <div class="card"><h3>体验泡澡</h3><p>为了庆祝你换了新工作，我定了OSOTO让我们两个一起放松一下。</p><img src="images/osoto.jpg"></div>
-  </div>
-  <div class="event left">
-    <div class="date">2026 年 7 月 27 日</div>
-    <div class="card"><h3>提新车啦！</h3><p>因为车不够用，我们决定出一辆便宜的新车作为代步工具，开始了我们的车奴身份。我对号码没有要求，所以听你的选择了老薛生日的数字 1707。</p><img src="images/1707.jpg"></div>
-  </div>
-  <div class="event right">
-    <div class="date">2026 年 10 月</div>
-    <div class="card"><h3>久违的猫咖</h3><p>Kai Le下来新山庆祝生日，我们私心安排了一个猫咪爱好者的天堂。真的太多喵了。</p><img src="images/catcafe.jpg"></div>
-  </div>
-</div>
+fillPetals();
 
-<div class="ending">❤ 未完待续 ❤</div>
+// 用一个变量存定时器
+let petalTimer = setInterval(() => createPetal(false), PETAL_INTERVAL);
 
-<!-- 照片墙 -->
-<div class="photo-wall-section">
-  <div class="photo-wall-title">我们的时光</div>
-  <div class="photo-wall" id="photo-wall"></div>
-</div>
+// 监听页面可见性（切换标签页/切后台）
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    clearInterval(petalTimer);
+  } else {
+    petalTimer = setInterval(() => createPetal(false), PETAL_INTERVAL);
+  }
+});
 
-<!-- ================= 时钟模式遮罩层 ================= -->
-<div id="clock-overlay" class="clock-overlay">
-  <!-- 竖屏手机提示 -->
-  <div class="rotate-hint">
-    <div class="rotate-icon">📱</div>
-    <p>请将手机横屏以体验时钟模式</p>
-    <button id="close-clock-mobile" class="btn">退出</button>
-  </div>
 
-  <!-- 横屏/电脑端布局 -->
-  <div class="clock-container">
-    <div class="clock-top">
+/* ========== 4. 时间线按年份折叠 + 滚动淡入淡出 ========== */
+const timelineContainer = document.querySelector(".timeline");
+const rawEvents = document.querySelectorAll(".event");
+
+if (timelineContainer && rawEvents.length > 0) {
+  const yearsData = {};
+  let nowEvent = null; // 用来存“现在”那一项
+
+  rawEvents.forEach(event => {
+    const dateText = event.querySelector(".date").textContent.trim();
+    // 如果是“现在”，单独拎出来，不参与年份分组
+    if (dateText === "现在") {
+      nowEvent = event;
+      return;
+    }
+    
+    // 否则提取前 4 位年份
+    const year = dateText.substring(0, 4); 
+    if (!yearsData[year]) yearsData[year] = [];
+    yearsData[year].push(event);
+  });
+
+  // 清空原容器
+  timelineContainer.innerHTML = "";
+
+  // 遍历年份，生成折叠面板
+  Object.keys(yearsData).forEach(year => {
+    const groupWrapper = document.createElement("div");
+    groupWrapper.className = "year-group";
+
+    const header = document.createElement("div");
+    header.className = "year-header";
+    header.innerHTML = `<span>${year}</span> <span class="arrow"></span>`;
+    
+    const content = document.createElement("div");
+    content.className = "year-content";
+
+    yearsData[year].forEach(event => content.appendChild(event));
+
+    groupWrapper.appendChild(header);
+    groupWrapper.appendChild(content);
+    timelineContainer.appendChild(groupWrapper);
+
+    // ★ 初始化时，设置为展开状态的高度
+    setTimeout(() => {
+      content.style.maxHeight = content.scrollHeight + "px";
+    }, 100);
+
+    // ★ 关键修复：监听内部图片加载，加载完后重新计算高度，防止图片没加载完导致高度不够被截断
+    content.querySelectorAll('img').forEach(img => {
+      img.addEventListener('load', () => {
+        if (!groupWrapper.classList.contains("collapsed")) {
+          content.style.maxHeight = content.scrollHeight + "px";
+        }
+      });
+    });
+
+    // ★ 点击事件（丝滑展开/收缩）
+    header.addEventListener("click", () => {
+      if (groupWrapper.classList.contains("collapsed")) {
+        // 要展开
+        groupWrapper.classList.remove("collapsed");
+        content.style.maxHeight = content.scrollHeight + "px";
+        
+        // 动画结束后解除高度限制，防止图片加载后内容被截断
+        setTimeout(() => {
+          if (!groupWrapper.classList.contains("collapsed")) {
+            content.style.maxHeight = "none";
+          }
+        }, 600);
+        
+      } else {
+        // 要收缩
+        content.style.maxHeight = content.scrollHeight + "px";
+        
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            groupWrapper.classList.add("collapsed");
+            content.style.maxHeight = "0";
+          });
+        });
+      }
+    });
+  });
+
+  // 把“现在”直接放到最后，不折叠
+  if (nowEvent) {
+    timelineContainer.appendChild(nowEvent);
+  }
+}
+
+// 滚动淡入 + 淡出
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    const el = entry.target;
+    if (el.closest(".year-group.collapsed")) return;
+
+    if (entry.isIntersecting) {
+      el.classList.add("show");
+      el.classList.remove("fade-out");
+    } else {
+      el.classList.remove("show");
+      el.classList.add("fade-out");
+    }
+  });
+}, {
+  threshold: 0,
+  rootMargin: "-50px 0px -50px 0px"
+});
+
+document.querySelectorAll(".event").forEach(event => observer.observe(event));
+
+/* ========== 5. 图片点击放大 ========== */
+const lightbox = document.getElementById("lightbox");
+const lightboxImg = document.getElementById("lightbox-img");
+
+document.querySelectorAll(".event .card img").forEach(img => {
+  img.addEventListener("click", () => {
+    lightboxImg.src = img.src;
+    lightbox.classList.add("show");
+  });
+});
+
+lightbox.addEventListener("click", () => {
+  lightbox.classList.remove("show");
+});
+
+/* ========== 6. 主题切换 ========== */
+themeBtn.addEventListener("click", () => {
+  document.body.classList.toggle("theme-fun");
+  const isFun = document.body.classList.contains("theme-fun");
+  themeBtn.textContent = isFun ? "👑" : "🌸";
+  fillPetals();
+});
+
+/* ========== 7. 里程碑进度条 ========== */
+const TOTAL_DAYS = 3650;   // 10 年
+const milestoneFill = document.getElementById("milestone-fill");
+const milestoneMarker = document.getElementById("milestone-marker");
+const milestoneLabels = document.getElementById("milestone-labels");
+const milestoneBar = document.querySelector(".milestone-bar");
+
+const NODE_COUNT = 11;
+const nodes = [];
+
+for (let i = 0; i < NODE_COUNT; i++) {
+  const day = Math.round((TOTAL_DAYS / (NODE_COUNT - 1)) * i);
+  const percent = (day / TOTAL_DAYS) * 100;
+
+  const node = document.createElement("div");
+  node.className = "milestone-node";
+  node.style.left = percent + "%";
+  node.dataset.day = day;
+  milestoneBar.appendChild(node);
+  nodes.push(node);
+
+  const label = document.createElement("div");
+  label.className = "milestone-label";
+  label.style.left = percent + "%";
+  label.dataset.day = day;
+  if (i === 0) {
+    label.textContent = "相遇";
+  } else {
+    label.textContent = (day / 365).toFixed(0) + "年";
+  }
+  milestoneLabels.appendChild(label);
+}
+
+function getCurrentDays() {
+  const now = new Date();
+  const diff = now - startDate;
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
+}
+
+function updateMilestone() {
+  const days = getCurrentDays();
+  const percent = Math.min((days / TOTAL_DAYS) * 100, 100);
+
+  requestAnimationFrame(() => {
+    milestoneFill.style.width = percent + "%";
+    milestoneMarker.style.left = percent + "%";
+  });
+
+  const labelEls = milestoneLabels.querySelectorAll(".milestone-label");
+  const startTime = performance.now();
+  const DURATION = 2500;
+
+  function step(now) {
+    const progress = Math.min((now - startTime) / DURATION, 1);
+    const currentDay = days * progress;
+
+    nodes.forEach((node, i) => {
+      const nodeDay = parseInt(node.dataset.day);
+
+      if (nodeDay <= currentDay) {
+        if (!node.classList.contains("passed")) {
+          node.classList.add("passed");
+          if (labelEls[i]) labelEls[i].classList.add("passed");
+        }
+      }
+    });
+
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+window.addEventListener("load", () => {
+  milestoneFill.style.width = "0%";
+  milestoneMarker.style.left = "0%";
+  setTimeout(updateMilestone, 300);
+});
+
+/* ========== 倒计时逻辑 ========== */
+const START_YEAR = 2023;       
+const HER_BIRTH_YEAR = 2005;   
+const HIS_BIRTH_YEAR = 2001;   
+
+const HER_BIRTHDAY = { month: 5, day: 3 };   
+const HIS_BIRTHDAY = { month: 0, day: 26 };  
+const ANNIVERSARY = { month: 0, day: 5 };    
+
+function getDaysUntil(targetMonth, targetDay) {
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+
+  let target = new Date(now.getFullYear(), targetMonth, targetDay);
+
+  if (target < now) {
+    target = new Date(now.getFullYear() + 1, targetMonth, targetDay);
+  }
+
+  const diffTime = target - now;
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+
+function updateCountdowns() {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+
+  const cdAnniversary = document.getElementById("cd-anniversary");
+  const cdHer = document.getElementById("cd-her");
+  const cdHim = document.getElementById("cd-him");
+  
+  const titleAnniversary = document.getElementById("title-anniversary");
+  const titleHer = document.getElementById("title-her");
+  const titleHim = document.getElementById("title-him");
+
+  if (cdAnniversary) cdAnniversary.textContent = getDaysUntil(ANNIVERSARY.month, ANNIVERSARY.day);
+  if (cdHer) cdHer.textContent = getDaysUntil(HER_BIRTHDAY.month, HER_BIRTHDAY.day);
+  if (cdHim) cdHim.textContent = getDaysUntil(HIS_BIRTHDAY.month, HIS_BIRTHDAY.day);
+
+  let nextAnnYear = currentYear;
+  let annDateThisYear = new Date(currentYear, ANNIVERSARY.month, ANNIVERSARY.day);
+  if (now > annDateThisYear) nextAnnYear = currentYear + 1;
+  
+  const anniversaryCount = nextAnnYear - START_YEAR;
+  if (titleAnniversary) {
+    titleAnniversary.textContent = anniversaryCount === 1 ? "距离 1 周年纪念" : `距离 ${anniversaryCount} 周年纪念`;
+  }
+
+  let nextHerYear = currentYear;
+  let herDateThisYear = new Date(currentYear, HER_BIRTHDAY.month, HER_BIRTHDAY.day);
+  if (now > herDateThisYear) nextHerYear = currentYear + 1;
+  
+  const herAge = nextHerYear - HER_BIRTH_YEAR;
+  if (titleHer) {
+    titleHer.textContent = `距离Cindy ${herAge}岁生日`;
+  }
+
+  let nextHimYear = currentYear;
+  let himDateThisYear = new Date(currentYear, HIS_BIRTHDAY.month, HIS_BIRTHDAY.day);
+  if (now > himDateThisYear) nextHimYear = currentYear + 1;
+  
+  const hisAge = nextHimYear - HIS_BIRTH_YEAR;
+  if (titleHim) {
+    titleHim.textContent = `距离Tang ${hisAge}岁生日`;
+  }
+}
+
+updateCountdowns();
+setInterval(updateCountdowns, 1000 * 60 * 60);  
+
+/* ========== 8. 照片墙自动生成 ========== */
+const wallPhotos = [
+  "images/photowall/photo12.jpg",
+  "images/photowall/photo11.jpg",
+  "images/photowall/photo10.jpg",
+  "images/photowall/photo9.jpg",
+  "images/photowall/photo8.jpg",
+  "images/photowall/photo7.jpg",
+  "images/photowall/photo6.jpg",
+  "images/photowall/photo5.jpg",
+  "images/photowall/photo4.jpg",
+  "images/photowall/photo3.jpg",
+  "images/photowall/photo2.jpg",
+  "images/photowall/photo1.jpg"
+];
+
+const photoWall = document.getElementById("photo-wall");
+if (photoWall) {
+  wallPhotos.forEach(src => {
+    const img = document.createElement("img");
+    img.src = src;
+    img.alt = "我们的照片";
+    
+    img.addEventListener("click", () => {
+      lightboxImg.src = img.src;
+      lightbox.classList.add("show");
+    });
+
+    photoWall.appendChild(img);
+  });
+}
+
+/* ========== 9. 照片墙导航按钮 ========== */
+const photoNavBtn = document.getElementById("photo-nav-btn");
+const photoSection = document.querySelector(".photo-wall-section");
+const photoTitle = document.querySelector(".photo-wall-title"); 
+
+function checkPhotoSectionPosition() {
+  if (!photoSection || !photoNavBtn) return;
+  
+  const rect = photoTitle.getBoundingClientRect();
+  
+  if (rect.top < window.innerHeight * 0.4) {
+    photoNavBtn.textContent = "⬆️";
+    photoNavBtn.title = "回到顶部";
+  } else {
+    photoNavBtn.textContent = "📸";
+    photoNavBtn.title = "前往照片墙";
+  }
+}
+
+window.addEventListener("scroll", checkPhotoSectionPosition);
+
+if (photoNavBtn && photoSection) {
+  photoNavBtn.addEventListener("click", () => {
+    const rect = photoTitle.getBoundingClientRect();
+    
+    if (rect.top < window.innerHeight * 0.4) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      window.scrollTo({ top: photoSection.offsetTop + 350, behavior: "smooth" });
+    }
+  });
+  
+  checkPhotoSectionPosition();
+}
+
+/* ========== 10. 时钟模式逻辑 ========== */
+const clockBtn = document.getElementById("clock-btn");
+const clockOverlay = document.getElementById("clock-overlay");
+const closeClockMobile = document.getElementById("close-clock-mobile");
+const toggleBtn = document.getElementById("clock-toggle-btn");
+const ampmDisplay = document.getElementById("clock-ampm");
+
+let is12HourFormat = false;
+
+if (localStorage.getItem("clockFormat") === "12") {
+  is12HourFormat = true;
+  if(toggleBtn) toggleBtn.textContent = "12小时制";
+}
+
+if (toggleBtn) {
+  toggleBtn.addEventListener("click", () => {
+    is12HourFormat = !is12HourFormat;
+    toggleBtn.textContent = is12HourFormat ? "12小时制" : "24小时制";
+    localStorage.setItem("clockFormat", is12HourFormat ? "12" : "24");
+    updateClock();
+  });
+}
+
+function initFlipClock() {
+  const flipClock = document.getElementById("flip-clock");
+  if (!flipClock) return;
+  flipClock.innerHTML = `
+    <div class="flip-digit" id="clock-h1">0</div>
+    <div class="flip-digit" id="clock-h2">0</div>
+    <div class="flip-colon">:</div>
+    <div class="flip-digit" id="clock-m1">0</div>
+    <div class="flip-digit" id="clock-m2">0</div>
+    <div class="flip-colon">:</div>
+    <div class="flip-digit" id="clock-s1">0</div>
+    <div class="flip-digit" id="clock-s2">0</div>
+  `;
+}
+initFlipClock();
+
+function flipDigit(id, newValue) {
+  const el = document.getElementById(id);
+  if (!el || el.textContent === String(newValue)) return;
+  
+  el.style.opacity = "0.3";
+  el.style.transform = "scaleY(0.8)";
+  
+  setTimeout(() => {
+    el.textContent = newValue;
+    el.style.opacity = "1";
+    el.style.transform = "scaleY(1)";
+  }, 150);
+}
+
+function updateClock() {
+  if (!clockOverlay.classList.contains("show")) return;
+  
+  const now = new Date();
+  
+  let hours = now.getHours();
+  let ampm = "";
+  
+  if (is12HourFormat) {
+    ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    if(ampmDisplay) {
+      ampmDisplay.textContent = ampm;
+      ampmDisplay.style.opacity = "1";
+    }
+  } else {
+    if(ampmDisplay) {
+      ampmDisplay.textContent = "";
+      ampmDisplay.style.opacity = "0";
+    }
+  }
+  
+  const hh = String(hours).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  
+  flipDigit("clock-h1", hh[0]);
+  flipDigit("clock-h2", hh[1]);
+  flipDigit("clock-m1", mm[0]);
+  flipDigit("clock-m2", mm[1]);
+  flipDigit("clock-s1", ss[0]);
+  flipDigit("clock-s2", ss[1]);
+
+  const days = getCurrentDays();
+  document.getElementById("clock-days").textContent = days.toLocaleString();
+
+  document.getElementById("clock-title-ann").textContent = document.getElementById("title-anniversary").textContent;
+  document.getElementById("clock-cd-ann").textContent = document.getElementById("cd-anniversary").textContent;
+  
+  document.getElementById("clock-title-her").textContent = document.getElementById("title-her").textContent;
+  document.getElementById("clock-cd-her").textContent = document.getElementById("cd-her").textContent;
+  
+  document.getElementById("clock-title-him").textContent = document.getElementById("title-him").textContent;
+  document.getElementById("clock-cd-him").textContent = document.getElementById("cd-him").textContent;
+
+  const totalDays = 3650;
+  const percent = Math.min((days / totalDays) * 100, 100);
+  document.getElementById("clock-m-fill").style.width = percent + "%";
+  document.getElementById("clock-m-marker").style.left = percent + "%";
+  
+  const barContainer = document.querySelector(".clock-m-bar");
+  const labelsContainer = document.getElementById("clock-m-labels");
+  
+  if (labelsContainer.children.length === 0) {
+    const NODE_COUNT = 11;
+    for (let i = 0; i < NODE_COUNT; i++) {
+      const day = Math.round((totalDays / (NODE_COUNT - 1)) * i);
+      const p = (day / totalDays) * 100;
       
-      <!-- 左侧列：天数 + 周年 -->
-      <div class="clock-column left-col">
-        <div class="clock-box box-days">
-          <div class="c-label">在一起</div>
-          <div class="c-value"><span id="clock-days">0</span> <span class="c-unit">天</span></div>
-        </div>
-        <div class="clock-box box-cd">
-          <div class="c-cd-title" id="clock-title-ann">距离周年</div>
-          <div class="c-cd-value"><span id="clock-cd-ann">--</span> 天</div>
-        </div>
-      </div>
-      
-      <!-- 中间列：时钟 -->
-      <div class="clock-column center-col">
-        <div class="clock-box box-time">
-          <!-- 顶部留白：显示 AM/PM -->
-          <div class="clock-ampm" id="clock-ampm"></div>
-          
-          <!-- 中间核心时钟 -->
-          <div class="flip-clock" id="flip-clock"></div>
-          
-          <!-- 底部留白：放切换按钮 -->
-          <button class="clock-toggle-btn" id="clock-toggle-btn">24小时制</button>
-        </div>
-      </div>
+      const node = document.createElement("div");
+      node.className = "clock-m-node";
+      node.style.left = p + "%";
+      node.dataset.day = day;
+      barContainer.appendChild(node);
 
-      <!-- 右侧列：Cindy + Tang -->
-      <div class="clock-column right-col">
-        <div class="clock-box box-cd">
-          <div class="c-cd-title" id="clock-title-her">距离Cindy</div>
-          <div class="c-cd-value"><span id="clock-cd-her">--</span> 天</div>
-        </div>
-        <div class="clock-box box-cd">
-          <div class="c-cd-title" id="clock-title-him">距离Tang</div>
-          <div class="c-cd-value"><span id="clock-cd-him">--</span> 天</div>
-        </div>
-      </div>
+      const lbl = document.createElement("div");
+      lbl.className = "clock-m-label";
+      lbl.style.left = p + "%";
+      lbl.textContent = i === 0 ? "相遇" : (day / 365).toFixed(0) + "年";
+      labelsContainer.appendChild(lbl);
+    }
+  }
+  
+  const allNodes = barContainer.querySelectorAll(".clock-m-node");
+  const allLabels = labelsContainer.querySelectorAll(".clock-m-label");
+  
+  allNodes.forEach((node, i) => {
+    if (parseInt(node.dataset.day) <= days) {
+      node.classList.add("passed");
+      if (allLabels[i]) allLabels[i].classList.add("passed");
+    } else {
+      node.classList.remove("passed");
+      if (allLabels[i]) allLabels[i].classList.remove("passed");
+    }
+  });
+}
 
-    </div>
+let clockTimer = null;
+let hideButtonsTimer = null; 
 
-    <!-- 底部里程碑 -->
-    <div class="clock-bottom">
-      <div class="clock-milestone">
-        <div class="clock-m-bar">
-          <div class="clock-m-fill" id="clock-m-fill"></div>
-          <div class="clock-m-marker" id="clock-m-marker">
-            <img src="images/walking.gif" alt="walking">
-          </div>
-        </div>
-        <div class="clock-m-labels" id="clock-m-labels"></div>
-      </div>
-    </div>
-  </div>
-</div>
+function resetHideTimer() {
+  if (!document.body.classList.contains("in-clock-mode")) return;
 
-<div id="lightbox" class="lightbox">
-  <img id="lightbox-img" src="" alt="">
-</div>
+  document.body.classList.remove("hide-buttons");
 
-<script src="script.js"></script>
-</body>
-</html>
+  if (hideButtonsTimer) {
+    clearTimeout(hideButtonsTimer);
+  }
+
+  hideButtonsTimer = setTimeout(() => {
+    if (document.body.classList.contains("in-clock-mode")) {
+      document.body.classList.add("hide-buttons");
+    }
+  }, 3000);
+}
+
+function toggleClock(enter) {
+  if (enter) {
+    clockOverlay.classList.add("show");
+    document.body.classList.add("in-clock-mode");
+    document.body.style.overflow = "hidden"; 
+    document.documentElement.style.overflow = "hidden"; 
+    
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+    
+    updateClock();
+    clockTimer = setInterval(updateClock, 1000);
+    
+    clockBtn.textContent = "❌";
+    clockBtn.title = "退出时钟模式";
+
+    resetHideTimer(); 
+  } else {
+    clockOverlay.classList.remove("show");
+    document.body.classList.remove("in-clock-mode");
+    document.body.classList.remove("hide-buttons"); 
+    document.body.style.overflow = ""; 
+    document.documentElement.style.overflow = ""; 
+    
+    if (document.fullscreenElement && document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
+    }
+    
+    if (clockTimer) {
+      clearInterval(clockTimer);
+      clockTimer = null;
+    }
+    if (hideButtonsTimer) { 
+      clearTimeout(hideButtonsTimer);
+    }
+    
+    clockBtn.textContent = "⏰";
+    clockBtn.title = "进入时钟模式";
+  }
+}
+
+clockBtn.addEventListener("click", () => {
+  const isShowing = clockOverlay.classList.contains("show");
+  toggleClock(!isShowing);
+});
+
+if (closeClockMobile) {
+  closeClockMobile.addEventListener("click", () => {
+    toggleClock(false);
+  });
+}
+
+clockOverlay.addEventListener("click", (e) => {
+  if (e.target.closest('.theme-btn')) return;
+  resetHideTimer();
+});
+
+clockBtn.addEventListener("mouseenter", () => {
+  if (hideButtonsTimer) clearTimeout(hideButtonsTimer);
+  document.body.classList.remove("hide-buttons");
+});
+clockBtn.addEventListener("mouseleave", () => {
+  resetHideTimer();
+});
+
+themeBtn.addEventListener("mouseenter", () => {
+  if (hideButtonsTimer) clearTimeout(hideButtonsTimer);
+  document.body.classList.remove("hide-buttons");
+});
+themeBtn.addEventListener("mouseleave", () => {
+  resetHideTimer();
+});
