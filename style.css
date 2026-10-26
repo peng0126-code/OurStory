@@ -59,7 +59,6 @@ body {
 /* 图片 / emoji 型掉落物 */
 .petal.img-petal {
   background-color: transparent !important;
-  /* ★ 修复：去掉了 background-image: none，并加上了大小限制 */
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -527,7 +526,6 @@ body.theme-fun .event .card:hover {
   margin-bottom: 10px;
 }
 
-/* 展开时的状态：背景稍深 */
 .year-header {
   display: flex;
   justify-content: center;
@@ -538,7 +536,7 @@ body.theme-fun .event .card:hover {
   color: var(--main);
   letter-spacing: 1px;
   
-  background: #fce8e8; /* 展开时：淡粉色 */
+  background: #fce8e8; 
   padding: 6px 20px;
   border-radius: 30px;
   border: 1px solid var(--main-light);
@@ -559,7 +557,6 @@ body.theme-fun .event .card:hover {
   box-shadow: 0 6px 16px rgba(0,0,0,0.08);
 }
 
-/* 折叠状态：背景变浅（纯白） */
 .year-group.collapsed .year-header {
   background: var(--card-bg); 
   border-color: var(--main-light);
@@ -567,23 +564,20 @@ body.theme-fun .event .card:hover {
   color: var(--text-mid);
 }
 
-/* 万兽之王主题下的展开状态 */
 body.theme-fun .year-header {
-  background: #3a2e24; /* 展开时：亮一点的深铜色 */
+  background: #3a2e24; 
   border-color: #5a4a34;
   box-shadow: 0 4px 15px rgba(0,0,0,0.6);
   color: var(--main);
 }
 
-/* 万兽之王主题下的折叠状态 */
 body.theme-fun .year-group.collapsed .year-header {
-  background: #1a1215; /* 折叠时：融于背景的极深色 */
+  background: #1a1215; 
   border-color: #2a2117;
   box-shadow: none;
   color: #5a4a34;
 }
 
-/* ★ 方案二：带弹性的小三角 */
 .year-header .arrow {
   display: inline-block;
   width: 0;
@@ -596,47 +590,37 @@ body.theme-fun .year-group.collapsed .year-header {
   transform-origin: 50% 30%; 
 }
 
-/* 折叠时：旋转 180 度，且颜色变淡 */
 .year-group.collapsed .year-header .arrow {
   border-top-color: var(--text-light);
   transform: rotate(180deg);
 }
 
-/* ★ 滚动展开/收缩的平滑动画 */
 .year-content {
   overflow: hidden;
-  min-height: 1 px; 
+  min-height: 1px; 
   transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease, margin-bottom 0.6s ease;
   opacity: 1;
-  /* 初始高度由 JS 控制，这里不需要写死 */
 }
 
-/* 折叠时，内容高度变 0，透明度变 0 */
 .year-group.collapsed .year-content {
   max-height: 0 !important;
   opacity: 0;
   margin-bottom: 0;
 }
 
-/* 为“现在”这个特殊事件增加一点顶部间距 */
 .timeline > .event:last-child {
   margin-top: 40px;
 }
 
-/* ================= 手机端专属微调：时间线书签 ================= */
 @media (max-width: 700px) {
   .year-header {
-    /* 左平右圆的书签样式 */
     border-radius: 0 30px 30px 0;
-    /* 向左偏移，咬住时间线 */
     margin: 10px 0 20px 10px; 
     padding: 6px 20px 6px 16px;
-    /* 内容靠左对齐 */
     justify-content: flex-start;
     z-index: 5;
   }
 
-  /* 手机端万兽主题的书签形状 */
   body.theme-fun .year-header {
     border-radius: 0 30px 30px 0;
   }
@@ -811,6 +795,7 @@ body.in-clock-mode .photo-nav-btn {
   align-items: center;
   border: 1px solid var(--main-light);
   transition: background 0.6s ease, border-color 0.6s ease;
+  overflow: hidden; /* 确保彩带被框住 */
 }
 .left-col .clock-box,
 .right-col .clock-box {
@@ -1089,7 +1074,6 @@ body.in-clock-mode .photo-wall-section {
   margin-bottom: 1px;
 }
 
-/* 万兽主题下也同步生效 */
 body.theme-fun .year-group.collapsed .year-header {
   margin-top: 1px;
   margin-bottom: 1px;
@@ -1154,7 +1138,6 @@ body.theme-fun .year-group.collapsed .year-header {
   position: relative;
   transform: translateY(20px);
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  /* 模拟信纸的细横线 */
   background-image: repeating-linear-gradient(transparent, transparent 31px, var(--main-light) 31px, var(--main-light) 32px);
   background-position: 0 10px;
   line-height: 32px;
@@ -1189,24 +1172,127 @@ body.theme-fun .year-group.collapsed .year-header {
 }
 
 .close-letter {
-  position: sticky; /* ★ 改成 sticky */
-  top: -30px;           /* ★ 吸附在顶部 */
-  float: right;     /* ★ 靠右浮动 */
-  margin-top: -30px; /* 根据实际视觉稍微往上提一点 */
+  position: sticky;
+  top: -30px;
+  float: right;
+  margin-top: -30px;
   margin-right: -20px; 
   font-size: 1.8rem;
   color: var(--text-light);
   cursor: pointer;
   line-height: 1;
   transition: color 0.3s;
-  z-index: 10;      /* 确保盖在文字上面 */
+  z-index: 10;
 }
 
 .close-letter:hover {
   color: var(--main);
 }
 
-/* 万兽主题下的信纸微调 */
 body.theme-fun .letter-paper {
   background-image: repeating-linear-gradient(transparent, transparent 31px, rgba(201,160,74,0.1) 31px, rgba(201,160,74,0.1) 32px);
+}
+
+/* ========== 12. 特殊日子的庆祝特效 ========== */
+.countdown-card.is-today {
+  position: relative;
+  transform: translateY(-6px);
+  border-color: var(--main) !important;
+  box-shadow: 0 8px 30px rgba(217, 140, 140, 0.4), inset 0 0 15px rgba(255,255,255,0.3) !important;
+  animation: cardPulse 2s infinite alternate;
+}
+
+body.theme-fun .countdown-card.is-today {
+  box-shadow: 0 8px 30px rgba(201, 160, 74, 0.4), inset 0 0 15px rgba(201, 160, 74, 0.1) !important;
+}
+
+@keyframes cardPulse {
+  0% { transform: translateY(-6px) scale(1); }
+  100% { transform: translateY(-6px) scale(1.03); }
+}
+
+.countdown-card.is-today .countdown-title {
+  font-size: 0.9rem;
+  font-weight: bold;
+  line-height: 1.4;
+  color: var(--main);
+}
+
+.countdown-card.is-today .countdown-value {
+  margin-top: 8px;
+}
+
+#card-anniversary.is-today::before,
+#card-her.is-today::before,
+#card-him.is-today::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: 
+    radial-gradient(circle, #ff9a9e 2px, transparent 2px),
+    radial-gradient(circle, #fecfef 2px, transparent 2px),
+    radial-gradient(circle, #a1c4fd 2px, transparent 2px);
+  background-size: 20px 20px, 30px 30px, 25px 25px;
+  background-position: 0 0, 10px 10px, 15px 5px;
+  animation: confettiFall 4s linear infinite;
+  opacity: 0.5;
+  border-radius: 12px;
+  z-index: 0;
+}
+body.theme-fun #card-anniversary.is-today::before,
+body.theme-fun #card-her.is-today::before,
+body.theme-fun #card-him.is-today::before {
+  background-image: 
+    radial-gradient(circle, #c9a04a 2px, transparent 2px),
+    radial-gradient(circle, #e0b458 2px, transparent 2px);
+}
+
+@keyframes confettiFall {
+  0% { background-position: 0 -50px, 10px -30px, 15px -40px; }
+  100% { background-position: 0 100px, 10px 120px, 15px 110px; }
+}
+
+.countdown-card.is-today > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ========== 全屏时钟模式下的特殊日子特效 ========== */
+.clock-box.is-today {
+  position: relative;
+  border-color: var(--main) !important;
+  box-shadow: 0 0 20px rgba(217, 140, 140, 0.4) !important;
+  overflow: hidden;
+}
+
+body.theme-fun .clock-box.is-today {
+  box-shadow: 0 0 20px rgba(201, 160, 74, 0.4) !important;
+}
+
+.clock-box.is-today::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: 
+    radial-gradient(circle, #ff9a9e 2px, transparent 2px),
+    radial-gradient(circle, #fecfef 2px, transparent 2px),
+    radial-gradient(circle, #a1c4fd 2px, transparent 2px);
+  background-size: 20px 20px, 30px 30px, 25px 25px;
+  animation: confettiFall 4s linear infinite;
+  opacity: 0.5;
+  z-index: 0;
+}
+
+body.theme-fun .clock-box.is-today::before {
+  background-image: 
+    radial-gradient(circle, #c9a04a 2px, transparent 2px),
+    radial-gradient(circle, #e0b458 2px, transparent 2px);
+}
+
+.clock-box.is-today .c-cd-title,
+.clock-box.is-today .c-cd-value {
+  position: relative;
+  z-index: 1;
 }
