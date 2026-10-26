@@ -721,7 +721,7 @@ function updateClock() {
   const labelsContainer = document.getElementById("clock-m-labels");
   
   if (labelsContainer.children.length === 0) {
-    const NODE_COUNT = 11;
+    const NODE_COUNT = 11;  // ★ 修复：这里原本少写了 const
     for (let i = 0; i < NODE_COUNT; i++) {
       const day = Math.round((totalDays / (NODE_COUNT - 1)) * i);
       const p = (day / totalDays) * 100;
@@ -781,16 +781,16 @@ function toggleClock(enter) {
     document.body.style.overflow = "hidden"; 
     document.documentElement.style.overflow = "hidden"; 
     
+    // 明确把按钮变成 ❌
+    clockBtn.innerHTML = "❌";
+    clockBtn.title = "退出时钟模式";
+
     if (document.documentElement.requestFullscreen) {
       document.documentElement.requestFullscreen().catch(() => {});
     }
     
     updateClock();
     clockTimer = setInterval(updateClock, 1000);
-    
-    clockBtn.textContent = "❌";
-    clockBtn.title = "退出时钟模式";
-
     resetHideTimer(); 
   } else {
     clockOverlay.classList.remove("show");
@@ -799,6 +799,10 @@ function toggleClock(enter) {
     document.body.style.overflow = ""; 
     document.documentElement.style.overflow = ""; 
     
+    // 明确把按钮变回 ⏰
+    clockBtn.innerHTML = "⏰";
+    clockBtn.title = "进入时钟模式";
+
     if (document.fullscreenElement && document.exitFullscreen) {
       document.exitFullscreen().catch(() => {});
     }
@@ -810,9 +814,6 @@ function toggleClock(enter) {
     if (hideButtonsTimer) { 
       clearTimeout(hideButtonsTimer);
     }
-    
-    clockBtn.textContent = "⏰";
-    clockBtn.title = "进入时钟模式";
   }
 }
 
