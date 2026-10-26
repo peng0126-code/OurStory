@@ -466,12 +466,18 @@ setInterval(updateCountdowns, 1000 * 60 * 60);
 
 /* ========== 8. 照片墙自动生成 ========== */
 const wallPhotos = [
-  "images/photo1.jpg",
-  "images/photo2.jpg",
-  "images/photo3.jpg",
-  "images/photo4.jpg",
-  "images/photo5.jpg",
-  "images/photo6.jpg"
+  "images/photowall/photo12.jpg",
+  "images/photowall/photo11.jpg",
+  "images/photowall/photo10.jpg",
+  "images/photowall/photo9.jpg",
+  "images/photowall/photo8.jpg",
+  "images/photowall/photo7.jpg",
+  "images/photowall/photo6.jpg",
+  "images/photowall/photo5.jpg",
+  "images/photowall/photo4.jpg",
+  "images/photowall/photo3.jpg",
+  "images/photowall/photo2.jpg",
+  "images/photowall/photo1.jpg"
 ];
 
 const photoWall = document.getElementById("photo-wall");
