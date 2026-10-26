@@ -400,8 +400,8 @@ const HER_BIRTH_YEAR = 2005;
 const HIS_BIRTH_YEAR = 2001;   
 
 const HER_BIRTHDAY = { month: 5, day: 3 };   
-const HIS_BIRTHDAY = { month: 0, day: 26 };  
-const ANNIVERSARY = { month: 0, day: 5 };    
+const HIS_BIRTHDAY = { month: 9, day: 26 };  
+const ANNIVERSARY = { month: 9, day: 26 };    
 
 function getDaysUntil(targetMonth, targetDay) {
   const now = new Date();
@@ -419,6 +419,7 @@ function getDaysUntil(targetMonth, targetDay) {
 
 function updateCountdowns() {
   const now = new Date();
+  now.setHours(0, 0, 0, 0); 
   const currentYear = now.getFullYear();
 
   const cdAnniversary = document.getElementById("cd-anniversary");
@@ -429,40 +430,68 @@ function updateCountdowns() {
   const titleHer = document.getElementById("title-her");
   const titleHim = document.getElementById("title-him");
 
-  if (cdAnniversary) cdAnniversary.textContent = getDaysUntil(ANNIVERSARY.month, ANNIVERSARY.day);
-  if (cdHer) cdHer.textContent = getDaysUntil(HER_BIRTHDAY.month, HER_BIRTHDAY.day);
-  if (cdHim) cdHim.textContent = getDaysUntil(HIS_BIRTHDAY.month, HIS_BIRTHDAY.day);
+  const cardAnn = document.getElementById("card-anniversary");
+  const cardHer = document.getElementById("card-her");
+  const cardHim = document.getElementById("card-him");
 
+  // 1. 算天数与周年/年龄
   let nextAnnYear = currentYear;
   let annDateThisYear = new Date(currentYear, ANNIVERSARY.month, ANNIVERSARY.day);
   if (now > annDateThisYear) nextAnnYear = currentYear + 1;
-  
   const anniversaryCount = nextAnnYear - START_YEAR;
-  if (titleAnniversary) {
-    titleAnniversary.textContent = anniversaryCount === 1 ? "距离 1 周年纪念" : `距离 ${anniversaryCount} 周年纪念`;
-  }
 
   let nextHerYear = currentYear;
   let herDateThisYear = new Date(currentYear, HER_BIRTHDAY.month, HER_BIRTHDAY.day);
   if (now > herDateThisYear) nextHerYear = currentYear + 1;
-  
   const herAge = nextHerYear - HER_BIRTH_YEAR;
-  if (titleHer) {
-    titleHer.textContent = `距离Cindy ${herAge}岁生日`;
-  }
 
   let nextHimYear = currentYear;
   let himDateThisYear = new Date(currentYear, HIS_BIRTHDAY.month, HIS_BIRTHDAY.day);
   if (now > himDateThisYear) nextHimYear = currentYear + 1;
-  
   const hisAge = nextHimYear - HIS_BIRTH_YEAR;
-  if (titleHim) {
-    titleHim.textContent = `距离Kai Peng ${hisAge}岁生日`;
+
+  // 2. 检查今天是不是特殊日子
+  const isTodayAnn = (now.getMonth() === ANNIVERSARY.month && now.getDate() === ANNIVERSARY.day);
+  const isTodayHer = (now.getMonth() === HER_BIRTHDAY.month && now.getDate() === HER_BIRTHDAY.day);
+  const isTodayHim = (now.getMonth() === HIS_BIRTHDAY.month && now.getDate() === HIS_BIRTHDAY.day);
+
+  // 3. 更新纪念日卡片
+  if (isTodayAnn) {
+    cardAnn.classList.add("is-today");
+    titleAnniversary.innerHTML = `第 ${anniversaryCount} 周年<br>纪念日快乐`;
+    // ★ 直接替换整个 value div
+    cdAnniversary.parentElement.innerHTML = `<span style="font-size:1.5rem;letter-spacing:2px;color:var(--main);font-weight:bold;">❤️❤️</span>`;
+  } else {
+    cardAnn.classList.remove("is-today");
+    titleAnniversary.textContent = anniversaryCount === 1 ? "距离 1 周年纪念" : `距离 ${anniversaryCount} 周年纪念`;
+    cdAnniversary.parentElement.innerHTML = `<span id="cd-anniversary">${getDaysUntil(ANNIVERSARY.month, ANNIVERSARY.day)}</span> 天`;
+  }
+
+  // 4. 更新 Cindy 生日卡片
+  if (isTodayHer) {
+    cardHer.classList.add("is-today");
+    titleHer.innerHTML = `Cindy<br>${herAge}岁生日快乐`;
+    cdHer.parentElement.innerHTML = `<span style="font-size:1.5rem;letter-spacing:2px;color:var(--main);font-weight:bold;">🎉🎂</span>`;
+  } else {
+    cardHer.classList.remove("is-today");
+    titleHer.textContent = `距离Cindy ${herAge}岁生日`;
+    cdHer.parentElement.innerHTML = `<span id="cd-her">${getDaysUntil(HER_BIRTHDAY.month, HER_BIRTHDAY.day)}</span> 天`;
+  }
+
+  // 5. 更新 Tang 生日卡片
+  if (isTodayHim) {
+    cardHim.classList.add("is-today");
+    titleHim.innerHTML = `Kai Peng<br>${hisAge}岁生日快乐`;
+    cdHim.parentElement.innerHTML = `<span style="font-size:1.5rem;letter-spacing:2px;color:var(--main);font-weight:bold;">🎉🎂</span>`;
+  } else {
+    cardHim.classList.remove("is-today");
+    titleHim.textContent = `距离Tang ${hisAge}岁生日`;
+    cdHim.parentElement.innerHTML = `<span id="cd-him">${getDaysUntil(HIS_BIRTHDAY.month, HIS_BIRTHDAY.day)}</span> 天`;
   }
 }
 
-updateCountdowns();
-setInterval(updateCountdowns, 1000 * 60 * 60);  
+updateCountdowns(); 
+setInterval(updateCountdowns, 1000 * 60 * 60); 
 
 /* ========== 8. 照片墙自动生成 ========== */
 const wallPhotos = [
@@ -621,15 +650,68 @@ function updateClock() {
   const days = getCurrentDays();
   document.getElementById("clock-days").textContent = days.toLocaleString();
 
-  document.getElementById("clock-title-ann").textContent = document.getElementById("title-anniversary").textContent;
-  document.getElementById("clock-cd-ann").textContent = document.getElementById("cd-anniversary").textContent;
-  
-  document.getElementById("clock-title-her").textContent = document.getElementById("title-her").textContent;
-  document.getElementById("clock-cd-her").textContent = document.getElementById("cd-her").textContent;
-  
-  document.getElementById("clock-title-him").textContent = document.getElementById("title-him").textContent;
-  document.getElementById("clock-cd-him").textContent = document.getElementById("cd-him").textContent;
+  // ================= 重新独立计算全屏卡片状态 =================
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); 
+  const currentYear = today.getFullYear();
 
+  const isTodayAnn = (today.getMonth() === ANNIVERSARY.month && today.getDate() === ANNIVERSARY.day);
+  const isTodayHer = (today.getMonth() === HER_BIRTHDAY.month && today.getDate() === HER_BIRTHDAY.day);
+  const isTodayHim = (today.getMonth() === HIS_BIRTHDAY.month && today.getDate() === HIS_BIRTHDAY.day);
+
+  const clockBoxAnn = document.querySelector(".left-col .box-cd"); 
+  const clockBoxHer = document.querySelector(".right-col .box-cd"); 
+  const clockBoxHim = document.querySelector(".right-col .box-cd:last-child"); 
+
+  // 1. 纪念日卡片
+  let nextAnnYear = currentYear;
+  if (today > new Date(currentYear, ANNIVERSARY.month, ANNIVERSARY.day)) nextAnnYear = currentYear + 1;
+  const anniversaryCount = nextAnnYear - START_YEAR;
+
+  const clockCdAnn = document.getElementById("clock-cd-ann");
+  if (isTodayAnn) {
+    clockBoxAnn.classList.add("is-today");
+    document.getElementById("clock-title-ann").innerHTML = `第 ${anniversaryCount} 周年<br>纪念日快乐`;
+    clockCdAnn.parentElement.innerHTML = `<span style="font-size:1.5rem;letter-spacing:2px;color:var(--main);font-weight:bold;">❤️❤️</span>`;
+  } else {
+    clockBoxAnn.classList.remove("is-today");
+    document.getElementById("clock-title-ann").innerHTML = anniversaryCount === 1 ? "距离 1 周年纪念" : `距离 ${anniversaryCount} 周年纪念`;
+    clockCdAnn.parentElement.innerHTML = `<span id="clock-cd-ann">${getDaysUntil(ANNIVERSARY.month, ANNIVERSARY.day)}</span> 天`;
+  }
+
+  // 2. Cindy 卡片
+  let nextHerYear = currentYear;
+  if (today > new Date(currentYear, HER_BIRTHDAY.month, HER_BIRTHDAY.day)) nextHerYear = currentYear + 1;
+  const herAge = nextHerYear - HER_BIRTH_YEAR;
+
+  const clockCdHer = document.getElementById("clock-cd-her");
+  if (isTodayHer) {
+    clockBoxHer.classList.add("is-today");
+    document.getElementById("clock-title-her").innerHTML = `Cindy<br>${herAge}岁生日快乐`;
+    clockCdHer.parentElement.innerHTML = `<span style="font-size:1.5rem;letter-spacing:2px;color:var(--main);font-weight:bold;">🎉🎂</span>`;
+  } else {
+    clockBoxHer.classList.remove("is-today");
+    document.getElementById("clock-title-her").innerHTML = `距离Cindy ${herAge}岁生日`;
+    clockCdHer.parentElement.innerHTML = `<span id="clock-cd-her">${getDaysUntil(HER_BIRTHDAY.month, HER_BIRTHDAY.day)}</span> 天`;
+  }
+
+  // 3. Tang 卡片
+  let nextHimYear = currentYear;
+  if (today > new Date(currentYear, HIS_BIRTHDAY.month, HIS_BIRTHDAY.day)) nextHimYear = currentYear + 1;
+  const hisAge = nextHimYear - HIS_BIRTH_YEAR;
+
+  const clockCdHim = document.getElementById("clock-cd-him");
+  if (isTodayHim) {
+    clockBoxHim.classList.add("is-today");
+    document.getElementById("clock-title-him").innerHTML = `Kai Peng<br>${hisAge}岁生日快乐`;
+    clockCdHim.parentElement.innerHTML = `<span style="font-size:1.5rem;letter-spacing:2px;color:var(--main);font-weight:bold;">🎉🎂</span>`;
+  } else {
+    clockBoxHim.classList.remove("is-today");
+    document.getElementById("clock-title-him").innerHTML = `距离Tang ${hisAge}岁生日`;
+    clockCdHim.parentElement.innerHTML = `<span id="clock-cd-him">${getDaysUntil(HIS_BIRTHDAY.month, HIS_BIRTHDAY.day)}</span> 天`;
+  }
+
+  // ================= 更新底部进度条 =================
   const totalDays = 3650;
   const percent = Math.min((days / totalDays) * 100, 100);
   document.getElementById("clock-m-fill").style.width = percent + "%";
@@ -671,6 +753,7 @@ function updateClock() {
     }
   });
 }
+
 
 let clockTimer = null;
 let hideButtonsTimer = null; 
