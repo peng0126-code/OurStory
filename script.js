@@ -400,8 +400,8 @@ const HER_BIRTH_YEAR = 2005;
 const HIS_BIRTH_YEAR = 2001;   
 
 const HER_BIRTHDAY = { month: 5, day: 3 };   
-const HIS_BIRTHDAY = { month: 9, day: 26 };  
-const ANNIVERSARY = { month: 9, day: 26 };    
+const HIS_BIRTHDAY = { month: 0, day: 26 };  
+const ANNIVERSARY = { month: 0, day: 5 };    
 
 function getDaysUntil(targetMonth, targetDay) {
   const now = new Date();
