@@ -524,7 +524,7 @@ if (photoNavBtn && photoSection) {
     if (rect.top < window.innerHeight * 0.4) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
-      window.scrollTo({ top: photoSection.offsetTop + 10, behavior: "smooth" });
+      window.scrollTo({ top: photoSection.offsetTop - 5, behavior: "smooth" });
     }
   });
   
