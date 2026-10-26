@@ -457,7 +457,7 @@ function updateCountdowns() {
   
   const hisAge = nextHimYear - HIS_BIRTH_YEAR;
   if (titleHim) {
-    titleHim.textContent = `距离Tang ${hisAge}岁生日`;
+    titleHim.textContent = `距离Kai Peng ${hisAge}岁生日`;
   }
 }
 
@@ -764,3 +764,25 @@ themeBtn.addEventListener("mouseenter", () => {
 themeBtn.addEventListener("mouseleave", () => {
   resetHideTimer();
 });
+
+/* ========== 11. 彩蛋信件交互 ========== */
+function openLetter(id) {
+  const modal = document.getElementById(id);
+  if (modal) {
+    modal.style.display = 'flex';
+    // 强制重绘，确保过渡动画生效
+    setTimeout(() => {
+      modal.classList.add('show');
+    }, 10);
+  }
+}
+
+function closeLetter(id) {
+  const modal = document.getElementById(id);
+  if (modal) {
+    modal.classList.remove('show');
+    setTimeout(() => {
+      modal.style.display = 'none';
+    }, 400); // 等待淡出动画结束
+  }
+}
