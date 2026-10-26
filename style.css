@@ -605,7 +605,7 @@ body.theme-fun .year-group.collapsed .year-header {
 /* ★ 滚动展开/收缩的平滑动画 */
 .year-content {
   overflow: hidden;
-  min-height: 100px; 
+  min-height: 1 px; 
   transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease, margin-bottom 0.6s ease;
   opacity: 1;
   /* 初始高度由 JS 控制，这里不需要写死 */
@@ -1082,4 +1082,15 @@ body.in-clock-mode .photo-wall-section {
   opacity: 0 !important;
   visibility: hidden !important;
   transition: opacity 0.3s ease;
+}
+
+.year-group.collapsed .year-header {
+  margin-top: 1px;
+  margin-bottom: 1px;
+}
+
+/* 万兽主题下也同步生效 */
+body.theme-fun .year-group.collapsed .year-header {
+  margin-top: 1px;
+  margin-bottom: 1px;
 }
