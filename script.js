@@ -478,14 +478,14 @@ function updateCountdowns() {
     cdHer.parentElement.innerHTML = `<span id="cd-her">${getDaysUntil(HER_BIRTHDAY.month, HER_BIRTHDAY.day)}</span> 天`;
   }
 
-  // 5. 更新 Tang 生日卡片
+  // 5. 更新 Kai Peng 生日卡片
   if (isTodayHim) {
     cardHim.classList.add("is-today");
     titleHim.innerHTML = `Kai Peng<br>${hisAge}岁生日快乐`;
     cdHim.parentElement.innerHTML = `<span style="font-size:1.5rem;letter-spacing:2px;color:var(--main);font-weight:bold;">🎉🎂</span>`;
   } else {
     cardHim.classList.remove("is-today");
-    titleHim.textContent = `距离Tang ${hisAge}岁生日`;
+    titleHim.textContent = `距离Kai Peng ${hisAge}岁生日`;
     cdHim.parentElement.innerHTML = `<span id="cd-him">${getDaysUntil(HIS_BIRTHDAY.month, HIS_BIRTHDAY.day)}</span> 天`;
   }
 }
@@ -695,7 +695,7 @@ function updateClock() {
     clockCdHer.parentElement.innerHTML = `<span id="clock-cd-her">${getDaysUntil(HER_BIRTHDAY.month, HER_BIRTHDAY.day)}</span> 天`;
   }
 
-  // 3. Tang 卡片
+  // 3. Kai Peng 卡片
   let nextHimYear = currentYear;
   if (today > new Date(currentYear, HIS_BIRTHDAY.month, HIS_BIRTHDAY.day)) nextHimYear = currentYear + 1;
   const hisAge = nextHimYear - HIS_BIRTH_YEAR;
@@ -707,7 +707,7 @@ function updateClock() {
     clockCdHim.parentElement.innerHTML = `<span style="font-size:1.5rem;letter-spacing:2px;color:var(--main);font-weight:bold;">🎉🎂</span>`;
   } else {
     clockBoxHim.classList.remove("is-today");
-    document.getElementById("clock-title-him").innerHTML = `距离Tang ${hisAge}岁生日`;
+    document.getElementById("clock-title-him").innerHTML = `距离Kai Peng ${hisAge}岁生日`;
     clockCdHim.parentElement.innerHTML = `<span id="clock-cd-him">${getDaysUntil(HIS_BIRTHDAY.month, HIS_BIRTHDAY.day)}</span> 天`;
   }
 
