@@ -260,14 +260,20 @@
       <!-- 中间列：时钟 -->
       <div class="clock-column center-col">
         <div class="clock-box box-time">
-          <!-- 顶部留白：显示 AM/PM -->
-          <div class="clock-ampm" id="clock-ampm"></div>
+          <!-- 顶部留白：左边 AM/PM，右边日期 -->
+          <div class="clock-topline">
+            <div class="clock-ampm" id="clock-ampm"></div>
+            <div class="clock-date" id="clock-date"></div>
+          </div>
           
           <!-- 中间核心时钟 -->
           <div class="flip-clock" id="flip-clock"></div>
           
           <!-- 底部留白：放切换按钮 -->
-          <button class="clock-toggle-btn" id="clock-toggle-btn">24小时制</button>
+          <div class="clock-toggle-group">
+            <button class="clock-toggle-btn" id="clock-toggle-btn">24小时制</button>
+            <button class="clock-toggle-btn" id="clock-date-toggle-btn">日期格式</button>
+          </div>
         </div>
       </div>
 
