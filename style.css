@@ -56,7 +56,6 @@ body {
   opacity: 0.8;
   animation: fall linear infinite;
 }
-/* 图片 / emoji 型掉落物 */
 .petal.img-petal {
   background-color: transparent !important;
   background-size: contain;
@@ -781,9 +780,11 @@ body.in-clock-mode .photo-nav-btn {
   flex-direction: column;
   gap: 2vh;
 }
-.left-col { flex: 1.5; }
-.center-col { flex: 7; }
-.right-col { flex: 1.5; }
+
+/* ★ 加宽左右两列，留出空间给多行文字 */
+.left-col { flex: 2; }   
+.center-col { flex: 6; } 
+.right-col { flex: 2; }  
 
 .clock-box {
   background: var(--card-bg);
@@ -811,17 +812,48 @@ body.in-clock-mode .photo-nav-btn {
   padding: 4vh 0;
 }
 
+/* AM/PM 与日期同一行：左 AMPM，右日期 */
+.clock-topline {
+  width: 100%;
+  height: 8vh;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 3vw;
+  box-sizing: border-box;
+  font-size: 3vw;
+  font-weight: bold;
+  color: var(--main);
+  letter-spacing: 2px;
+}
+
 .clock-ampm {
-  height: 4vh;
+  opacity: 0;
+  transition: opacity 0.3s;
+  text-align: left;
+}
+
+.clock-date {
+  text-align: right;
   font-size: 2vw;
   font-weight: bold;
   color: var(--main);
   letter-spacing: 2px;
-  opacity: 0;
-  transition: opacity 0.3s;
 }
-body.theme-fun .clock-ampm {
+
+body.theme-fun .clock-topline {
   color: #c9a04a;
+}
+body.theme-fun .clock-ampm,
+body.theme-fun .clock-date {
+  color: #c9a04a;
+}
+
+.clock-toggle-group {
+  display: flex;
+  gap: 1vw;
+  justify-content: center;
+  align-items: center;
 }
 
 .clock-toggle-btn {
@@ -884,15 +916,22 @@ body.theme-fun .center-col .clock-box {
   color: var(--text-mid);
   font-weight: normal; 
 }
+
+/* ★ 标题双行紧凑靠上 */
 .box-cd .c-cd-title {
   font-size: 1rem;
   color: var(--text-mid);
   margin-bottom: 1vh;
   text-align: center;
+  line-height: 1.2;
 }
+/* ★ 数字块和"天"独立一行居中，加大间距让数字看起来更独立 */
 .box-cd .c-cd-value {
   font-size: 1.2rem;
   color: var(--text-mid);
+  display: block;
+  text-align: center;
+  margin-top: 2px;
 }
 .box-cd .c-cd-value span {
   font-size: 3vw;
@@ -1035,6 +1074,11 @@ body.theme-fun .clock-bottom {
   .clock-top { margin-bottom: 1vh; gap: 1.5vw; }
   .clock-column { gap: 1vh; }
   
+  /* ★ 手机横屏也同步加宽左右列 */
+  .left-col { flex: 2; }
+  .center-col { flex: 6; }
+  .right-col { flex: 2; }
+  
   .box-days .c-label { font-size: 0.85rem; margin-bottom: 0.5vh; }
   .box-days .c-value #clock-days { font-size: 4vw; margin-bottom: 2px; }
   .box-days .c-unit { font-size: 0.85rem; font-weight: normal; }
@@ -1052,7 +1096,8 @@ body.theme-fun .clock-bottom {
   .clock-m-label { font-size: 0.65rem; white-space: nowrap; }
   .clock-m-node { width: 10px; height: 10px; }
   .center-col .clock-box { padding: 2vh 0; }
-  .clock-ampm { font-size: 3vw; height: 3vh; }
+  .clock-topline { font-size: 3vw; height: 3vh; padding: 0 1vw; padding-top: 5vh;}
+  .clock-date { font-size: 3vw; }
   .clock-toggle-btn { font-size: 0.75rem; padding: 4px 12px; }
 }
 
@@ -1082,19 +1127,20 @@ body.theme-fun .year-group.collapsed .year-header {
 /* ========== 彩蛋：信件 ========== */
 .letter-buttons {
   text-align: center;
-  margin-bottom: 50px;
+  margin-top: 10px;    
+  margin-bottom: 60px; 
   position: relative;
   z-index: 2;
 }
 
 .letter-btn {
   background: transparent;
-  border: 1px dashed var(--main-light);
+  border: 1.5px dashed var(--main-light); 
   color: var(--text-mid);
-  padding: 8px 24px;
-  border-radius: 20px;
+  padding: 10px 36px;  
+  border-radius: 25px; 
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.05rem;  
   transition: all 0.3s ease;
   margin: 0 10px;
 }
@@ -1102,6 +1148,7 @@ body.theme-fun .year-group.collapsed .year-header {
 .letter-btn:hover {
   background: var(--card-bg);
   border-style: solid;
+  border-width: 1.5px; 
   border-color: var(--main);
   color: var(--main);
   box-shadow: 0 4px 15px rgba(0,0,0,0.05);
