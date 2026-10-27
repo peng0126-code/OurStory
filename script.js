@@ -86,13 +86,10 @@ const PETAL_COUNT = 25;
 const PETAL_INTERVAL = 1500;
 const MAX_PETALS = 25;
 
-// ★★★★★ 核心开关：false 用 Emoji，true 用 PNG 图片 ★★★★★
 const USE_IMAGE = false; 
 
-// 当 USE_IMAGE 为 false 时，使用的 Emoji 列表
 const FUN_EMOJIS = ["🦊", "🦁", "⛓️‍💥", "👑", "🗡️"];
 
-// 当 USE_IMAGE 为 true 时，使用的 PNG 图片路径列表
 const FUN_IMAGES = [
   "images/joker/bathjoker.png",
   "images/joker/whitejoker.png",
@@ -113,7 +110,6 @@ function createPetal(instant) {
   if (isFun) {
     petal.classList.add("img-petal");
     
-    // 根据开关决定抽取哪个数组
     let pick;
     if (USE_IMAGE) {
       pick = FUN_IMAGES[Math.floor(Math.random() * FUN_IMAGES.length)];
@@ -122,12 +118,10 @@ function createPetal(instant) {
     }
 
     if (USE_IMAGE) {
-      // 用 PNG 图片的逻辑
       petal.style.width = (size + 30) + "px";
       petal.style.height = (size + 30) + "px";
       petal.style.backgroundImage = `url(${pick})`;
     } else {
-      // 用 Emoji 的逻辑
       petal.style.width = (size + 14) + "px";
       petal.style.height = (size + 14) + "px";
       petal.style.fontSize = (size + 8) + "px";
@@ -140,7 +134,7 @@ function createPetal(instant) {
 
   petal.style.left = Math.random() * 100 + "vw";
 
-  const duration = Math.random() * 8 + 8; // 8~16 秒
+  const duration = Math.random() * 8 + 8;
   petal.style.animationDuration = duration + "s";
 
   if (instant) {
@@ -151,7 +145,6 @@ function createPetal(instant) {
 
   petal.style.opacity = Math.random() * 0.5 + 0.4;
 
-  // 动画结束删掉
   petal.addEventListener("animationend", () => {
     petal.remove();
   });
@@ -168,10 +161,8 @@ function fillPetals() {
 
 fillPetals();
 
-// 用一个变量存定时器
 let petalTimer = setInterval(() => createPetal(false), PETAL_INTERVAL);
 
-// 监听页面可见性（切换标签页/切后台）
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     clearInterval(petalTimer);
@@ -187,26 +178,22 @@ const rawEvents = document.querySelectorAll(".event");
 
 if (timelineContainer && rawEvents.length > 0) {
   const yearsData = {};
-  let nowEvent = null; // 用来存“现在”那一项
+  let nowEvent = null;
 
   rawEvents.forEach(event => {
     const dateText = event.querySelector(".date").textContent.trim();
-    // 如果是“现在”，单独拎出来，不参与年份分组
     if (dateText === "现在") {
       nowEvent = event;
       return;
     }
     
-    // 否则提取前 4 位年份
     const year = dateText.substring(0, 4); 
     if (!yearsData[year]) yearsData[year] = [];
     yearsData[year].push(event);
   });
 
-  // 清空原容器
   timelineContainer.innerHTML = "";
 
-  // 遍历年份，生成折叠面板
   Object.keys(yearsData).forEach(year => {
     const groupWrapper = document.createElement("div");
     groupWrapper.className = "year-group";
@@ -224,12 +211,10 @@ if (timelineContainer && rawEvents.length > 0) {
     groupWrapper.appendChild(content);
     timelineContainer.appendChild(groupWrapper);
 
-    // ★ 初始化时，设置为展开状态的高度
     setTimeout(() => {
       content.style.maxHeight = content.scrollHeight + "px";
     }, 100);
 
-    // ★ 关键修复：监听内部图片加载，加载完后重新计算高度，防止图片没加载完导致高度不够被截断
     content.querySelectorAll('img').forEach(img => {
       img.addEventListener('load', () => {
         if (!groupWrapper.classList.contains("collapsed")) {
@@ -238,14 +223,11 @@ if (timelineContainer && rawEvents.length > 0) {
       });
     });
 
-    // ★ 点击事件（丝滑展开/收缩）
     header.addEventListener("click", () => {
       if (groupWrapper.classList.contains("collapsed")) {
-        // 要展开
         groupWrapper.classList.remove("collapsed");
         content.style.maxHeight = content.scrollHeight + "px";
         
-        // 动画结束后解除高度限制，防止图片加载后内容被截断
         setTimeout(() => {
           if (!groupWrapper.classList.contains("collapsed")) {
             content.style.maxHeight = "none";
@@ -253,7 +235,6 @@ if (timelineContainer && rawEvents.length > 0) {
         }, 600);
         
       } else {
-        // 要收缩
         content.style.maxHeight = content.scrollHeight + "px";
         
         requestAnimationFrame(() => {
@@ -266,13 +247,11 @@ if (timelineContainer && rawEvents.length > 0) {
     });
   });
 
-  // 把“现在”直接放到最后，不折叠
   if (nowEvent) {
     timelineContainer.appendChild(nowEvent);
   }
 }
 
-// 滚动淡入 + 淡出
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     const el = entry.target;
@@ -317,7 +296,7 @@ themeBtn.addEventListener("click", () => {
 });
 
 /* ========== 7. 里程碑进度条 ========== */
-const TOTAL_DAYS = 3650;   // 10 年
+const TOTAL_DAYS = 3650;
 const milestoneFill = document.getElementById("milestone-fill");
 const milestoneMarker = document.getElementById("milestone-marker");
 const milestoneLabels = document.getElementById("milestone-labels");
@@ -434,7 +413,6 @@ function updateCountdowns() {
   const cardHer = document.getElementById("card-her");
   const cardHim = document.getElementById("card-him");
 
-  // 1. 算天数与周年/年龄
   let nextAnnYear = currentYear;
   let annDateThisYear = new Date(currentYear, ANNIVERSARY.month, ANNIVERSARY.day);
   if (now > annDateThisYear) nextAnnYear = currentYear + 1;
@@ -450,16 +428,13 @@ function updateCountdowns() {
   if (now > himDateThisYear) nextHimYear = currentYear + 1;
   const hisAge = nextHimYear - HIS_BIRTH_YEAR;
 
-  // 2. 检查今天是不是特殊日子
   const isTodayAnn = (now.getMonth() === ANNIVERSARY.month && now.getDate() === ANNIVERSARY.day);
   const isTodayHer = (now.getMonth() === HER_BIRTHDAY.month && now.getDate() === HER_BIRTHDAY.day);
   const isTodayHim = (now.getMonth() === HIS_BIRTHDAY.month && now.getDate() === HIS_BIRTHDAY.day);
 
-  // 3. 更新纪念日卡片
   if (isTodayAnn) {
     cardAnn.classList.add("is-today");
     titleAnniversary.innerHTML = `第 ${anniversaryCount} 周年<br>纪念日快乐`;
-    // ★ 直接替换整个 value div
     cdAnniversary.parentElement.innerHTML = `<span style="font-size:1.5rem;letter-spacing:2px;color:var(--main);font-weight:bold;">❤️❤️</span>`;
   } else {
     cardAnn.classList.remove("is-today");
@@ -467,7 +442,6 @@ function updateCountdowns() {
     cdAnniversary.parentElement.innerHTML = `<span id="cd-anniversary">${getDaysUntil(ANNIVERSARY.month, ANNIVERSARY.day)}</span> 天`;
   }
 
-  // 4. 更新 Cindy 生日卡片
   if (isTodayHer) {
     cardHer.classList.add("is-today");
     titleHer.innerHTML = `Cindy<br>${herAge}岁生日快乐`;
@@ -478,7 +452,6 @@ function updateCountdowns() {
     cdHer.parentElement.innerHTML = `<span id="cd-her">${getDaysUntil(HER_BIRTHDAY.month, HER_BIRTHDAY.day)}</span> 天`;
   }
 
-  // 5. 更新 Kai Peng 生日卡片
   if (isTodayHim) {
     cardHim.classList.add("is-today");
     titleHim.innerHTML = `Kai Peng<br>${hisAge}岁生日快乐`;
@@ -566,6 +539,8 @@ const clockOverlay = document.getElementById("clock-overlay");
 const closeClockMobile = document.getElementById("close-clock-mobile");
 const toggleBtn = document.getElementById("clock-toggle-btn");
 const ampmDisplay = document.getElementById("clock-ampm");
+const dateDisplay = document.getElementById("clock-date");
+const dateToggleBtn = document.getElementById("clock-date-toggle-btn");
 
 let is12HourFormat = false;
 
@@ -574,11 +549,28 @@ if (localStorage.getItem("clockFormat") === "12") {
   if(toggleBtn) toggleBtn.textContent = "12小时制";
 }
 
+let dateFormatIndex = 0;
+if (localStorage.getItem("clockDateFormat") === "1") dateFormatIndex = 1;
+if (localStorage.getItem("clockDateFormat") === "2") dateFormatIndex = 2;
+if (localStorage.getItem("clockDateFormat") === "3") dateFormatIndex = 3;
+
+if (dateToggleBtn) {
+  dateToggleBtn.textContent = "切换日期格式";
+}
+
 if (toggleBtn) {
   toggleBtn.addEventListener("click", () => {
     is12HourFormat = !is12HourFormat;
     toggleBtn.textContent = is12HourFormat ? "12小时制" : "24小时制";
     localStorage.setItem("clockFormat", is12HourFormat ? "12" : "24");
+    updateClock();
+  });
+}
+
+if (dateToggleBtn) {
+  dateToggleBtn.addEventListener("click", () => {
+    dateFormatIndex = (dateFormatIndex + 1) % 4;
+    localStorage.setItem("clockDateFormat", String(dateFormatIndex));
     updateClock();
   });
 }
@@ -613,6 +605,48 @@ function flipDigit(id, newValue) {
   }, 150);
 }
 
+function formatDate(now) {
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  
+  if (dateFormatIndex === 0) {
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  if (dateFormatIndex === 1) {
+    return `${dd}/${mm}/${yyyy}`;
+  }
+  if (dateFormatIndex === 2) {
+    return `${mm}/${dd}/${yyyy}`;
+  }
+  
+  const monthsEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthEn = monthsEn[now.getMonth()];
+  return `${now.getDate()} ${monthEn} ${yyyy}`;
+}
+
+/* 安全地设置倒计时卡片内容：只改文本和子结构，避免退出再进入后元素引用失效 */
+function setCdCard(boxEl, titleEl, cdValueContainerEl, isToday, titleHtml, normalTitle, days, todayEmoji) {
+  if (!boxEl || !titleEl || !cdValueContainerEl) return;
+  
+  if (isToday) {
+    boxEl.classList.add("is-today");
+    titleEl.innerHTML = titleHtml;
+    if (cdValueContainerEl.innerHTML !== `<span style="font-size:1.5rem;letter-spacing:2px;color:var(--main);font-weight:bold;">${todayEmoji}</span>`) {
+      cdValueContainerEl.innerHTML = `<span style="font-size:1.5rem;letter-spacing:2px;color:var(--main);font-weight:bold;">${todayEmoji}</span>`;
+    }
+  } else {
+    boxEl.classList.remove("is-today");
+    // ★ 关键修改：按标题传入不同格式，利用 <br> 换行
+    titleEl.innerHTML = normalTitle;
+    
+    const newHtml = `<span>${days}</span> 天`;
+    if (cdValueContainerEl.innerHTML.indexOf("天") === -1 || cdValueContainerEl.querySelector("span")?.textContent !== String(days)) {
+      cdValueContainerEl.innerHTML = newHtml;
+    }
+  }
+}
+
 function updateClock() {
   if (!clockOverlay.classList.contains("show")) return;
   
@@ -635,6 +669,10 @@ function updateClock() {
       ampmDisplay.style.opacity = "0";
     }
   }
+
+  if (dateDisplay) {
+    dateDisplay.textContent = formatDate(now);
+  }
   
   const hh = String(hours).padStart(2, '0');
   const mm = String(now.getMinutes()).padStart(2, '0');
@@ -648,9 +686,9 @@ function updateClock() {
   flipDigit("clock-s2", ss[1]);
 
   const days = getCurrentDays();
-  document.getElementById("clock-days").textContent = days.toLocaleString();
+  const clockDaysEl = document.getElementById("clock-days");
+  if (clockDaysEl) clockDaysEl.textContent = days.toLocaleString();
 
-  // ================= 重新独立计算全屏卡片状态 =================
   const today = new Date();
   today.setHours(0, 0, 0, 0); 
   const currentYear = today.getFullYear();
@@ -668,62 +706,73 @@ function updateClock() {
   if (today > new Date(currentYear, ANNIVERSARY.month, ANNIVERSARY.day)) nextAnnYear = currentYear + 1;
   const anniversaryCount = nextAnnYear - START_YEAR;
 
-  const clockCdAnn = document.getElementById("clock-cd-ann");
-  if (isTodayAnn) {
-    clockBoxAnn.classList.add("is-today");
-    document.getElementById("clock-title-ann").innerHTML = `第 ${anniversaryCount} 周年<br>纪念日快乐`;
-    clockCdAnn.parentElement.innerHTML = `<span style="font-size:1.5rem;letter-spacing:2px;color:var(--main);font-weight:bold;">❤️❤️</span>`;
-  } else {
-    clockBoxAnn.classList.remove("is-today");
-    document.getElementById("clock-title-ann").innerHTML = anniversaryCount === 1 ? "距离 1 周年纪念" : `距离 ${anniversaryCount} 周年纪念`;
-    clockCdAnn.parentElement.innerHTML = `<span id="clock-cd-ann">${getDaysUntil(ANNIVERSARY.month, ANNIVERSARY.day)}</span> 天`;
-  }
+  const clockTitleAnn = document.getElementById("clock-title-ann");
+  const clockCdAnnContainer = clockTitleAnn ? clockTitleAnn.nextElementSibling : null;
+  
+  setCdCard(
+    clockBoxAnn,
+    clockTitleAnn,
+    clockCdAnnContainer,
+    isTodayAnn,
+    `第 ${anniversaryCount} 周年<br>纪念日快乐`,
+    anniversaryCount === 1 ? "距离 1 周年<br>纪念日" : `距离 ${anniversaryCount} 周年<br>纪念日`,
+    getDaysUntil(ANNIVERSARY.month, ANNIVERSARY.day),
+    "❤️❤️"
+  );
 
   // 2. Cindy 卡片
   let nextHerYear = currentYear;
   if (today > new Date(currentYear, HER_BIRTHDAY.month, HER_BIRTHDAY.day)) nextHerYear = currentYear + 1;
   const herAge = nextHerYear - HER_BIRTH_YEAR;
 
-  const clockCdHer = document.getElementById("clock-cd-her");
-  if (isTodayHer) {
-    clockBoxHer.classList.add("is-today");
-    document.getElementById("clock-title-her").innerHTML = `Cindy<br>${herAge}岁生日快乐`;
-    clockCdHer.parentElement.innerHTML = `<span style="font-size:1.5rem;letter-spacing:2px;color:var(--main);font-weight:bold;">🎉🎂</span>`;
-  } else {
-    clockBoxHer.classList.remove("is-today");
-    document.getElementById("clock-title-her").innerHTML = `距离Cindy ${herAge}岁生日`;
-    clockCdHer.parentElement.innerHTML = `<span id="clock-cd-her">${getDaysUntil(HER_BIRTHDAY.month, HER_BIRTHDAY.day)}</span> 天`;
-  }
+  const clockTitleHer = document.getElementById("clock-title-her");
+  const clockCdHerContainer = clockTitleHer ? clockTitleHer.nextElementSibling : null;
+  
+  setCdCard(
+    clockBoxHer,
+    clockTitleHer,
+    clockCdHerContainer,
+    isTodayHer,
+    `Cindy<br>${herAge}岁生日快乐`,
+    `距离Cindy<br>${herAge}岁生日`,
+    getDaysUntil(HER_BIRTHDAY.month, HER_BIRTHDAY.day),
+    "🎉🎂"
+  );
 
   // 3. Kai Peng 卡片
   let nextHimYear = currentYear;
   if (today > new Date(currentYear, HIS_BIRTHDAY.month, HIS_BIRTHDAY.day)) nextHimYear = currentYear + 1;
   const hisAge = nextHimYear - HIS_BIRTH_YEAR;
 
-  const clockCdHim = document.getElementById("clock-cd-him");
-  if (isTodayHim) {
-    clockBoxHim.classList.add("is-today");
-    document.getElementById("clock-title-him").innerHTML = `Kai Peng<br>${hisAge}岁生日快乐`;
-    clockCdHim.parentElement.innerHTML = `<span style="font-size:1.5rem;letter-spacing:2px;color:var(--main);font-weight:bold;">🎉🎂</span>`;
-  } else {
-    clockBoxHim.classList.remove("is-today");
-    document.getElementById("clock-title-him").innerHTML = `距离Kai Peng ${hisAge}岁生日`;
-    clockCdHim.parentElement.innerHTML = `<span id="clock-cd-him">${getDaysUntil(HIS_BIRTHDAY.month, HIS_BIRTHDAY.day)}</span> 天`;
-  }
+  const clockTitleHim = document.getElementById("clock-title-him");
+  const clockCdHimContainer = clockTitleHim ? clockTitleHim.nextElementSibling : null;
+  
+  setCdCard(
+    clockBoxHim,
+    clockTitleHim,
+    clockCdHimContainer,
+    isTodayHim,
+    `Kai Peng<br>${hisAge}岁生日快乐`,
+    `距离Kai Peng<br>${hisAge}岁生日`,
+    getDaysUntil(HIS_BIRTHDAY.month, HIS_BIRTHDAY.day),
+    "🎉🎂"
+  );
 
   // ================= 更新底部进度条 =================
   const totalDays = 3650;
   const percent = Math.min((days / totalDays) * 100, 100);
-  document.getElementById("clock-m-fill").style.width = percent + "%";
-  document.getElementById("clock-m-marker").style.left = percent + "%";
+  const fillEl = document.getElementById("clock-m-fill");
+  const markerEl = document.getElementById("clock-m-marker");
+  if (fillEl) fillEl.style.width = percent + "%";
+  if (markerEl) markerEl.style.left = percent + "%";
   
   const barContainer = document.querySelector(".clock-m-bar");
   const labelsContainer = document.getElementById("clock-m-labels");
   
-  if (labelsContainer.children.length === 0) {
-    const NODE_COUNT = 11;  // ★ 修复：这里原本少写了 const
-    for (let i = 0; i < NODE_COUNT; i++) {
-      const day = Math.round((totalDays / (NODE_COUNT - 1)) * i);
+  if (barContainer && labelsContainer && labelsContainer.children.length === 0) {
+    const NODE_COUNT_CLOCK = 11;
+    for (let i = 0; i < NODE_COUNT_CLOCK; i++) {
+      const day = Math.round((totalDays / (NODE_COUNT_CLOCK - 1)) * i);
       const p = (day / totalDays) * 100;
       
       const node = document.createElement("div");
@@ -740,23 +789,36 @@ function updateClock() {
     }
   }
   
-  const allNodes = barContainer.querySelectorAll(".clock-m-node");
-  const allLabels = labelsContainer.querySelectorAll(".clock-m-label");
-  
-  allNodes.forEach((node, i) => {
-    if (parseInt(node.dataset.day) <= days) {
-      node.classList.add("passed");
-      if (allLabels[i]) allLabels[i].classList.add("passed");
-    } else {
-      node.classList.remove("passed");
-      if (allLabels[i]) allLabels[i].classList.remove("passed");
-    }
-  });
+  if (barContainer && labelsContainer) {
+    const allNodes = barContainer.querySelectorAll(".clock-m-node");
+    const allLabels = labelsContainer.querySelectorAll(".clock-m-label");
+    
+    allNodes.forEach((node, i) => {
+      if (parseInt(node.dataset.day) <= days) {
+        node.classList.add("passed");
+        if (allLabels[i]) allLabels[i].classList.add("passed");
+      } else {
+        node.classList.remove("passed");
+        if (allLabels[i]) allLabels[i].classList.remove("passed");
+      }
+    });
+  }
 }
 
-
-let clockTimer = null;
+/* ================= 新的时钟定时器逻辑 ================= */
+let clockTimeout = null;
 let hideButtonsTimer = null; 
+
+function clockTick() {
+  if (!clockOverlay.classList.contains("show")) return;
+  
+  updateClock();
+
+  const now = new Date();
+  const delay = 1000 - now.getMilliseconds();
+
+  clockTimeout = setTimeout(clockTick, delay);
+}
 
 function resetHideTimer() {
   if (!document.body.classList.contains("in-clock-mode")) return;
@@ -781,7 +843,6 @@ function toggleClock(enter) {
     document.body.style.overflow = "hidden"; 
     document.documentElement.style.overflow = "hidden"; 
     
-    // 明确把按钮变成 ❌
     clockBtn.innerHTML = "❌";
     clockBtn.title = "退出时钟模式";
 
@@ -789,8 +850,11 @@ function toggleClock(enter) {
       document.documentElement.requestFullscreen().catch(() => {});
     }
     
-    updateClock();
-    clockTimer = setInterval(updateClock, 1000);
+    if (clockTimeout) {
+      clearTimeout(clockTimeout);
+      clockTimeout = null;
+    }
+    clockTick();
     resetHideTimer(); 
   } else {
     clockOverlay.classList.remove("show");
@@ -799,7 +863,6 @@ function toggleClock(enter) {
     document.body.style.overflow = ""; 
     document.documentElement.style.overflow = ""; 
     
-    // 明确把按钮变回 ⏰
     clockBtn.innerHTML = "⏰";
     clockBtn.title = "进入时钟模式";
 
@@ -807,12 +870,13 @@ function toggleClock(enter) {
       document.exitFullscreen().catch(() => {});
     }
     
-    if (clockTimer) {
-      clearInterval(clockTimer);
-      clockTimer = null;
+    if (clockTimeout) {
+      clearTimeout(clockTimeout);
+      clockTimeout = null;
     }
     if (hideButtonsTimer) { 
       clearTimeout(hideButtonsTimer);
+      hideButtonsTimer = null;
     }
   }
 }
@@ -854,7 +918,6 @@ function openLetter(id) {
   const modal = document.getElementById(id);
   if (modal) {
     modal.style.display = 'flex';
-    // 强制重绘，确保过渡动画生效
     setTimeout(() => {
       modal.classList.add('show');
     }, 10);
@@ -867,6 +930,6 @@ function closeLetter(id) {
     modal.classList.remove('show');
     setTimeout(() => {
       modal.style.display = 'none';
-    }, 400); // 等待淡出动画结束
+    }, 400);
   }
 }
