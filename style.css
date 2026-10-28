@@ -1347,3 +1347,65 @@ body.theme-fun .clock-box.is-today::before {
   position: relative;
   z-index: 1;
 }
+
+/* ========== 小人跳跃动画（极致丝滑版） ========== */
+@keyframes jumpAnimation {
+  0% {transform: translate(-50%, -50%) scale(1, 1); }
+  /* 1. 蓄力下蹲：稍微压扁，准备起跳 */
+  12% {transform: translate(-50%, -40%) scale(1.08, 0.85); }
+  /* 2. 极速起跳：身体拉长，离开地面 */
+  30% {transform: translate(-50%, -65%) scale(0.92, 1.15); }
+  /* 3. 空中减速：接近最高点，恢复比例 */
+  45% {transform: translate(-50%, -95%) scale(1, 1); }
+  /* 4. 到达最高点：完美悬浮的瞬间（停留极短） */
+  50% {transform: translate(-50%, -100%) scale(1, 1); }
+  /* 5. 极速下落：重力加速，身体略微拉长 */
+  65% {transform: translate(-50%, -65%) scale(0.95, 1.1); }
+  /* 6. 触地瞬间：猛烈撞击 */
+  80% {transform: translate(-50%, -45%) scale(1.1, 0.85); }
+  /* 7. 落地回弹：身体轻微弹起 */
+  90% {transform: translate(-50%, -52%) scale(0.98, 1.02); }
+  /* 8. 恢复原状 */
+  100% {transform: translate(-50%, -50%) scale(1, 1); }
+}
+
+.milestone-marker.jump, 
+.clock-m-marker.jump {
+  /* 时间延长到 0.8s，使用带有回弹感的贝塞尔曲线 */
+  animation: jumpAnimation 0.8s cubic-bezier(0.28, 0.84, 0.42, 1) forwards;
+  cursor: pointer;
+}
+
+/* 气泡冒出的动画 */
+@keyframes bubblePop {
+  0% { opacity: 0; transform: translate(-50%, 10px) scale(0.8); }
+  50% { opacity: 1; transform: translate(-50%, -15px) scale(1.05); }
+  100% { opacity: 0; transform: translate(-50%, -30px) scale(1); }
+}
+
+/* ========== 右上角低调音乐按钮 ========== */
+#music-toggle-btn {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  z-index: 9999;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0.3; /* 默认半透明，不抢视觉 */
+  transition: all 0.3s ease;
+  padding: 5px;
+  outline: none;
+}
+
+/* 悬停时稍微亮一点，提示用户可以点 */
+#music-toggle-btn:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+/* 确保原生音频控件永远不显示 */
+#bgm {
+  display: none;
+}
