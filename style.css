@@ -301,7 +301,7 @@ body.theme-fun .counter .number {
 }
 
 @media (max-width: 700px) {
-  .milestone { padding: 20px 10px; }
+  .milestone { padding: 20px 30px; }
   .milestone-label { font-size: 0.6rem; }
   .milestone-title { font-size: 0.95rem; letter-spacing: 2px; }
   .milestone-marker img { width: 45px; }
@@ -666,7 +666,7 @@ body.theme-fun .year-group.collapsed .year-header {
   position: relative;
   z-index: 2;
   max-width: 900px;
-  margin: 60px auto 100px;
+  margin: 60px auto 20px;
   padding: 0 20px;
 }
 .photo-wall-title {
@@ -770,7 +770,7 @@ body.in-clock-mode .photo-nav-btn {
   box-sizing: border-box;
 }
 .clock-top {
-  flex: 8;
+  flex: 9;
   display: flex;
   gap: 2vw;
   margin-bottom: 2vh;
@@ -973,7 +973,7 @@ body.theme-fun .flip-digit {
 }
 
 .clock-bottom {
-  flex: 2;
+  flex: 1.2;
   display: flex;
   background: var(--card-bg);
   border-radius: 20px;
@@ -1128,14 +1128,14 @@ body.theme-fun .year-group.collapsed .year-header {
 .letter-buttons {
   text-align: center;
   margin-top: 10px;    
-  margin-bottom: 60px; 
+  margin-bottom: 10px; 
   position: relative;
   z-index: 2;
 }
 
 .letter-btn {
-  background: transparent;
-  border: 1.5px dashed var(--main-light); 
+  background: rgba(217, 140, 140, 0.05);
+  border: 0px dashed var(--main-light); 
   color: var(--text-mid);
   padding: 10px 36px;  
   border-radius: 25px; 
@@ -1145,10 +1145,14 @@ body.theme-fun .year-group.collapsed .year-header {
   margin: 0 10px;
 }
 
+body.theme-fun .letter-btn {
+  background: rgba(201, 160, 74, 0.08);
+}
+
 .letter-btn:hover {
   background: var(--card-bg);
   border-style: solid;
-  border-width: 1.5px; 
+  border-width: 0px; 
   border-color: var(--main);
   color: var(--main);
   box-shadow: 0 4px 15px rgba(0,0,0,0.05);
