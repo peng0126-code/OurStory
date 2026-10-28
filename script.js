@@ -76,9 +76,19 @@ setTimeout(() => {
 }, 3800);
 
 
-/* ========== 2. 默认主题（永远浪漫） ========== */
+/* ========== 2. 读取保存的主题状态 ========== */
 const themeBtn = document.getElementById("theme-btn");
-themeBtn.textContent = "🌸";
+const currentTheme = localStorage.getItem("theme");
+
+if (currentTheme === "fun") {
+  // 如果本地存的是万兽之王，就恢复它
+  document.body.classList.add("theme-fun");
+  themeBtn.textContent = "👑";
+} else {
+  // 否则默认是浪漫主题
+  document.body.classList.remove("theme-fun");
+  themeBtn.textContent = "🌸";
+}
 
 /* ========== 3. 掉落物 ========== */
 const sakuraContainer = document.getElementById("sakura");
@@ -287,11 +297,15 @@ lightbox.addEventListener("click", () => {
   lightbox.classList.remove("show");
 });
 
-/* ========== 6. 主题切换 ========== */
+/* ========== 6. 主题切换并保存状态 ========== */
 themeBtn.addEventListener("click", () => {
   document.body.classList.toggle("theme-fun");
   const isFun = document.body.classList.contains("theme-fun");
   themeBtn.textContent = isFun ? "👑" : "🌸";
+  
+  // 将当前状态存入浏览器本地
+  localStorage.setItem("theme", isFun ? "fun" : "romantic");
+  
   fillPetals();
 });
 
