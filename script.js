@@ -480,6 +480,60 @@ function updateCountdowns() {
 updateCountdowns(); 
 setInterval(updateCountdowns, 1000 * 60 * 60); 
 
+
+const loveWords = ["喜欢你！", "贴贴~", "今天也很想你", "薛之谦！", "❤️", "抱抱", "喵", "￣3￣"];
+const normalMarker = document.getElementById("milestone-marker");
+const clockMarker = document.getElementById("clock-m-marker");
+
+function jumpAndSpeak(markerEl, event) {
+  if (!markerEl) return;
+  
+  // 1. 跳跃
+  markerEl.classList.remove("jump");
+  void markerEl.offsetWidth;
+  markerEl.classList.add("jump");
+
+  // 2. 简单弹出一个原生提示（或者以后你可以自己写个好看的DOM气泡）
+  const randomWord = loveWords[Math.floor(Math.random() * loveWords.length)];
+  
+  // 创建一个小气泡
+  const bubble = document.createElement("div");
+  bubble.textContent = randomWord;
+  bubble.style.cssText = `
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--main);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    animation: bubblePop 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    z-index: 99;
+  `;
+  
+  markerEl.appendChild(bubble);
+
+  // 动画结束后移除气泡
+  setTimeout(() => bubble.remove(), 1000);
+}
+
+// 顺便在 style.css 加个气泡向上的动画
+/*
+@keyframes fadeUp {
+  0% { opacity: 0; transform: translate(-50%, 10px); }
+  20% { opacity: 1; transform: translate(-50%, 0); }
+  80% { opacity: 1; transform: translate(-50%, -10px); }
+  100% { opacity: 0; transform: translate(-50%, -20px); }
+}
+*/
+
+if (normalMarker) normalMarker.addEventListener("click", () => jumpAndSpeak(normalMarker));
+if (clockMarker) clockMarker.addEventListener("click", () => jumpAndSpeak(clockMarker));
+
 /* ========== 8. 照片墙自动生成 ========== */
 const wallPhotos = [
   "images/photowall/photo12.jpg",
@@ -946,4 +1000,24 @@ function closeLetter(id) {
       modal.style.display = 'none';
     }, 400);
   }
+}
+
+/* ========== 右上角音乐播放逻辑 ========== */
+const bgm = document.getElementById("bgm");
+const musicToggleBtn = document.getElementById("music-toggle-btn");
+
+if (musicToggleBtn && bgm) {
+  musicToggleBtn.addEventListener("click", () => {
+    if (bgm.paused) {
+      bgm.play().then(() => {
+        musicToggleBtn.textContent = "🎵";
+      }).catch((err) => {
+        // 如果没有找到音乐文件，或者浏览器拦截
+        console.log("播放失败:", err);
+      });
+    } else {
+      bgm.pause();
+      musicToggleBtn.textContent = "🔇";
+    }
+  });
 }
