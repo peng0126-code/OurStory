@@ -26,21 +26,7 @@ body.theme-fun {
   --petal-bg: none;
 }
 
-/* ========== 防止图片和 GIF 被选中出现蓝框 ========== */
-img, 
-.milestone-marker, 
-.clock-m-marker {
-  /* 禁止文本选中 */
-  user-select: none;
-  -webkit-user-select: none; /* 兼容 Safari */
-  -moz-user-select: none;
-  
-  /* 禁止长按弹出菜单（针对手机端） */
-  -webkit-touch-callout: none;
-  
-  /* 禁止拖拽图片 */
-  -webkit-user-drag: none;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   font-family: "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -1422,4 +1408,20 @@ body.theme-fun .clock-box.is-today::before {
 /* 确保原生音频控件永远不显示 */
 #bgm {
   display: none;
+}
+
+/* ========== 防止图片和 GIF 被选中出现蓝框 ========== */
+img, 
+.milestone-marker, 
+.clock-m-marker {
+  /* 禁止文本选中 */
+  user-select: none;
+  -webkit-user-select: none; /* 兼容 Safari */
+  -moz-user-select: none;
+  
+  /* 禁止长按弹出菜单（针对手机端） */
+  -webkit-touch-callout: none;
+  
+  /* 禁止拖拽图片 */
+  -webkit-user-drag: none;
 }
