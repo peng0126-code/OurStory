@@ -30,12 +30,19 @@ body.theme-fun {
   margin: 0; 
   padding: 0; 
   box-sizing: border-box; 
-  /* ★ 禁止选中文本和长按弹出菜单 */
-  -webkit-user-select: none; /* Safari */
-  -moz-user-select: none;    /* Firefox */
-  -ms-user-select: none;     /* IE10+ */
-  user-select: none;         /* 标准语法 */
-  -webkit-touch-callout: none; /* 禁止 iOS 长按弹出复制菜单 */
+  -webkit-user-select: none; 
+  -moz-user-select: none; 
+  -ms-user-select: none; 
+  user-select: none; 
+  -webkit-touch-callout: none; 
+}
+
+/* ★ 核心：专门针对图片禁用手势和长按菜单 */
+img {
+  -webkit-user-drag: none;      /* 禁止拖拽 */
+  -webkit-touch-callout: none;  /* 禁止 iOS 长按菜单 */
+  user-select: none;
+  pointer-events: auto;         /* 保证点击事件依然有效（比如点开大图） */
 }
 
 body {
