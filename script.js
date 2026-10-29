@@ -1002,22 +1002,60 @@ function closeLetter(id) {
   }
 }
 
-/* ========== 右上角音乐播放逻辑 ========== */
+/* ========== 右上角音乐播放逻辑（渐入渐出） ========== */
 const bgm = document.getElementById("bgm");
 const musicToggleBtn = document.getElementById("music-toggle-btn");
 
+let fadeInterval = null;
+
+// 渐入渐出的核心函数
+function fadeAudio(targetVolume, callback) {
+  clearInterval(fadeInterval);
+  
+  // 步进值：每次改变 0.05 的音量
+  const step = 0.05;
+  // 每 50 毫秒执行一次（0.05 * (1000/50) = 1，即 1 秒内从 0 到 1）
+  const intervalTime = 50; 
+
+  fadeInterval = setInterval(() => {
+    let currentVolume = bgm.volume;
+    let nextVolume = currentVolume;
+
+    if (currentVolume < targetVolume) {
+      nextVolume = Math.min(currentVolume + step, targetVolume);
+    } else if (currentVolume > targetVolume) {
+      nextVolume = Math.max(currentVolume - step, targetVolume);
+    }
+
+    bgm.volume = nextVolume;
+
+    // 如果到达了目标音量，清除定时器
+    if (nextVolume === targetVolume) {
+      clearInterval(fadeInterval);
+      if (callback) callback();
+    }
+  }, intervalTime);
+}
+
 if (musicToggleBtn && bgm) {
+  // 初始音量设为 0
+  bgm.volume = 0;
+
   musicToggleBtn.addEventListener("click", () => {
     if (bgm.paused) {
+      // 播放并渐入
       bgm.play().then(() => {
         musicToggleBtn.textContent = "🎵";
+        fadeAudio(1); // 目标音量为 1（最大）
       }).catch((err) => {
-        // 如果没有找到音乐文件，或者浏览器拦截
         console.log("播放失败:", err);
       });
     } else {
-      bgm.pause();
-      musicToggleBtn.textContent = "🔇";
+      // 渐出并在结束后暂停
+      fadeAudio(0, () => {
+        bgm.pause();
+        musicToggleBtn.textContent = "🔇";
+      });
     }
   });
 }
