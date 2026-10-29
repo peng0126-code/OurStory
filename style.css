@@ -26,23 +26,20 @@ body.theme-fun {
   --petal-bg: none;
 }
 
-* { 
-  margin: 0; 
-  padding: 0; 
-  box-sizing: border-box; 
-  -webkit-user-select: none; 
-  -moz-user-select: none; 
-  -ms-user-select: none; 
-  user-select: none; 
-  -webkit-touch-callout: none; 
-}
-
-/* ★ 核心：专门针对图片禁用手势和长按菜单 */
-img {
-  -webkit-user-drag: none;      /* 禁止拖拽 */
-  -webkit-touch-callout: none;  /* 禁止 iOS 长按菜单 */
+/* ========== 防止图片和 GIF 被选中出现蓝框 ========== */
+img, 
+.milestone-marker, 
+.clock-m-marker {
+  /* 禁止文本选中 */
   user-select: none;
-  pointer-events: auto;         /* 保证点击事件依然有效（比如点开大图） */
+  -webkit-user-select: none; /* 兼容 Safari */
+  -moz-user-select: none;
+  
+  /* 禁止长按弹出菜单（针对手机端） */
+  -webkit-touch-callout: none;
+  
+  /* 禁止拖拽图片 */
+  -webkit-user-drag: none;
 }
 
 body {
