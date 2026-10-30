@@ -1399,6 +1399,12 @@ body.theme-fun .clock-box.is-today::before {
   outline: none;
 }
 
+/* ★ 新增：进入全屏时钟模式且隐藏按钮时，音乐按钮也一起向右滑出隐藏 */
+body.in-clock-mode.hide-buttons #music-toggle-btn {
+  transform: translateX(100px) !important;
+  opacity: 0;
+}
+
 /* 悬停时稍微亮一点，提示用户可以点 */
 #music-toggle-btn:hover {
   opacity: 1;
