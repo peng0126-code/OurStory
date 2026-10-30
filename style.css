@@ -1410,18 +1410,18 @@ body.theme-fun .clock-box.is-today::before {
   display: none;
 }
 
-/* ========== 防止图片和 GIF 被选中出现蓝框 ========== */
-img, 
-.milestone-marker, 
-.clock-m-marker {
-  /* 禁止文本选中 */
-  user-select: none;
-  -webkit-user-select: none; /* 兼容 Safari */
-  -moz-user-select: none;
-  
-  /* 禁止长按弹出菜单（针对手机端） */
-  -webkit-touch-callout: none;
-  
-  /* 禁止拖拽图片 */
-  -webkit-user-drag: none;
+/* ========== 终极防选中、防长按菜单 ========== */
+* {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important; /* 禁止 iOS 长按菜单 */
+  -webkit-tap-highlight-color: transparent; /* 禁止移动端点击时的灰/蓝底色 */
+}
+
+/* 特别是图片，禁止拖拽 */
+img {
+  -webkit-user-drag: none !important;
+  pointer-events: auto; /* 保留点击事件，但禁止拖拽 */
 }
