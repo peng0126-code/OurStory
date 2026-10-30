@@ -1052,9 +1052,9 @@ if (musicToggleBtn && bgm) {
       });
     } else {
       // 渐出并在结束后暂停
+      musicToggleBtn.textContent = "🔇";
       fadeAudio(0, () => {
         bgm.pause();
-        musicToggleBtn.textContent = "🔇";
       });
     }
   });
