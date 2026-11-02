@@ -378,48 +378,73 @@ function openLightbox(src, sourceImg) {
 }
 
 function closeLightbox() {
-
-  isAnimating = true;
+  isAnimating = false; 
 
   if (currentSourceImg) {
-    const rect = currentSourceImg.getBoundingClientRect();
-    const viewportCenterX = window.innerWidth / 2;
-    const viewportCenterY = window.innerHeight / 2;
-    
-    const imgCenterX = rect.left + rect.width / 2;
-    const imgCenterY = rect.top + rect.height / 2;
-    
-    const translateX = imgCenterX - viewportCenterX;
-    const translateY = imgCenterY - viewportCenterY;
-    const scale = Math.max(rect.width / lightboxImg.clientWidth, rect.height / lightboxImg.clientHeight) || 0.1;
-
-    // 1. 动态设置过渡属性，确保它一定会平滑缩小
-    flipWrapper.style.transition = "transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease";
-    flipWrapper.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale}) rotateY(0deg)`;
-    flipWrapper.style.opacity = "0";
-    
+   if (isFlipped) {
+      // ★ 核心修复：既然在反面，我们直接抓取“白底黑字”的那个卡片
+      const backTextEl = document.querySelector('.text-paper');
+      
+      if (backTextEl) {
+        // 给卡片加上平滑缩放和淡出的动画
+        backTextEl.style.transition = "transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease";
+        backTextEl.style.transformOrigin = "center center";
+        // 让它以 3D 的状态原地缩小（因为 .flip-back 已经做了反转，它在视觉上是正的）
+        backTextEl.style.transform = "scale(0.85)"; 
+        backTextEl.style.opacity = "0";
+      }
+      
+      // 同时，为了绝对防止底下的照片闪现，瞬间把照片彻底隐藏
+      lightboxImg.style.transition = "none";
+      lightboxImg.style.opacity = "0";
+      
+      // 外层容器保持不动，等待卡片缩小完毕
+      
+    } else {
+      // ★ 正面关闭：正常飞回原本的图片位置
+      const rect = currentSourceImg.getBoundingClientRect();
+      const viewportCenterX = window.innerWidth / 2;
+      const viewportCenterY = window.innerHeight / 2;
+      
+      const imgCenterX = rect.left + rect.width / 2;
+      const imgCenterY = rect.top + rect.height / 2;
+      
+      const translateX = imgCenterX - viewportCenterX;
+      const translateY = imgCenterY - viewportCenterY;
+      const scale = Math.max(rect.width / lightboxImg.clientWidth, rect.height / lightboxImg.clientHeight) || 0.1;
+  
+      flipWrapper.style.transition = "transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease";
+      flipWrapper.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale}) rotateY(0deg)`;
+      flipWrapper.style.opacity = "0";
+    }
   } else {
     flipWrapper.style.transition = "transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease";
     flipWrapper.style.transform = "scale(0.8) rotateY(0deg)";
     flipWrapper.style.opacity = "0";
   }
   
-  // 2. 等待飞回动画彻底结束（0.25s）
+  // 等待缩小动画播完，隐藏遮罩
   setTimeout(() => {
     lightbox.classList.remove("show");
     window.removeEventListener('wheel', preventScroll);
     window.removeEventListener('touchmove', preventScroll);
     
-    // 3. 等遮罩开始变透明后（0.1s）
+    // 等遮罩黑掉后，偷偷重置状态
     setTimeout(() => {
-      // 4. 在最黑的时候，瞬间重置状态
       currentSourceImg = null; 
       isFlipped = false;
       
-      // 先移除过度，然后把大小转回原样，但保持 opacity = 0（完全看不见）
       flipWrapper.style.transition = "none";
       flipWrapper.style.transform = "rotateY(0deg)"; 
-      flipWrapper.style.opacity = "0"; 
+      flipWrapper.style.opacity = "1"; // 恢复外层容器透明度
+      
+      // 恢复文字卡片的初始状态，供下一次打开使用
+      const backTextEl = document.querySelector('.text-paper');
+      if (backTextEl) {
+        backTextEl.style.transition = "none";
+        backTextEl.style.transform = "none";
+        backTextEl.style.opacity = "1";
+      }
       
       lightboxImg.style.transition = "none";
       lightboxImg.style.transform = "none";
@@ -427,14 +452,8 @@ function closeLightbox() {
 
       const existingMarker = flipWrapper.querySelector('.secret-marker');
       if (existingMarker) existingMarker.remove();
-      
-      // 5. 解除动画锁定
-      setTimeout(() => {
-        isAnimating = false;
-      }, 50);
-      
     }, 100); 
-  }, 250); 
+  }, 250); // 等待 0.25s 让卡片缩小完毕
 }
 
 /* ================= 手势翻转 & 点击判定逻辑 ================= */
