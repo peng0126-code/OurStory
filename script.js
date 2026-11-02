@@ -1384,3 +1384,38 @@ if (musicToggleBtn && bgm) {
     }
   });
 }
+
+/* ========== 加载页面控制 ========== */
+const loadingScreen = document.getElementById("loading-screen");
+
+// ★ 判断：如果用户在当前浏览器会话中已经看过加载页了，就直接跳过
+if (sessionStorage.getItem("hasVisited")) {
+  // 直接隐藏，不播动画
+  if (loadingScreen) loadingScreen.style.display = "none";
+} else {
+  // 第一次访问，记录状态，并播放加载动画
+  sessionStorage.setItem("hasVisited", "true");
+  
+  let progress = 0;
+  const loaderBar = document.getElementById("loader-bar");
+
+  const progressInterval = setInterval(() => {
+    progress += Math.random() * 10 + 5;
+    if (progress > 90) progress = 90; 
+    if (loaderBar) loaderBar.style.width = progress + "%";
+  }, 200);
+
+  window.addEventListener("load", () => {
+    clearInterval(progressInterval);
+    if (loaderBar) loaderBar.style.width = "100%";
+
+    setTimeout(() => {
+      if (loadingScreen) {
+        loadingScreen.classList.add("hidden");
+      }
+      setTimeout(() => {
+        if (loadingScreen) loadingScreen.remove();
+      }, 800);
+    }, 300);
+  });
+}
