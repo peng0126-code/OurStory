@@ -317,7 +317,17 @@
 </div>
 
 <div id="lightbox" class="lightbox">
-  <img id="lightbox-img" src="" alt="">
+  <!-- 3D 翻转容器 -->
+  <div class="flip-wrapper" id="flip-wrapper">
+    <!-- 正面：照片 -->
+    <div class="flip-face flip-front">
+      <img id="lightbox-img" src="" alt="">
+    </div>
+    <!-- 背面：白底黑字 -->
+    <div class="flip-face flip-back">
+      <div class="text-paper" id="lightbox-back-text"></div>
+    </div>
+  </div>
 </div>
 
 <script src="script.js"></script>
