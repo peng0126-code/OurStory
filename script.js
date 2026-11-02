@@ -344,6 +344,7 @@ function openLightbox(src, sourceImg) {
   flipWrapper.classList.remove("flipped");
   flipWrapper.style.transition = "none";
   flipWrapper.style.transform = "rotateY(0deg)";
+  flipWrapper.style.opacity = "1"; // ★ 确保有这一行
   
   lightbox.classList.add("show");
   
@@ -377,6 +378,9 @@ function openLightbox(src, sourceImg) {
 }
 
 function closeLightbox() {
+
+  isAnimating = true;
+
   if (currentSourceImg) {
     const rect = currentSourceImg.getBoundingClientRect();
     const viewportCenterX = window.innerWidth / 2;
@@ -389,34 +393,33 @@ function closeLightbox() {
     const translateY = imgCenterY - viewportCenterY;
     const scale = Math.max(rect.width / lightboxImg.clientWidth, rect.height / lightboxImg.clientHeight) || 0.1;
 
-    // 1. 加上 CSS 类，让整个容器一边缩小一边透明
-    flipWrapper.classList.add("fade-out");
-    
-    // ★ 核心修改：强制 rotateY(0deg)，这样无论在不在背面，都会瞬间转回正面并飞回
+    // 1. 动态设置过渡属性，确保它一定会平滑缩小
+    flipWrapper.style.transition = "transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease";
     flipWrapper.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale}) rotateY(0deg)`;
+    flipWrapper.style.opacity = "0";
     
   } else {
-    flipWrapper.classList.add("fade-out");
+    flipWrapper.style.transition = "transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease";
     flipWrapper.style.transform = "scale(0.8) rotateY(0deg)";
+    flipWrapper.style.opacity = "0";
   }
   
-  // 2. 等待飞回动画（0.3s）播完，此时容器已经透明，开始隐藏遮罩
+  // 2. 等待飞回动画彻底结束（0.25s）
   setTimeout(() => {
     lightbox.classList.remove("show");
     window.removeEventListener('wheel', preventScroll);
     window.removeEventListener('touchmove', preventScroll);
     
-    // 3. 再多等 100ms，确保黑色遮罩在视觉上完全淡出消失后，再偷偷重置所有状态
+    // 3. 等遮罩开始变透明后（0.1s）
     setTimeout(() => {
+      // 4. 在最黑的时候，瞬间重置状态
       currentSourceImg = null; 
       isFlipped = false;
-      isAnimating = false;
       
-      flipWrapper.classList.remove("fade-out");
+      // 先移除过度，然后把大小转回原样，但保持 opacity = 0（完全看不见）
       flipWrapper.style.transition = "none";
       flipWrapper.style.transform = "rotateY(0deg)"; 
-      // 清空 opacity 内联样式
-      flipWrapper.style.opacity = ""; 
+      flipWrapper.style.opacity = "0"; 
       
       lightboxImg.style.transition = "none";
       lightboxImg.style.transform = "none";
@@ -424,8 +427,14 @@ function closeLightbox() {
 
       const existingMarker = flipWrapper.querySelector('.secret-marker');
       if (existingMarker) existingMarker.remove();
+      
+      // 5. 解除动画锁定
+      setTimeout(() => {
+        isAnimating = false;
+      }, 50);
+      
     }, 100); 
-  }, 300); 
+  }, 250); 
 }
 
 /* ================= 手势翻转 & 点击判定逻辑 ================= */
