@@ -784,22 +784,27 @@ body.in-clock-mode .photo-nav-btn {
 }
 
 /* ★ 加宽左右两列，留出空间给多行文字 */
-.left-col { flex: 2; }   
-.center-col { flex: 6; } 
-.right-col { flex: 2; }  
+.left-col { flex: 1.5; }   
+.center-col { flex: 7; } 
+.right-col { flex: 1.5; }  
 
 .clock-box {
-  background: var(--card-bg);
+  /* ★ 改成毛玻璃效果（和极简/上下布局一样） */
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+  border: 1px solid rgba(255,255,255,0.6);
+  
   border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border: 1px solid var(--main-light);
-  transition: background 0.6s ease, border-color 0.6s ease;
-  overflow: hidden; /* 确保彩带被框住 */
+  transition: background 0.6s ease, border-color 0.6s ease, box-shadow 0.6s ease;
+  overflow: hidden;
 }
+
 .left-col .clock-box,
 .right-col .clock-box {
   flex: 1;
@@ -846,6 +851,7 @@ body.in-clock-mode .photo-nav-btn {
 body.theme-fun .clock-topline {
   color: #c9a04a;
 }
+
 body.theme-fun .clock-ampm,
 body.theme-fun .clock-date {
   color: #c9a04a;
@@ -884,15 +890,16 @@ body.theme-fun .clock-toggle-btn:hover {
 }
 
 body.theme-fun .clock-box {
-  background: #2a2117;
-  border-color: #5a4a34;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+  /* ★ 万兽之王主题的毛玻璃效果 */
+  background: rgba(42, 33, 23, 0.4);
+  border: 1px solid rgba(201, 160, 74, 0.2);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
 }
+
 body.theme-fun .center-col .clock-box {
-  background: #1a1215; 
-  border: 1px solid #3a2e24; 
-  border-radius: 20px;       
-  box-shadow: 0 4px 24px rgba(0,0,0,0.6); 
+  background: transparent; 
+  border: none; 
+  box-shadow: none; 
 }
 
 .box-days .c-label {
@@ -962,11 +969,16 @@ body.theme-fun .center-col .clock-box {
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   transition: transform 0.15s ease, opacity 0.15s ease;
 }
+
 body.theme-fun .flip-digit {
-  background: #1a1215;
-  border: 1px solid #3a2e24;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 0 10px rgba(201, 160, 74, 0.1);
+  /* ★ 核心修改：用带点透明度的暗金/深灰，加上发光边框，把卡片“托”出来 */
+  background: rgba(201, 160, 74, 0.1); /* 淡暗金色半透明背景 */
+  border: 1px solid rgba(201, 160, 74, 0.3); /* 明显的暗金边框 */
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 0 15px rgba(201, 160, 74, 0.15);
+  backdrop-filter: blur(10px); /* 加一点毛玻璃效果更高级 */
+  -webkit-backdrop-filter: blur(10px);
 }
+
 .flip-colon {
   display: flex;
   align-items: center;
@@ -1077,9 +1089,9 @@ body.theme-fun .clock-bottom {
   .clock-column { gap: 1vh; }
   
   /* ★ 手机横屏也同步加宽左右列 */
-  .left-col { flex: 2; }
-  .center-col { flex: 6; }
-  .right-col { flex: 2; }
+  .left-col { flex: 1.5; }
+  .center-col { flex: 7; }
+  .right-col { flex: 1.5; }
   
   .box-days .c-label { font-size: 0.85rem; margin-bottom: 0.5vh; }
   .box-days .c-value #clock-days { font-size: 4vw; margin-bottom: 2px; }
@@ -1695,4 +1707,222 @@ body.theme-fun .secret-marker {
 
 @keyframes fadeInText {
   to { opacity: 1; }
+}
+
+/* ========== 极简时钟布局 (左4/5 + 右1/5 分屏版) ========== */
+
+/* 1. 主容器使用 Grid 布局，完美分屏 */
+.clock-container.layout-minimal .clock-top {
+  display: grid;
+  /* ★ 核心修改：左边 4 份，右边 1 份 */
+  grid-template-columns: 4.2fr 1fr; 
+  grid-template-areas: 
+    "clock card1"
+    "clock card2"
+    "clock card3"
+    "clock card4";
+  gap: 2vh 2vw;
+  align-items: stretch;
+  margin-bottom: 0; 
+}
+
+/* 2. 隐藏里程碑 */
+.clock-container.layout-minimal .clock-bottom {
+  display: none !important;
+}
+
+/* 3. 时钟区域占满左半边，高度铺满整个屏幕 */
+.clock-container.layout-minimal .center-col {
+  grid-area: clock;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+}
+
+/* 4. 把原来的左右列变成透明容器 */
+.clock-container.layout-minimal .left-col,
+.clock-container.layout-minimal .right-col {
+  display: contents;
+}
+
+/* 5. 依次把 4 个卡片塞进右侧的 1x4 网格 */
+.clock-container.layout-minimal .left-col .box-days { grid-area: card1; }
+.clock-container.layout-minimal .left-col .box-cd { grid-area: card2; }
+.clock-container.layout-minimal .right-col .box-cd:nth-child(1) { grid-area: card3; }
+.clock-container.layout-minimal .right-col .box-cd:nth-child(2) { grid-area: card4; }
+
+/* 6. 卡片毛玻璃美化 */
+.clock-container.layout-minimal .clock-box:not(.box-time) {
+  border-radius: 20px;
+  padding: 1vh 0.5vw;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+  border: 1px solid rgba(255,255,255,0.6);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 万兽之王主题的卡片背景 */
+body.theme-fun .clock-container.layout-minimal .clock-box:not(.box-time) {
+  background: rgba(42, 33, 23, 0.4);
+  border: 1px solid rgba(201, 160, 74, 0.2);
+}
+
+/* 7. 文字排版适配（因为卡片变得更窄，数字得再缩小一点保证不换行） */
+.clock-container.layout-minimal .box-cd .c-cd-title {
+  font-size: 0.75rem;
+  margin-bottom: 0.5vh;
+  text-align: center;
+  line-height: 1.2;
+}
+.clock-container.layout-minimal .box-cd .c-cd-value {
+  font-size: 1rem;
+  text-align: center;
+}
+.clock-container.layout-minimal .box-cd .c-cd-value span {
+  font-size: 1.8vw; /* 变窄后数字适当缩小 */
+}
+.clock-container.layout-minimal .box-days .c-label {
+  font-size: 0.8rem;
+  margin-bottom: 0.5vh;
+}
+.clock-container.layout-minimal .box-days .c-value #clock-days {
+  font-size: 2vw; 
+}
+.clock-container.layout-minimal .box-days .c-unit {
+  font-size: 0.8rem;
+}
+
+/* 8. 时钟区域的顶部与底部排版 */
+.clock-container.layout-minimal .clock-topline {
+  height: auto;
+  padding: 0 3vw 2vh 3vw;
+}
+
+/* 9. ★ 配合变宽的时钟，字体稍微放大 */
+.clock-container.layout-minimal .flip-clock {
+  font-size: 16vw !important; 
+}
+.clock-container.layout-minimal .flip-colon {
+  font-size: 10vw !important; 
+}
+
+/* 手机横屏专门适配 */
+@media (orientation: landscape) and (max-height: 500px) {
+  .clock-container.layout-minimal .flip-clock {
+    font-size: 13vw !important;
+  }
+  .clock-container.layout-minimal .flip-colon {
+    font-size: 12vw !important;
+  }
+}
+
+/* ========== 第三种布局：上时钟 + 下卡片 ========== */
+.clock-container.layout-stacked .clock-top {
+  display: grid;
+  /* ★ 改回 2fr 1fr，给下面卡片留出足够的空间 */
+  grid-template-rows: 4fr 1fr; 
+  grid-template-columns: 1fr 1fr 1fr 1fr; 
+  grid-template-areas: 
+    "clock clock clock clock"
+    "card1 card2 card3 card4";
+  gap: 2vh 1.5vw;
+  height: 100%;
+}
+
+/* 1. 时钟放上面 */
+.clock-container.layout-stacked .center-col {
+  grid-area: clock;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden; /* 防止内容溢出 */
+}
+
+/* 2. 卡片放下面 */
+.clock-container.layout-stacked .left-col,
+.clock-container.layout-stacked .right-col {
+  display: contents; 
+}
+
+.clock-container.layout-stacked .left-col .box-days { grid-area: card1; }
+.clock-container.layout-stacked .left-col .box-cd { grid-area: card2; }
+.clock-container.layout-stacked .right-col .box-cd:nth-child(1) { grid-area: card3; }
+.clock-container.layout-stacked .right-col .box-cd:nth-child(2) { grid-area: card4; }
+
+/* 隐藏里程碑 */
+.clock-container.layout-stacked .clock-bottom {
+  display: none !important;
+}
+
+/* 3. 下方卡片的毛玻璃美化 */
+.clock-container.layout-stacked .clock-box:not(.box-time) {
+  border-radius: 20px;
+  padding: 1vh 1vw;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+  border: 1px solid rgba(255,255,255,0.6);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+body.theme-fun .clock-container.layout-stacked .clock-box:not(.box-time) {
+  background: rgba(42, 33, 23, 0.4);
+  border: 1px solid rgba(201, 160, 74, 0.2);
+}
+
+/* 4. 文字适配 */
+.clock-container.layout-stacked .box-cd .c-cd-title,
+.clock-container.layout-stacked .box-days .c-label {
+  font-size: 0.85rem;
+  margin-bottom: 0.5vh;
+  text-align: center;
+}
+.clock-container.layout-stacked .box-cd .c-cd-value span,
+.clock-container.layout-stacked .box-days .c-value #clock-days {
+  font-size: 2.5vw; 
+}
+
+/* 5. ★ 核心修复：时钟大小自适应屏幕高度，并加上最大限制 */
+.clock-container.layout-stacked .flip-clock {
+  /* 用 min() 函数：取 "15vw" 和 "25vh" 里面更小的那个，防止电脑上高度溢出 */
+  font-size: min(15vw, 25vh) !important; 
+}
+.clock-container.layout-stacked .flip-colon {
+  font-size: min(10vw, 16vh) !important; 
+}
+
+/* 6. 调整时钟顶部的日期排版 */
+.clock-container.layout-stacked .clock-topline {
+  height: auto;
+  padding: 0 5vw 2vh 5vw;
+}
+
+/* 7. 让底部的切换按钮往下沉一点点 */
+.clock-container.layout-stacked .clock-toggle-group {
+  margin-top: 3vh; /* 数值越大越靠下，你可以根据喜好在 2vh ~ 5vh 之间微调 */
+}
+
+/* 手机横屏专门适配 */
+@media (orientation: landscape) and (max-height: 500px) {
+  .clock-container.layout-stacked .flip-clock {
+    font-size: min(13vw, 30vh) !important;
+  }
+  .clock-container.layout-stacked .box-cd .c-cd-title,
+  .clock-container.layout-stacked .box-days .c-label { font-size: 0.75rem; }
+  .clock-container.layout-stacked .box-cd .c-cd-value span,
+  .clock-container.layout-stacked .box-days .c-value #clock-days { font-size: 2.5vw; }
 }
