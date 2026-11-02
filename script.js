@@ -1277,10 +1277,31 @@ themeBtn.addEventListener("mouseleave", () => {
 });
 
 /* ========== 11. 彩蛋信件交互 ========== */
+
+// ★ 专门用于锁定背景滚动的函数
+let letterScrollLocked = false;
+function preventLetterBgScroll(e) {
+  if (!letterScrollLocked) return;
+  
+  const isInsideLetterPaper = e.target.closest('.letter-paper');
+  if (!isInsideLetterPaper) {
+    if (e.cancelable) e.preventDefault();
+  }
+}
+
 function openLetter(id) {
   const modal = document.getElementById(id);
   if (modal) {
     modal.style.display = 'flex';
+    
+    // ★ 1. 开启背景锁定
+    letterScrollLocked = true;
+    window.addEventListener('wheel', preventLetterBgScroll, { passive: false });
+    window.addEventListener('touchmove', preventLetterBgScroll, { passive: false });
+    
+    // ★ 2. 隐藏右下角的悬浮按钮
+    document.body.classList.add('hide-buttons');
+    
     setTimeout(() => {
       modal.classList.add('show');
     }, 10);
@@ -1291,9 +1312,18 @@ function closeLetter(id) {
   const modal = document.getElementById(id);
   if (modal) {
     modal.classList.remove('show');
+    
+    // ★ 3. 关闭背景锁定
+    letterScrollLocked = false;
+    window.removeEventListener('wheel', preventLetterBgScroll);
+    window.removeEventListener('touchmove', preventLetterBgScroll);
+    
+    // ★ 4. 恢复右下角的悬浮按钮
+    document.body.classList.remove('hide-buttons');
+    
     setTimeout(() => {
       modal.style.display = 'none';
-    }, 400);
+    }, 400); // 等待淡出动画结束
   }
 }
 
