@@ -1276,6 +1276,38 @@ themeBtn.addEventListener("mouseleave", () => {
   resetHideTimer();
 });
 
+// ★ 布局切换逻辑
+const layoutBtn = document.getElementById("clock-layout-btn");
+const clockContainer = document.querySelector(".clock-container");
+
+// 0 = 默认三列, 1 = 极简左右分屏, 2 = 上下结构
+let currentLayoutIndex = parseInt(localStorage.getItem("clockLayoutIndex")) || 0;
+
+function applyLayout() {
+  // 先清空所有布局类名
+  clockContainer.classList.remove("layout-minimal", "layout-stacked");
+  
+  if (currentLayoutIndex === 1) {
+    clockContainer.classList.add("layout-minimal");
+  } else if (currentLayoutIndex === 2) {
+    clockContainer.classList.add("layout-stacked");
+  }
+  // index 为 0 时不加类名，就是默认布局
+  
+  localStorage.setItem("clockLayoutIndex", currentLayoutIndex);
+}
+
+// 页面加载时恢复布局
+applyLayout();
+
+if (layoutBtn) {
+  layoutBtn.addEventListener("click", () => {
+    // 0 -> 1 -> 2 -> 0 循环
+    currentLayoutIndex = (currentLayoutIndex + 1) % 3;
+    applyLayout();
+  });
+}
+
 /* ========== 11. 彩蛋信件交互 ========== */
 
 // ★ 专门用于锁定背景滚动的函数
