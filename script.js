@@ -377,8 +377,6 @@ function openLightbox(src, sourceImg) {
 }
 
 function closeLightbox() {
-  if (isAnimating) return;
-
   if (currentSourceImg) {
     const rect = currentSourceImg.getBoundingClientRect();
     const viewportCenterX = window.innerWidth / 2;
@@ -391,52 +389,90 @@ function closeLightbox() {
     const translateY = imgCenterY - viewportCenterY;
     const scale = Math.max(rect.width / lightboxImg.clientWidth, rect.height / lightboxImg.clientHeight) || 0.1;
 
-    // 1. 缩小飞回并旋转
-    flipWrapper.style.transition = "transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)";
+    // 1. 加上 CSS 类，让整个容器一边缩小一边透明
+    flipWrapper.classList.add("fade-out");
     flipWrapper.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale}) rotateY(0deg)`;
-    
-    // 2. ★ 让整个容器一起变透明，而不是只让图片变透明
-    flipWrapper.style.transition += ", opacity 0.3s ease";
-    flipWrapper.style.opacity = "0";
-    
   } else {
+    flipWrapper.classList.add("fade-out");
     flipWrapper.style.transform = "scale(0.8) rotateY(0deg)";
-    flipWrapper.style.opacity = "0";
   }
   
-  // ★ 3. 给足 350ms，确保飞回和透明动画彻底结束
+  // 2. 等待飞回动画（0.3s）播完，此时容器已经透明，开始隐藏遮罩
   setTimeout(() => {
     lightbox.classList.remove("show");
     window.removeEventListener('wheel', preventScroll);
     window.removeEventListener('touchmove', preventScroll);
     
-    // ★ 4. 再等 350ms，等遮罩自己完全黑掉消失后，再偷偷重置状态（此时用户绝对看不到）
+    // 3. 再多等 100ms，确保黑色遮罩在视觉上完全淡出消失后，再偷偷重置所有状态
     setTimeout(() => {
       currentSourceImg = null; 
       isFlipped = false;
+      isAnimating = false;
       
-      // 瞬间重置，为了防止下次打开时闪
+      flipWrapper.classList.remove("fade-out");
       flipWrapper.style.transition = "none";
       flipWrapper.style.transform = "rotateY(0deg)"; 
-      flipWrapper.style.opacity = "1"; 
+      // 清空 opacity 内联样式
+      flipWrapper.style.opacity = ""; 
       
       lightboxImg.style.transition = "none";
       lightboxImg.style.transform = "none";
       lightboxImg.style.opacity = "1"; 
 
-      // 关闭时顺便把标记删掉
       const existingMarker = flipWrapper.querySelector('.secret-marker');
       if (existingMarker) existingMarker.remove();
-
     }, 100); 
-  }, 100); 
+  }, 300); 
 }
+
+/* ================= 手势翻转 & 点击判定逻辑 ================= */
+let pointerStartX = 0;
+let pointerStartY = 0;
+let pointerStartTime = 0;
+let isPointerDown = false;
+
+// 1. 手指/鼠标 按下
+lightbox.addEventListener('pointerdown', (e) => {
+  isPointerDown = true;
+  pointerStartX = e.clientX;
+  pointerStartY = e.clientY;
+  pointerStartTime = new Date().getTime();
+});
+
+// 2. 手指/鼠标 抬起
+lightbox.addEventListener('pointerup', (e) => {
+  if (!isPointerDown) return;
+  isPointerDown = false;
+  
+  const deltaX = e.clientX - pointerStartX;
+  const deltaY = e.clientY - pointerStartY;
+  const timeDiff = new Date().getTime() - pointerStartTime;
+  const distance = Math.hypot(deltaX, deltaY); // 计算移动距离
+
+  // ★ 判断 1：如果是横向滑动（距离大于 50px，且横向位移大于纵向），则触发翻转
+  if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY) && timeDiff < 500) {
+    triggerFlip(deltaX < 0 ? 1 : -1);
+  } 
+  // ★ 判断 2：如果是纯粹的“点击”（移动距离小于 10px），并且点的是黑边，直接关闭
+  else if (distance < 10) {
+    if (e.target.id === "lightbox") {
+      closeLightbox();
+    }
+  }
+});
+
+// 阻止手机端默认的长按菜单和拖拽
+lightbox.addEventListener('contextmenu', e => e.preventDefault());
 
 /* ================= 手势翻转逻辑 ================= */
 let touchStartX = 0;
 let touchStartY = 0;
 let touchStartTime = 0;
-let isTouchMoved = false; // 记录用户是否滑动了手指
+let touchEndTime = 0; // ★ 记录滑动结束时间
+
+let mouseStartX = 0;
+let mouseStartTime = 0;
+let isMouseDown = false;
 
 function triggerFlip(direction) {
   if (isAnimating) return;
@@ -468,24 +504,13 @@ function triggerFlip(direction) {
   }, 600);
 }
 
-// 触摸滑动监听
+// 手机触摸事件
+// 手机触摸事件
 lightbox.addEventListener('touchstart', (e) => {
   if (e.touches.length !== 1) return;
   touchStartX = e.touches[0].clientX;
   touchStartY = e.touches[0].clientY;
   touchStartTime = new Date().getTime();
-  isTouchMoved = false; // 重置滑动标记
-}, { passive: true });
-
-lightbox.addEventListener('touchmove', (e) => {
-  // 如果手指移动了一点，就标记为已滑动，用于防止误关
-  if (e.touches.length === 1) {
-    const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
-    const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
-    if (deltaX > 5 || deltaY > 5) {
-      isTouchMoved = true;
-    }
-  }
 }, { passive: true });
 
 lightbox.addEventListener('touchend', (e) => {
@@ -495,28 +520,17 @@ lightbox.addEventListener('touchend', (e) => {
   const deltaY = e.changedTouches[0].clientY - touchStartY;
   const timeDiff = new Date().getTime() - touchStartTime;
 
+  // 只要滑动距离够，就触发翻转
   if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY) && timeDiff < 500) {
     triggerFlip(deltaX < 0 ? 1 : -1);
   }
 }, { passive: true });
 
-// 鼠标拖拽
-let mouseStartX = 0;
-let mouseStartTime = 0;
-let isMouseDown = false;
-let isMouseMoved = false;
-
+// 电脑鼠标事件
 lightbox.addEventListener('mousedown', (e) => {
   isMouseDown = true;
   mouseStartX = e.clientX;
   mouseStartTime = new Date().getTime();
-  isMouseMoved = false;
-});
-
-lightbox.addEventListener('mousemove', (e) => {
-  if (!isMouseDown) return;
-  const deltaX = Math.abs(e.clientX - mouseStartX);
-  if (deltaX > 5) isMouseMoved = true;
 });
 
 lightbox.addEventListener('mouseup', (e) => {
@@ -531,26 +545,18 @@ lightbox.addEventListener('mouseup', (e) => {
   }
 });
 
-// 绑定点击事件
+// 绑定照片点击打开
 document.querySelectorAll(".event .card img").forEach(img => {
   img.addEventListener("click", () => openLightbox(img.src, img));
 });
 
-// 遮罩背景关闭逻辑
+// ★ 点击黑边关闭（极简判定，100%跟手）
 lightbox.addEventListener("click", (e) => {
-  // 如果用户刚刚滑动过屏幕，忽略这次点击，防止翻转完误触关闭
-  if (isTouchMoved || isMouseMoved) return;
-
-  // ★ 核心防误触：只要点击的是图片本身、白底文字、或者翻转容器（无论正反），都不关闭
-  if (e.target === lightboxImg || 
-      e.target.classList.contains("text-paper") || 
-      e.target.classList.contains("flip-wrapper") || 
-      e.target.classList.contains("flip-face")) {
-    return;
-  }
-  
-  // 只有点到了真正的纯黑背景，才会触发关闭
-  if (e.target === lightbox) {
+  // 如果点的是最外层的 lightbox（纯黑背景）
+  if (e.target.id === "lightbox") {
+    // 如果正在翻转动画中，不让关
+    if (isAnimating) return; 
+    
     closeLightbox();
   }
 });
