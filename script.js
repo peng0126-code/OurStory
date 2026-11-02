@@ -282,20 +282,99 @@ const observer = new IntersectionObserver((entries) => {
 
 document.querySelectorAll(".event").forEach(event => observer.observe(event));
 
-/* ========== 5. 图片点击放大 ========== */
+/* ========== 5. 图片点击放大（带飞入飞出动画） ========== */
 const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightbox-img");
 
+let currentSourceImg = null; 
+
+// ★ 核心：拦截滚轮和触摸滑动
+function preventScroll(e) {
+  e.preventDefault();
+}
+
+function openLightbox(src, sourceImg) {
+  currentSourceImg = sourceImg;
+  lightboxImg.src = src;
+  lightbox.classList.add("show");
+  
+  // ★ 开启拦截（passive: false 确保 preventDefault 生效）
+  window.addEventListener('wheel', preventScroll, { passive: false });
+  window.addEventListener('touchmove', preventScroll, { passive: false });
+  
+  const rect = sourceImg.getBoundingClientRect();
+  const viewportCenterX = window.innerWidth / 2;
+  const viewportCenterY = window.innerHeight / 2;
+  
+  const imgCenterX = rect.left + rect.width / 2;
+  const imgCenterY = rect.top + rect.height / 2;
+  
+  const translateX = imgCenterX - viewportCenterX;
+  const translateY = imgCenterY - viewportCenterY;
+  
+  const scale = Math.max(rect.width / lightboxImg.clientWidth, rect.height / lightboxImg.clientHeight) || 0.1;
+
+  lightboxImg.style.transition = "none";
+  lightboxImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+  lightboxImg.style.opacity = "0";
+  
+  void lightboxImg.offsetWidth;
+  
+  requestAnimationFrame(() => {
+    lightboxImg.style.transition = "transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease";
+    lightboxImg.style.transform = "translate(0, 0) scale(1)";
+    lightboxImg.style.opacity = "1";
+  });
+}
+
+function closeLightbox() {
+  if (currentSourceImg) {
+    const rect = currentSourceImg.getBoundingClientRect();
+    const viewportCenterX = window.innerWidth / 2;
+    const viewportCenterY = window.innerHeight / 2;
+    
+    const imgCenterX = rect.left + rect.width / 2;
+    const imgCenterY = rect.top + rect.height / 2;
+    
+    const translateX = imgCenterX - viewportCenterX;
+    const translateY = imgCenterY - viewportCenterY;
+    const scale = Math.max(rect.width / lightboxImg.clientWidth, rect.height / lightboxImg.clientHeight) || 0.1;
+    
+    lightboxImg.style.transition = "transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease";
+    lightboxImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    lightboxImg.style.opacity = "0";
+  } else {
+    lightboxImg.style.transform = "scale(0.8)";
+    lightboxImg.style.opacity = "0";
+  }
+  
+  setTimeout(() => {
+    lightbox.classList.remove("show");
+    
+    // ★ 解除拦截
+    window.removeEventListener('wheel', preventScroll);
+    window.removeEventListener('touchmove', preventScroll);
+    
+    currentSourceImg = null; 
+    lightboxImg.style.transition = "none";
+    lightboxImg.style.transform = "none";
+  }, 300);
+}
+
+// 绑定时间线图片的点击事件
 document.querySelectorAll(".event .card img").forEach(img => {
   img.addEventListener("click", () => {
-    lightboxImg.src = img.src;
-    lightbox.classList.add("show");
+    openLightbox(img.src, img);
   });
 });
 
-lightbox.addEventListener("click", () => {
-  lightbox.classList.remove("show");
+// 点击遮罩背景关闭
+lightbox.addEventListener("click", (e) => {
+  if (e.target === lightbox) {
+    closeLightbox();
+  }
 });
+
 
 /* ========== 6. 主题切换并保存状态 ========== */
 themeBtn.addEventListener("click", () => {
@@ -557,9 +636,9 @@ if (photoWall) {
     img.src = src;
     img.alt = "我们的照片";
     
+    // ★ 同样绑定飞入动画
     img.addEventListener("click", () => {
-      lightboxImg.src = img.src;
-      lightbox.classList.add("show");
+      openLightbox(img.src, img);
     });
 
     photoWall.appendChild(img);
