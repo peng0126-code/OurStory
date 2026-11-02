@@ -1626,3 +1626,73 @@ img {
 body.theme-fun .secret-marker {
   filter: sepia(1) saturate(5) hue-rotate(5deg); 
 }
+
+/* ========== 加载遮罩层 ========== */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-top); /* 跟随当前主题的背景色 */
+  z-index: 99999; /* 必须在所有元素最上层 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s ease;
+  /* 默认向上滑出 */
+  transform: translateY(0);
+}
+
+/* 当加上 hidden 类时，向上滑出并消失 */
+#loading-screen.hidden {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loader-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.loader-icon {
+  font-size: 3rem;
+  animation: heartbeat 1.2s infinite ease-in-out;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 4px 10px rgba(217, 140, 140, 0.4));
+}
+
+.loader-text {
+  font-family: "Kaiti SC", "KaiTi", "STKaiti", serif;
+  font-size: 1.2rem;
+  color: var(--text-mid);
+  letter-spacing: 2px;
+  margin-bottom: 25px;
+  opacity: 0;
+  animation: fadeInText 1s 0.3s forwards ease;
+}
+
+.loader-bar-wrap {
+  width: 180px;
+  height: 3px;
+  background: var(--main-light);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.loader-bar {
+  width: 0%;
+  height: 100%;
+  background: var(--main);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+@keyframes fadeInText {
+  to { opacity: 1; }
+}
