@@ -389,13 +389,11 @@ function closeLightbox() {
     const translateY = imgCenterY - viewportCenterY;
     const scale = Math.max(rect.width / lightboxImg.clientWidth, rect.height / lightboxImg.clientHeight) || 0.1;
 
-    // ★ 核心修改：
-    // 如果当前在背面（isFlipped 为 true），就不转回 0 度，保持当前的旋转角度
-    const currentRotate = isFlipped ? "rotateY(180deg)" : "rotateY(0deg)";
-    
     // 1. 加上 CSS 类，让整个容器一边缩小一边透明
     flipWrapper.classList.add("fade-out");
-    flipWrapper.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale}) ${currentRotate}`;
+    
+    // ★ 核心修改：强制 rotateY(0deg)，这样无论在不在背面，都会瞬间转回正面并飞回
+    flipWrapper.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale}) rotateY(0deg)`;
     
   } else {
     flipWrapper.classList.add("fade-out");
