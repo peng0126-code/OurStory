@@ -282,26 +282,53 @@ const observer = new IntersectionObserver((entries) => {
 
 document.querySelectorAll(".event").forEach(event => observer.observe(event));
 
-/* ========== 5. 图片点击放大（带飞入飞出动画） ========== */
+/* ========== 5. 图片点击放大（支持左右滑动翻转看字） ========== */
 const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightbox-img");
+const flipWrapper = document.getElementById("flip-wrapper");
+const backText = document.getElementById("lightbox-back-text");
 
 let currentSourceImg = null; 
+let isFlipped = false;
+let isAnimating = false; 
 
-// ★ 核心：拦截滚轮和触摸滑动
+const photoSecrets = {
+  "cindybirthday2023.jpg": "当初要记得你朋友的名字难了我好一阵子。",
+  "genting.jpg": "冷天吃火锅，完美！",
+  "1stanniversary.jpg": "一周年快乐，未来的日子也请多指教。",
+  "putuovillage.jpg": "第一次觉得可以晒到阳光真好。",
+  "tianwailaiwu.jpg": "买来的不一定天长 租的不一定就廉价",
+  "osoto.jpg": "吃 吃 吃",
+  "1707.jpg": "是我们人生中的第一辆新车！",
+  "catcafe.jpg": "猫咪:人类，罐罐呢？"
+};
+
 function preventScroll(e) {
-  e.preventDefault();
+  if (e.cancelable) e.preventDefault();
 }
 
 function openLightbox(src, sourceImg) {
   currentSourceImg = sourceImg;
   lightboxImg.src = src;
+  
+  const imgName = src.split('/').pop(); 
+  if (photoSecrets[imgName]) {
+    backText.textContent = photoSecrets[imgName];
+  } else {
+    backText.textContent = ""; 
+  }
+  
+  isFlipped = false;
+  isAnimating = false;
+  flipWrapper.classList.remove("flipped");
+  flipWrapper.style.transition = "none";
+  flipWrapper.style.transform = "rotateY(0deg)";
+  
   lightbox.classList.add("show");
   
-  // ★ 开启拦截（passive: false 确保 preventDefault 生效）
   window.addEventListener('wheel', preventScroll, { passive: false });
   window.addEventListener('touchmove', preventScroll, { passive: false });
-  
+
   const rect = sourceImg.getBoundingClientRect();
   const viewportCenterX = window.innerWidth / 2;
   const viewportCenterY = window.innerHeight / 2;
@@ -328,6 +355,8 @@ function openLightbox(src, sourceImg) {
 }
 
 function closeLightbox() {
+  if (isAnimating) return;
+
   if (currentSourceImg) {
     const rect = currentSourceImg.getBoundingClientRect();
     const viewportCenterX = window.innerWidth / 2;
@@ -339,42 +368,160 @@ function closeLightbox() {
     const translateX = imgCenterX - viewportCenterX;
     const translateY = imgCenterY - viewportCenterY;
     const scale = Math.max(rect.width / lightboxImg.clientWidth, rect.height / lightboxImg.clientHeight) || 0.1;
+
+    // ★ 1. 这里控制照片飞回原位的时长（当前改成 0.25s，比原来快了）
+    flipWrapper.style.transition = "transform 0.25s cubic-bezier(0.25, 1, 0.5, 1)";
+    flipWrapper.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale}) rotateY(0deg)`;
     
-    lightboxImg.style.transition = "transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease";
-    lightboxImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    // ★ 2. 图片淡出的时长（也改成 0.25s 保持同步）
+    lightboxImg.style.transition = "opacity 0.25s ease";
     lightboxImg.style.opacity = "0";
   } else {
-    lightboxImg.style.transform = "scale(0.8)";
+    flipWrapper.style.transform = "scale(0.8) rotateY(0deg)";
     lightboxImg.style.opacity = "0";
   }
   
+  // ★ 3. 等待飞回动画结束（改成 280ms，比 0.25s 多一点点容错）
   setTimeout(() => {
-    lightbox.classList.remove("show");
-    
-    // ★ 解除拦截
+    lightbox.classList.remove("show"); // 此时遮罩开始变透明
     window.removeEventListener('wheel', preventScroll);
     window.removeEventListener('touchmove', preventScroll);
     
-    currentSourceImg = null; 
-    lightboxImg.style.transition = "none";
-    lightboxImg.style.transform = "none";
-  }, 300);
+    // ★ 4. 等待遮罩变透明结束后清理状态（改成 200ms）
+    setTimeout(() => {
+      currentSourceImg = null; 
+      isFlipped = false;
+      flipWrapper.style.transition = "none";
+      flipWrapper.style.transform = "rotateY(0deg)"; 
+      lightboxImg.style.transition = "none";
+      lightboxImg.style.transform = "none";
+      lightboxImg.style.opacity = "1";
+    }, 200); 
+  }, 280); 
 }
 
-// 绑定时间线图片的点击事件
-document.querySelectorAll(".event .card img").forEach(img => {
-  img.addEventListener("click", () => {
-    openLightbox(img.src, img);
-  });
+/* ================= 手势翻转逻辑 ================= */
+let touchStartX = 0;
+let touchStartY = 0;
+let touchStartTime = 0;
+let isTouchMoved = false; // 记录用户是否滑动了手指
+
+function triggerFlip(direction) {
+  if (isAnimating) return;
+  
+  const imgName = lightboxImg.src.split('/').pop();
+  if (!photoSecrets[imgName]) return; 
+  
+  if (isFlipped) {
+    direction = -direction; 
+  }
+
+  isAnimating = true;
+  
+  if (direction === 1) {
+    flipWrapper.style.transform = isFlipped ? "rotateY(0deg)" : "rotateY(180deg)";
+  } else {
+    flipWrapper.style.transform = isFlipped ? "rotateY(0deg)" : "rotateY(-180deg)";
+  }
+
+  flipWrapper.style.transition = "transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)";
+  isFlipped = !isFlipped;
+  
+  setTimeout(() => {
+    isAnimating = false;
+    if (isFlipped) {
+      flipWrapper.style.transition = "none";
+      flipWrapper.style.transform = "rotateY(180deg)";
+    }
+  }, 600);
+}
+
+// 触摸滑动监听
+lightbox.addEventListener('touchstart', (e) => {
+  if (e.touches.length !== 1) return;
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  touchStartTime = new Date().getTime();
+  isTouchMoved = false; // 重置滑动标记
+}, { passive: true });
+
+lightbox.addEventListener('touchmove', (e) => {
+  // 如果手指移动了一点，就标记为已滑动，用于防止误关
+  if (e.touches.length === 1) {
+    const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
+    const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
+    if (deltaX > 5 || deltaY > 5) {
+      isTouchMoved = true;
+    }
+  }
+}, { passive: true });
+
+lightbox.addEventListener('touchend', (e) => {
+  if (e.changedTouches.length !== 1) return;
+  
+  const deltaX = e.changedTouches[0].clientX - touchStartX;
+  const deltaY = e.changedTouches[0].clientY - touchStartY;
+  const timeDiff = new Date().getTime() - touchStartTime;
+
+  if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY) && timeDiff < 500) {
+    triggerFlip(deltaX < 0 ? 1 : -1);
+  }
+}, { passive: true });
+
+// 鼠标拖拽
+let mouseStartX = 0;
+let mouseStartTime = 0;
+let isMouseDown = false;
+let isMouseMoved = false;
+
+lightbox.addEventListener('mousedown', (e) => {
+  isMouseDown = true;
+  mouseStartX = e.clientX;
+  mouseStartTime = new Date().getTime();
+  isMouseMoved = false;
 });
 
-// 点击遮罩背景关闭
+lightbox.addEventListener('mousemove', (e) => {
+  if (!isMouseDown) return;
+  const deltaX = Math.abs(e.clientX - mouseStartX);
+  if (deltaX > 5) isMouseMoved = true;
+});
+
+lightbox.addEventListener('mouseup', (e) => {
+  if (!isMouseDown) return;
+  isMouseDown = false;
+  
+  const deltaX = e.clientX - mouseStartX;
+  const timeDiff = new Date().getTime() - mouseStartTime;
+  
+  if (Math.abs(deltaX) > 50 && timeDiff < 500) {
+    triggerFlip(deltaX < 0 ? 1 : -1);
+  }
+});
+
+// 绑定点击事件
+document.querySelectorAll(".event .card img").forEach(img => {
+  img.addEventListener("click", () => openLightbox(img.src, img));
+});
+
+// 遮罩背景关闭逻辑
 lightbox.addEventListener("click", (e) => {
+  // 如果用户刚刚滑动过屏幕，忽略这次点击，防止翻转完误触关闭
+  if (isTouchMoved || isMouseMoved) return;
+
+  // ★ 核心防误触：只要点击的是图片本身、白底文字、或者翻转容器（无论正反），都不关闭
+  if (e.target === lightboxImg || 
+      e.target.classList.contains("text-paper") || 
+      e.target.classList.contains("flip-wrapper") || 
+      e.target.classList.contains("flip-face")) {
+    return;
+  }
+  
+  // 只有点到了真正的纯黑背景，才会触发关闭
   if (e.target === lightbox) {
     closeLightbox();
   }
 });
-
 
 /* ========== 6. 主题切换并保存状态 ========== */
 themeBtn.addEventListener("click", () => {
