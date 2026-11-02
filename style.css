@@ -1607,7 +1607,7 @@ img {
 .secret-marker {
   position: absolute;
   bottom: 12px;
-  right: 12px;
+  left: 12px;
   font-size: 14px;
   
   /* ★ 核心修改：默认完全透明，并加上淡入过渡 */
