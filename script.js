@@ -294,13 +294,14 @@ let isAnimating = false;
 
 const photoSecrets = {
   "cindybirthday2023.jpg": "当初要记得你朋友的名字难了我好一阵子。",
-  "genting.jpg": "冷天吃火锅，完美！",
+  "genting.jpg": "我们是cool people🥶",
   "1stanniversary.jpg": "一周年快乐，未来的日子也请多指教。",
   "putuovillage.jpg": "第一次觉得可以晒到阳光真好。",
   "tianwailaiwu.jpg": "买来的不一定天长 租的不一定就廉价",
   "osoto.jpg": "吃 吃 吃",
   "1707.jpg": "是我们人生中的第一辆新车！",
-  "catcafe.jpg": "猫咪:人类，罐罐呢？"
+  "catcafe.jpg": "猫咪:人类，罐罐呢？",
+  "photo2.jpg": "冷天吃火锅，完美！"
 };
 
 function preventScroll(e) {
@@ -312,8 +313,28 @@ function openLightbox(src, sourceImg) {
   lightboxImg.src = src;
   
   const imgName = src.split('/').pop(); 
+  
+  // 清理旧的标记
+  const existingMarker = flipWrapper.querySelector('.secret-marker');
+  if (existingMarker) existingMarker.remove();
+
   if (photoSecrets[imgName]) {
     backText.textContent = photoSecrets[imgName];
+    
+    // ★ 1. 创建标记，但此时它处于透明隐藏状态
+    const marker = document.createElement('div');
+    marker.className = 'secret-marker';
+    marker.textContent = '✨'; 
+    document.querySelector('.flip-front').appendChild(marker);
+    
+    // ★ 2. 等 450ms（照片飞入动画 400ms 结束后），再给它加上 show 类
+    setTimeout(() => {
+      // 确保用户没有在这期间关掉遮罩
+      if (lightbox.classList.contains("show")) {
+        marker.classList.add("show");
+      }
+    }, 450);
+    
   } else {
     backText.textContent = ""; 
   }
@@ -326,6 +347,7 @@ function openLightbox(src, sourceImg) {
   
   lightbox.classList.add("show");
   
+  // ...（下面保持你原来计算位置和飞入动画的代码不动）...
   window.addEventListener('wheel', preventScroll, { passive: false });
   window.addEventListener('touchmove', preventScroll, { passive: false });
 
@@ -369,35 +391,45 @@ function closeLightbox() {
     const translateY = imgCenterY - viewportCenterY;
     const scale = Math.max(rect.width / lightboxImg.clientWidth, rect.height / lightboxImg.clientHeight) || 0.1;
 
-    // ★ 1. 这里控制照片飞回原位的时长（当前改成 0.25s，比原来快了）
-    flipWrapper.style.transition = "transform 0.25s cubic-bezier(0.25, 1, 0.5, 1)";
+    // 1. 缩小飞回并旋转
+    flipWrapper.style.transition = "transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)";
     flipWrapper.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale}) rotateY(0deg)`;
     
-    // ★ 2. 图片淡出的时长（也改成 0.25s 保持同步）
-    lightboxImg.style.transition = "opacity 0.25s ease";
-    lightboxImg.style.opacity = "0";
+    // 2. ★ 让整个容器一起变透明，而不是只让图片变透明
+    flipWrapper.style.transition += ", opacity 0.3s ease";
+    flipWrapper.style.opacity = "0";
+    
   } else {
     flipWrapper.style.transform = "scale(0.8) rotateY(0deg)";
-    lightboxImg.style.opacity = "0";
+    flipWrapper.style.opacity = "0";
   }
   
-  // ★ 3. 等待飞回动画结束（改成 280ms，比 0.25s 多一点点容错）
+  // ★ 3. 给足 350ms，确保飞回和透明动画彻底结束
   setTimeout(() => {
-    lightbox.classList.remove("show"); // 此时遮罩开始变透明
+    lightbox.classList.remove("show");
     window.removeEventListener('wheel', preventScroll);
     window.removeEventListener('touchmove', preventScroll);
     
-    // ★ 4. 等待遮罩变透明结束后清理状态（改成 200ms）
+    // ★ 4. 再等 350ms，等遮罩自己完全黑掉消失后，再偷偷重置状态（此时用户绝对看不到）
     setTimeout(() => {
       currentSourceImg = null; 
       isFlipped = false;
+      
+      // 瞬间重置，为了防止下次打开时闪
       flipWrapper.style.transition = "none";
       flipWrapper.style.transform = "rotateY(0deg)"; 
+      flipWrapper.style.opacity = "1"; 
+      
       lightboxImg.style.transition = "none";
       lightboxImg.style.transform = "none";
-      lightboxImg.style.opacity = "1";
-    }, 200); 
-  }, 280); 
+      lightboxImg.style.opacity = "1"; 
+
+      // 关闭时顺便把标记删掉
+      const existingMarker = flipWrapper.querySelector('.secret-marker');
+      if (existingMarker) existingMarker.remove();
+
+    }, 100); 
+  }, 100); 
 }
 
 /* ================= 手势翻转逻辑 ================= */
