@@ -1446,7 +1446,7 @@ img {
   justify-content: center;
   align-items: center;
   padding: 20px;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition: opacity 0.1s ease, visibility 0.1s ease;
 }
 
 .lightbox.show {
@@ -1596,4 +1596,29 @@ img {
   word-break: break-all;
   /* ★ 文字本身不需要翻转，保持正向 */
   transform: rotateY(0deg); 
+}
+
+/* ========== 秘密配文标记 ========== */
+.secret-marker {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  font-size: 14px;
+  
+  /* ★ 核心修改：默认完全透明，并加上淡入过渡 */
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  
+  pointer-events: none; 
+  z-index: 10;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+}
+
+/* 当加上这个类时，标记慢慢浮现 */
+.secret-marker.show {
+  opacity: 0.9; /* 这个数值决定它最终有多显眼（0.4是半透明，1是完全不透明） */
+}
+
+body.theme-fun .secret-marker {
+  filter: sepia(1) saturate(5) hue-rotate(5deg); 
 }
