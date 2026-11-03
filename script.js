@@ -116,7 +116,7 @@ function createPetal(instant) {
 
   if (isFun) {
     petal.classList.add("img-petal");
-    
+
     let pick;
     if (USE_IMAGE) {
       pick = FUN_IMAGES[Math.floor(Math.random() * FUN_IMAGES.length)];
@@ -193,7 +193,7 @@ if (timelineContainer && rawEvents.length > 0) {
       nowEvent = event;
       return;
     }
-    
+
     const year = dateText.substring(0, 4); 
     if (!yearsData[year]) yearsData[year] = [];
     yearsData[year].push(event);
@@ -208,7 +208,7 @@ if (timelineContainer && rawEvents.length > 0) {
     const header = document.createElement("div");
     header.className = "year-header";
     header.innerHTML = `<span>${year}</span> <span class="arrow"></span>`;
-    
+
     const content = document.createElement("div");
     content.className = "year-content";
 
@@ -234,16 +234,16 @@ if (timelineContainer && rawEvents.length > 0) {
       if (groupWrapper.classList.contains("collapsed")) {
         groupWrapper.classList.remove("collapsed");
         content.style.maxHeight = content.scrollHeight + "px";
-        
+
         setTimeout(() => {
           if (!groupWrapper.classList.contains("collapsed")) {
             content.style.maxHeight = "none";
           }
         }, 600);
-        
+
       } else {
         content.style.maxHeight = content.scrollHeight + "px";
-        
+
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
             groupWrapper.classList.add("collapsed");
@@ -357,7 +357,7 @@ function openLightbox(src, sourceImg) {
   } else {
     backText.textContent = ""; 
   }
-  
+
   isFlipped = false;
   isAnimating = false;
 
@@ -367,7 +367,7 @@ function openLightbox(src, sourceImg) {
   }
 
   lightbox.classList.add("show");
-  
+
   window.addEventListener('wheel', preventScroll, { passive: false });
   window.addEventListener('touchmove', preventScroll, { passive: false });
 
@@ -378,16 +378,17 @@ function openLightbox(src, sourceImg) {
       if (!lightbox.classList.contains("show")) return;
 
       const rect = startRect;
-      const viewportCenterX = window.innerWidth / 2;
-      const viewportCenterY = window.innerHeight / 2;
-
       const imgCenterX = rect.left + rect.width / 2;
       const imgCenterY = rect.top + rect.height / 2;
 
-      const translateX = imgCenterX - viewportCenterX;
-      const translateY = imgCenterY - viewportCenterY;
-
+      // 以图片当前实际中心作为坐标原点，不假设它一定等于视口中心。
+      // 这样可兼容桌面 scrollbar-gutter、遮罩 padding 和不同设备的可视区域。
       const lbRect = lightboxImg.getBoundingClientRect();
+      const lightboxCenterX = lbRect.left + lbRect.width / 2;
+      const lightboxCenterY = lbRect.top + lbRect.height / 2;
+      const translateX = imgCenterX - lightboxCenterX;
+      const translateY = imgCenterY - lightboxCenterY;
+
       const currentWidth = lbRect.width || 300;
       const currentHeight = lbRect.height || 300;
 
@@ -444,14 +445,8 @@ function closeLightbox() {
       ? currentSourceImg.getBoundingClientRect()
       : savedRect;
 
-    const viewportCenterX = window.innerWidth / 2;
-    const viewportCenterY = window.innerHeight / 2;
-
     const imgCenterX = rect.left + rect.width / 2;
     const imgCenterY = rect.top + rect.height / 2;
-
-    const translateX = imgCenterX - viewportCenterX;
-    const translateY = imgCenterY - viewportCenterY;
 
     const imgNaturalW = lightboxImg.naturalWidth;
     const imgNaturalH = lightboxImg.naturalHeight;
@@ -463,6 +458,12 @@ function closeLightbox() {
     const lbRect = lightboxImg.getBoundingClientRect();
     const lbWidth = lbRect.width || lightboxImg.clientWidth || 300;
     const lbHeight = lbRect.height || lightboxImg.clientHeight || 300;
+
+    // 用 lightbox 图片真实中心计算位移，避免桌面和手机的居中基准差异。
+    const lightboxCenterX = lbRect.left + lbRect.width / 2;
+    const lightboxCenterY = lbRect.top + lbRect.height / 2;
+    const translateX = imgCenterX - lightboxCenterX;
+    const translateY = imgCenterY - lightboxCenterY;
 
     let clipInsetX = 0;
     let clipInsetY = 0;
@@ -480,16 +481,16 @@ function closeLightbox() {
     lightboxImg.style.transition = `transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), clip-path 0.4s cubic-bezier(0.4, 0, 0.2, 1)`;
     lightboxImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${finalScale})`;
     lightboxImg.style.clipPath = `inset(${clipInsetY}px ${clipInsetX}px)`;
-    
+
     setTimeout(() => {
       lightbox.style.transition = "none"; 
       lightbox.classList.remove("show");
       void lightbox.offsetWidth; 
-      
+
       if (currentSourceImg) {
         currentSourceImg.style.opacity = "1";
       }
-      
+
       setTimeout(() => {
         currentSourceImg = null; 
         isFlipped = false;
@@ -506,7 +507,7 @@ function closeLightbox() {
   if (isFlipped) {
     isFlipped = false;
     isAnimating = true; 
-    
+
     const backTextEl = document.querySelector('.text-paper');
     if (backTextEl) {
       backTextEl.style.transition = "opacity 0.2s ease";
@@ -523,7 +524,7 @@ function closeLightbox() {
   } else {
     doFlyBack();
   }
-  
+
   window.removeEventListener('wheel', preventScroll);
   window.removeEventListener('touchmove', preventScroll);
 }
@@ -544,7 +545,7 @@ lightbox.addEventListener('pointerdown', (e) => {
 lightbox.addEventListener('pointerup', (e) => {
   if (!isPointerDown) return;
   isPointerDown = false;
-  
+
   const deltaX = e.clientX - pointerStartX;
   const deltaY = e.clientY - pointerStartY;
   const timeDiff = new Date().getTime() - pointerStartTime;
@@ -572,16 +573,16 @@ let isMouseDown = false;
 
 function triggerFlip(direction) {
   if (isAnimating) return;
-  
+
   const imgName = lightboxImg.src.split('/').pop();
   if (!photoSecrets[imgName]) return; 
-  
+
   if (isFlipped) {
     direction = -direction; 
   }
 
   isAnimating = true;
-  
+
   if (direction === 1) {
     flipWrapper.style.transform = isFlipped ? "rotateY(0deg)" : "rotateY(180deg)";
   } else {
@@ -590,7 +591,7 @@ function triggerFlip(direction) {
 
   flipWrapper.style.transition = "transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)";
   isFlipped = !isFlipped;
-  
+
   setTimeout(() => {
     isAnimating = false;
     if (isFlipped) {
@@ -609,7 +610,7 @@ lightbox.addEventListener('touchstart', (e) => {
 
 lightbox.addEventListener('touchend', (e) => {
   if (e.changedTouches.length !== 1) return;
-  
+
   const deltaX = e.changedTouches[0].clientX - touchStartX;
   const deltaY = e.changedTouches[0].clientY - touchStartY;
   const timeDiff = new Date().getTime() - touchStartTime;
@@ -628,10 +629,10 @@ lightbox.addEventListener('mousedown', (e) => {
 lightbox.addEventListener('mouseup', (e) => {
   if (!isMouseDown) return;
   isMouseDown = false;
-  
+
   const deltaX = e.clientX - mouseStartX;
   const timeDiff = new Date().getTime() - mouseStartTime;
-  
+
   if (Math.abs(deltaX) > 50 && timeDiff < 500) {
     triggerFlip(deltaX < 0 ? 1 : -1);
   }
@@ -653,9 +654,9 @@ themeBtn.addEventListener("click", () => {
   document.body.classList.toggle("theme-fun");
   const isFun = document.body.classList.contains("theme-fun");
   themeBtn.textContent = isFun ? "👑" : "🌸";
-  
+
   localStorage.setItem("theme", isFun ? "fun" : "romantic");
-  
+
   fillPetals();
 });
 
@@ -768,7 +769,7 @@ function updateCountdowns() {
   const cdAnniversary = document.getElementById("cd-anniversary");
   const cdHer = document.getElementById("cd-her");
   const cdHim = document.getElementById("cd-him");
-  
+
   const titleAnniversary = document.getElementById("title-anniversary");
   const titleHer = document.getElementById("title-her");
   const titleHim = document.getElementById("title-him");
@@ -837,13 +838,13 @@ const clockMarker = document.getElementById("clock-m-marker");
 
 function jumpAndSpeak(markerEl, event) {
   if (!markerEl) return;
-  
+
   markerEl.classList.remove("jump");
   void markerEl.offsetWidth;
   markerEl.classList.add("jump");
 
   const randomWord = loveWords[Math.floor(Math.random() * loveWords.length)];
-  
+
   const bubble = document.createElement("div");
   bubble.textContent = randomWord;
   bubble.style.cssText = `
@@ -861,7 +862,7 @@ function jumpAndSpeak(markerEl, event) {
     animation: bubblePop 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     z-index: 99;
   `;
-  
+
   markerEl.appendChild(bubble);
 
   setTimeout(() => bubble.remove(), 1000);
@@ -892,7 +893,7 @@ if (photoWall) {
     const img = document.createElement("img");
     img.src = src;
     img.alt = "我们的照片";
-    
+
     img.addEventListener("click", () => {
       openLightbox(img.src, img);
     });
@@ -908,9 +909,9 @@ const photoTitle = document.querySelector(".photo-wall-title");
 
 function checkPhotoSectionPosition() {
   if (!photoSection || !photoNavBtn) return;
-  
+
   const rect = photoTitle.getBoundingClientRect();
-  
+
   if (rect.top < window.innerHeight * 0.4) {
     photoNavBtn.textContent = "⬆️";
     photoNavBtn.title = "回到顶部";
@@ -925,14 +926,14 @@ window.addEventListener("scroll", checkPhotoSectionPosition);
 if (photoNavBtn && photoSection) {
   photoNavBtn.addEventListener("click", () => {
     const rect = photoTitle.getBoundingClientRect();
-    
+
     if (rect.top < window.innerHeight * 0.4) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       window.scrollTo({ top: photoSection.offsetTop - 5, behavior: "smooth" });
     }
   });
-  
+
   checkPhotoSectionPosition();
 }
 
@@ -997,10 +998,10 @@ initFlipClock();
 function flipDigit(id, newValue) {
   const el = document.getElementById(id);
   if (!el || el.textContent === String(newValue)) return;
-  
+
   el.style.opacity = "0.3";
   el.style.transform = "scaleY(0.8)";
-  
+
   setTimeout(() => {
     el.textContent = newValue;
     el.style.opacity = "1";
@@ -1012,7 +1013,7 @@ function formatDate(now) {
   const yyyy = now.getFullYear();
   const mm = String(now.getMonth() + 1).padStart(2, "0");
   const dd = String(now.getDate()).padStart(2, "0");
-  
+
   if (dateFormatIndex === 0) {
     return `${yyyy}-${mm}-${dd}`;
   }
@@ -1022,7 +1023,7 @@ function formatDate(now) {
   if (dateFormatIndex === 2) {
     return `${mm}/${dd}/${yyyy}`;
   }
-  
+
   const monthsEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const monthEn = monthsEn[now.getMonth()];
   return `${now.getDate()} ${monthEn} ${yyyy}`;
@@ -1030,7 +1031,7 @@ function formatDate(now) {
 
 function setCdCard(boxEl, titleEl, cdValueContainerEl, isToday, titleHtml, normalTitle, days, todayEmoji) {
   if (!boxEl || !titleEl || !cdValueContainerEl) return;
-  
+
   if (isToday) {
     boxEl.classList.add("is-today");
     titleEl.innerHTML = titleHtml;
@@ -1040,7 +1041,7 @@ function setCdCard(boxEl, titleEl, cdValueContainerEl, isToday, titleHtml, norma
   } else {
     boxEl.classList.remove("is-today");
     titleEl.innerHTML = normalTitle;
-    
+
     const newHtml = `<span>${days}</span> 天`;
     if (cdValueContainerEl.innerHTML.indexOf("天") === -1 || cdValueContainerEl.querySelector("span")?.textContent !== String(days)) {
       cdValueContainerEl.innerHTML = newHtml;
@@ -1050,12 +1051,12 @@ function setCdCard(boxEl, titleEl, cdValueContainerEl, isToday, titleHtml, norma
 
 function updateClock() {
   if (!clockOverlay.classList.contains("show")) return;
-  
+
   const now = new Date();
-  
+
   let hours = now.getHours();
   let ampm = "";
-  
+
   if (is12HourFormat) {
     ampm = hours >= 12 ? "PM" : "AM";
     hours = hours % 12;
@@ -1074,11 +1075,11 @@ function updateClock() {
   if (dateDisplay) {
     dateDisplay.textContent = formatDate(now);
   }
-  
+
   const hh = String(hours).padStart(2, '0');
   const mm = String(now.getMinutes()).padStart(2, '0');
   const ss = String(now.getSeconds()).padStart(2, '0');
-  
+
   flipDigit("clock-h1", hh[0]);
   flipDigit("clock-h2", hh[1]);
   flipDigit("clock-m1", mm[0]);
@@ -1108,7 +1109,7 @@ function updateClock() {
 
   const clockTitleAnn = document.getElementById("clock-title-ann");
   const clockCdAnnContainer = clockTitleAnn ? clockTitleAnn.nextElementSibling : null;
-  
+
   setCdCard(
     clockBoxAnn,
     clockTitleAnn,
@@ -1126,7 +1127,7 @@ function updateClock() {
 
   const clockTitleHer = document.getElementById("clock-title-her");
   const clockCdHerContainer = clockTitleHer ? clockTitleHer.nextElementSibling : null;
-  
+
   setCdCard(
     clockBoxHer,
     clockTitleHer,
@@ -1144,7 +1145,7 @@ function updateClock() {
 
   const clockTitleHim = document.getElementById("clock-title-him");
   const clockCdHimContainer = clockTitleHim ? clockTitleHim.nextElementSibling : null;
-  
+
   setCdCard(
     clockBoxHim,
     clockTitleHim,
@@ -1162,16 +1163,16 @@ function updateClock() {
   const markerEl = document.getElementById("clock-m-marker");
   if (fillEl) fillEl.style.width = percent + "%";
   if (markerEl) markerEl.style.left = percent + "%";
-  
+
   const barContainer = document.querySelector(".clock-m-bar");
   const labelsContainer = document.getElementById("clock-m-labels");
-  
+
   if (barContainer && labelsContainer && labelsContainer.children.length === 0) {
     const NODE_COUNT_CLOCK = 11;
     for (let i = 0; i < NODE_COUNT_CLOCK; i++) {
       const day = Math.round((totalDays / (NODE_COUNT_CLOCK - 1)) * i);
       const p = (day / totalDays) * 100;
-      
+
       const node = document.createElement("div");
       node.className = "clock-m-node";
       node.style.left = p + "%";
@@ -1185,11 +1186,11 @@ function updateClock() {
       labelsContainer.appendChild(lbl);
     }
   }
-  
+
   if (barContainer && labelsContainer) {
     const allNodes = barContainer.querySelectorAll(".clock-m-node");
     const allLabels = labelsContainer.querySelectorAll(".clock-m-label");
-    
+
     allNodes.forEach((node, i) => {
       if (parseInt(node.dataset.day) <= days) {
         node.classList.add("passed");
@@ -1207,7 +1208,7 @@ let hideButtonsTimer = null;
 
 function clockTick() {
   if (!clockOverlay.classList.contains("show")) return;
-  
+
   updateClock();
 
   const now = new Date();
@@ -1238,14 +1239,14 @@ function toggleClock(enter) {
     document.body.classList.add("in-clock-mode");
     document.body.style.overflow = "hidden"; 
     document.documentElement.style.overflow = "hidden"; 
-    
+
     clockBtn.innerHTML = "❌";
     clockBtn.title = "退出时钟模式";
 
     if (document.documentElement.requestFullscreen) {
       document.documentElement.requestFullscreen().catch(() => {});
     }
-    
+
     if (clockTimeout) {
       clearTimeout(clockTimeout);
       clockTimeout = null;
@@ -1258,14 +1259,14 @@ function toggleClock(enter) {
     document.body.classList.remove("hide-buttons"); 
     document.body.style.overflow = ""; 
     document.documentElement.style.overflow = ""; 
-    
+
     clockBtn.innerHTML = "⏰";
     clockBtn.title = "进入时钟模式";
 
     if (document.fullscreenElement && document.exitFullscreen) {
       document.exitFullscreen().catch(() => {});
     }
-    
+
     if (clockTimeout) {
       clearTimeout(clockTimeout);
       clockTimeout = null;
@@ -1325,9 +1326,9 @@ if (isNaN(currentLayoutIndex) || currentLayoutIndex < 0 || currentLayoutIndex > 
 
 function applyLayout() {
   if (!clockContainer) return;
-  
+
   clockContainer.classList.remove("layout-minimal", "layout-stacked", "layout-pure");
-  
+
   if (currentLayoutIndex === 1) {
     clockContainer.classList.add("layout-minimal");
   } else if (currentLayoutIndex === 2) {
@@ -1405,7 +1406,7 @@ if (clockBtn) {
 let letterScrollLocked = false;
 function preventLetterBgScroll(e) {
   if (!letterScrollLocked) return;
-  
+
   const isInsideLetterPaper = e.target.closest('.letter-paper');
   if (!isInsideLetterPaper) {
     if (e.cancelable) e.preventDefault();
@@ -1416,13 +1417,13 @@ function openLetter(id) {
   const modal = document.getElementById(id);
   if (modal) {
     modal.style.display = 'flex';
-    
+
     letterScrollLocked = true;
     window.addEventListener('wheel', preventLetterBgScroll, { passive: false });
     window.addEventListener('touchmove', preventLetterBgScroll, { passive: false });
-    
+
     document.body.classList.add('hide-buttons');
-    
+
     setTimeout(() => {
       modal.classList.add('show');
     }, 10);
@@ -1433,13 +1434,13 @@ function closeLetter(id) {
   const modal = document.getElementById(id);
   if (modal) {
     modal.classList.remove('show');
-    
+
     letterScrollLocked = false;
     window.removeEventListener('wheel', preventLetterBgScroll);
     window.removeEventListener('touchmove', preventLetterBgScroll);
-    
+
     document.body.classList.remove('hide-buttons');
-    
+
     setTimeout(() => {
       modal.style.display = 'none';
     }, 400);
@@ -1453,7 +1454,7 @@ let fadeInterval = null;
 
 function fadeAudio(targetVolume, callback) {
   clearInterval(fadeInterval);
-  
+
   const step = 0.05;
   const intervalTime = 50; 
 
@@ -1502,7 +1503,7 @@ if (sessionStorage.getItem("hasVisited")) {
   if (loadingScreen) loadingScreen.style.display = "none";
 } else {
   sessionStorage.setItem("hasVisited", "true");
-  
+
   let progress = 0;
   const loaderBar = document.getElementById("loader-bar");
 
