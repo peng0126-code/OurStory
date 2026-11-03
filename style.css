@@ -1650,24 +1650,29 @@ body.theme-fun .clock-container.layout-minimal .clock-box:not(.box-time) {
 }
 
 .clock-container.layout-minimal .box-cd .c-cd-title {
-  font-size: 0.75rem;
-  margin-bottom: 0.5vh;
+  font-size: clamp(0.85rem, 1.1vw, 1.05rem);
+  margin-bottom: 0.1vh;
   text-align: center;
   line-height: 1.2;
 }
+.clock-container.layout-minimal .box-cd .c-cd-value,
+.clock-container.layout-minimal .box-days .c-value {
+  margin-top: 0.5 !important;
+  line-height: 1.1 !important;
+}
 .clock-container.layout-minimal .box-cd .c-cd-value {
-  font-size: 1rem;
+  font-size: clamp(1.2rem, 1.6vw, 1.5rem);
   text-align: center;
 }
 .clock-container.layout-minimal .box-cd .c-cd-value span {
-  font-size: 1.8vw;
+  font-size: clamp(2.2vw, 3.2vw, 3.6vw); 
 }
 .clock-container.layout-minimal .box-days .c-label {
   font-size: 0.8rem;
   margin-bottom: 0.5vh;
 }
 .clock-container.layout-minimal .box-days .c-value #clock-days {
-  font-size: 2vw; 
+  font-size: clamp(1.5rem, 2.2vw, 2.2rem)
 }
 .clock-container.layout-minimal .box-days .c-unit {
   font-size: 0.8rem;
