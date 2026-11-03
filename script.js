@@ -454,13 +454,13 @@ function openLightbox(src, sourceImg) {
 }
 
 function closeLightbox() {
-  isAnimating = false; 
+  isAnimating = false;
 
   const existingMarker = flipWrapper.querySelector('.secret-marker');
   if (existingMarker) {
-    existingMarker.style.transition = "opacity 0.2s ease"; 
+    existingMarker.style.transition = "opacity 0.2s ease";
     existingMarker.style.opacity = "0";
-    setTimeout(() => existingMarker.remove(), 200); 
+    setTimeout(() => existingMarker.remove(), 200);
   }
 
   if (!currentSourceImg) {
@@ -477,7 +477,7 @@ function closeLightbox() {
     return;
   }
 
-  const doFlyBack = () => {
+  const doFlyBack = (wasFlipped) => {
     // 时间线父级在打开期间已被冻结，因此这里读取到的是稳定的归位位置。
     const rect = currentSourceImg
       ? currentSourceImg.getBoundingClientRect()
@@ -501,7 +501,18 @@ function closeLightbox() {
     const lightboxCenterX = lbRect.left + lbRect.width / 2;
     const lightboxCenterY = lbRect.top + lbRect.height / 2;
     const translateX = imgCenterX - lightboxCenterX;
-    const translateY = imgCenterY - lightboxCenterY;
+    let translateY = imgCenterY - lightboxCenterY;
+
+    // ★ 方案 A：手机时间线「正面照片」落点补偿（往下压 1~2px）
+    // 翻转照片走的是 450ms 等待后的路径，rect 更稳定，不需要补偿。
+    const isMobileTimeline =
+      currentSourceImg &&
+      currentSourceEvent &&
+      window.matchMedia("(max-width: 700px)").matches;
+
+    if (isMobileTimeline && !wasFlipped) {
+      translateY += 3; // 按实际偏差在 1~2 之间微调
+    }
 
     let clipInsetX = 0;
     let clipInsetY = 0;
@@ -522,12 +533,12 @@ function closeLightbox() {
 
     setTimeout(() => {
 
-      const isMobileTimeline =
+      const isMobileTimelineNow =
         currentSourceImg &&
         currentSourceEvent &&
         window.matchMedia("(max-width: 700px)").matches;
 
-      if (isMobileTimeline) {
+      if (isMobileTimelineNow) {
         currentSourceImg.style.opacity = "0";
 
         restoreTimelineSource();
@@ -541,27 +552,28 @@ function closeLightbox() {
 
       if (currentSourceImg) {
         currentSourceImg.style.opacity = "1";
-        if (!isMobileTimeline) {
+        if (!isMobileTimelineNow) {
           restoreTimelineSource();
         }
       }
 
-  setTimeout(() => {
-        currentSourceImg = null; 
+      setTimeout(() => {
+        currentSourceImg = null;
         isFlipped = false;
         savedRect = null;
 
         // ★ 彻底复位，避免第二次打开时 clientWidth 被残留状态污染
         resetLightboxVisual();
 
-        lightbox.style.transition = "opacity 0.1s ease, visibility 0.1s ease"; 
-      }, 10); 
-    }, 420); 
+        lightbox.style.transition = "opacity 0.1s ease, visibility 0.1s ease";
+      }, 10);
+    }, 420);
   };
 
   if (isFlipped) {
+    const wasFlipped = true;
     isFlipped = false;
-    isAnimating = true; 
+    isAnimating = true;
 
     const backTextEl = document.querySelector('.text-paper');
     if (backTextEl) {
@@ -574,10 +586,10 @@ function closeLightbox() {
 
     setTimeout(() => {
       isAnimating = false;
-      doFlyBack();
-    }, 450); 
+      doFlyBack(wasFlipped);
+    }, 450);
   } else {
-    doFlyBack();
+    doFlyBack(false);
   }
 
   window.removeEventListener('wheel', preventScroll);
@@ -1014,7 +1026,7 @@ if (localStorage.getItem("clockDateFormat") === "2") dateFormatIndex = 2;
 if (localStorage.getItem("clockDateFormat") === "3") dateFormatIndex = 3;
 
 if (dateToggleBtn) {
-  dateToggleBtn.textContent = "切换日期格式";
+  dateToggleBtn.textContent = "日期格式";
 }
 
 if (toggleBtn) {
