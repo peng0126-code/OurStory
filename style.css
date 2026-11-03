@@ -652,7 +652,7 @@ body.theme-fun .year-group.collapsed .year-header {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.85);
-  z-index: 9999;
+  z-index: 10005;
   justify-content: center;
   align-items: center;
   padding: 20px;
@@ -2015,4 +2015,12 @@ body.theme-fun .layout-picker.open .layout-picker-toggle {
   .layout-picker-label {
     font-size: 0.78rem;
   }
+}
+
+/* 当图片放大遮罩层打开时，强制锁定卡片的悬停状态 */
+body.lightbox-open .event .card,
+body.lightbox-open .photo-wall img {
+  transform: none !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important; /* 恢复默认阴影 */
+  transition: none !important;
 }
