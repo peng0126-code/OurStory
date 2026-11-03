@@ -561,23 +561,35 @@ function closeLightbox() {
 
   if (isFlipped) {
     isFlipped = false;
-    isAnimating = true; 
+    isAnimating = true;
 
-    const backTextEl = document.querySelector('.text-paper');
-    if (backTextEl) {
-      backTextEl.style.transition = "opacity 0.2s ease";
-      backTextEl.style.opacity = "0";
-    }
-
-    flipWrapper.style.transition = "transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)";
+    flipWrapper.style.transition ="transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)";
     flipWrapper.style.transform = "rotateY(0deg)";
 
     setTimeout(() => {
       isAnimating = false;
       doFlyBack();
-    }, 450); 
+    }, 450);
+
   } else {
-    doFlyBack();
+    // 直接关闭时，先等待照片打开动画结束
+    const runningImageAnimations = lightboxImg
+      .getAnimations()
+      .filter(animation => animation.playState === "running");
+
+    if (runningImageAnimations.length > 0) {
+      Promise.all(
+        runningImageAnimations.map(animation =>
+          animation.finished.catch(() => {})
+        )
+      ).then(() => {
+        if (currentSourceImg) {
+          doFlyBack();
+        }
+      });
+    } else {
+      doFlyBack();
+    }
   }
 
   window.removeEventListener('wheel', preventScroll);
