@@ -521,16 +521,32 @@ function closeLightbox() {
     lightboxImg.style.clipPath = `inset(${clipInsetY}px ${clipInsetX}px)`;
 
     setTimeout(() => {
-      lightbox.style.transition = "none"; 
+
+      const isMobileTimeline =
+        currentSourceImg &&
+        currentSourceEvent &&
+        window.matchMedia("(max-width: 700px)").matches;
+
+      if (isMobileTimeline) {
+        currentSourceImg.style.opacity = "0";
+
+        restoreTimelineSource();
+
+        void currentSourceImg.offsetWidth;
+      }
+
+      lightbox.style.transition = "none";
       lightbox.classList.remove("show");
-      void lightbox.offsetWidth; 
+      void lightbox.offsetWidth;
 
       if (currentSourceImg) {
         currentSourceImg.style.opacity = "1";
-      restoreTimelineSource();
+        if (!isMobileTimeline) {
+          restoreTimelineSource();
+        }
       }
 
-      setTimeout(() => {
+  setTimeout(() => {
         currentSourceImg = null; 
         isFlipped = false;
         savedRect = null;
