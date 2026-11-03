@@ -45,7 +45,6 @@ function updateCounter() {
   updateNum("s", seconds);
 }
 
-// 打开页面时，天数从 0 滚到真实值
 function animateNumber(el, target, duration = 3.5) {
   const startTime = performance.now();
 
@@ -58,22 +57,17 @@ function animateNumber(el, target, duration = 3.5) {
   requestAnimationFrame(step);
 }
 
-// 先算出真实天数
 const now = new Date();
 const realDays = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
 
-// 从 0 开始滚
 const daysEl = document.getElementById("days");
 daysEl.textContent = "0";
 
-// ★ 把启动逻辑放进 window.load 事件里，和里程碑共用同一个触发点
 window.addEventListener("load", () => {
-  // 统一延迟 500ms 启动，确保和里程碑小人同步
   setTimeout(() => {
     animateNumber(daysEl, realDays, 3500);
   }, 500);
 
-  // 等滚动结束后（3.5秒动画 + 0.5秒延迟 = 4000ms），开始每秒更新
   setTimeout(() => {
     updateCounter();
     setInterval(updateCounter, 1000);
@@ -294,6 +288,7 @@ const backText = document.getElementById("lightbox-back-text");
 let currentSourceImg = null; 
 let isFlipped = false;
 let isAnimating = false; 
+let savedRect = null; // 保存打开时的精确坐标
 
 const photoSecrets = {
   "cindybirthday2023.jpg": "当初要记得你朋友的名字难了我好一阵子。",
@@ -314,6 +309,8 @@ function preventScroll(e) {
 function openLightbox(src, sourceImg) {
   currentSourceImg = sourceImg;
   lightboxImg.src = src;
+  
+  savedRect = sourceImg.getBoundingClientRect(); // 备份坐标
   
   const imgName = src.split('/').pop(); 
   
@@ -352,7 +349,7 @@ function openLightbox(src, sourceImg) {
   window.addEventListener('wheel', preventScroll, { passive: false });
   window.addEventListener('touchmove', preventScroll, { passive: false });
 
-  const rect = sourceImg.getBoundingClientRect();
+  const rect = savedRect; 
   const viewportCenterX = window.innerWidth / 2;
   const viewportCenterY = window.innerHeight / 2;
   
@@ -365,18 +362,15 @@ function openLightbox(src, sourceImg) {
   const currentWidth = lightboxImg.clientWidth || 300;
   const currentHeight = lightboxImg.clientHeight || 300;
   
-  // ★ 计算等比缩小的倍数（取宽高比中较大的那个，保证能填满小格子）
   const scaleX = rect.width / currentWidth;
   const scaleY = rect.height / currentHeight;
   const targetScale = Math.max(scaleX, scaleY) || 0.1;
 
-  // ★ 打开时的裁切：等比缩小后，算出图片超出了格子多少像素，直接切掉
   const finalW = currentWidth * targetScale;
   const finalH = currentHeight * targetScale;
   const insetX = Math.max(0, (finalW - rect.width) / 2);
   const insetY = Math.max(0, (finalH - rect.height) / 2);
   
-  // 设置初始状态：运用像素级裁切，并移动到原图位置
   lightboxImg.style.clipPath = `inset(${insetY}px ${insetX}px)`;
   lightboxImg.style.transition = "none";
   lightboxImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${targetScale})`;
@@ -384,10 +378,9 @@ function openLightbox(src, sourceImg) {
   void lightboxImg.offsetWidth;
   
   requestAnimationFrame(() => {
-    // 飞入中央，恢复不裁切
     lightboxImg.style.transition = "transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), clip-path 0.45s cubic-bezier(0.25, 1, 0.5, 1)";
     lightboxImg.style.transform = "translate(0, 0) scale(1)";
-    lightboxImg.style.clipPath = "inset(0px 0px)"; // 取消裁切
+    lightboxImg.style.clipPath = "inset(0px 0px)"; 
   });
 }
 
@@ -396,12 +389,11 @@ function closeLightbox() {
 
   const existingMarker = flipWrapper.querySelector('.secret-marker');
   if (existingMarker) {
-    existingMarker.style.transition = "opacity 0.2s ease"; // 给个极短的淡出，视觉更柔和
+    existingMarker.style.transition = "opacity 0.2s ease"; 
     existingMarker.style.opacity = "0";
-    setTimeout(() => existingMarker.remove(), 200); // 200毫秒后彻底删除
+    setTimeout(() => existingMarker.remove(), 200); 
   }
 
-  // 如果没有原图（兜底情况）
   if (!currentSourceImg) {
     flipWrapper.style.transition = "transform 0.25s ease, opacity 0.25s ease";
     flipWrapper.style.transform = "scale(0.8) rotateY(0deg)";
@@ -417,9 +409,8 @@ function closeLightbox() {
     return;
   }
 
-  // 定义一个执行飞回逻辑的内部函数
   const doFlyBack = () => {
-    const rect = currentSourceImg.getBoundingClientRect();
+    const rect = savedRect; 
     const viewportCenterX = window.innerWidth / 2;
     const viewportCenterY = window.innerHeight / 2;
     
@@ -429,24 +420,29 @@ function closeLightbox() {
     const translateX = imgCenterX - viewportCenterX;
     const translateY = imgCenterY - viewportCenterY;
     
-    const currentWidth = lightboxImg.clientWidth || 300;
-    const currentHeight = lightboxImg.clientHeight || 300;
+    const imgNaturalW = lightboxImg.naturalWidth;
+    const imgNaturalH = lightboxImg.naturalHeight;
     
-    const scaleX = rect.width / currentWidth;
-    const scaleY = rect.height / currentHeight;
-    const targetScale = Math.max(scaleX, scaleY) || 0.1;
+    const targetRatio = rect.width / rect.height;
+    const imgRatio = imgNaturalW / imgNaturalH;
     
-    const finalW = currentWidth * targetScale;
-    const finalH = currentHeight * targetScale;
-    const insetX = Math.max(0, (finalW - rect.width) / 2);
-    const insetY = Math.max(0, (finalH - rect.height) / 2);
+    let clipInsetX = 0;
+    let clipInsetY = 0;
     
-    // 飞回动画
-    lightboxImg.style.transition = `transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), clip-path 0.35s cubic-bezier(0.4, 0, 0.2, 1)`;
-    lightboxImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${targetScale})`;
-    lightboxImg.style.clipPath = `inset(${insetY}px ${insetX}px)`;
+    if (imgRatio > targetRatio) {
+      clipInsetX = (lightboxImg.clientWidth * (1 - targetRatio / imgRatio)) / 2;
+    } else {
+      clipInsetY = (lightboxImg.clientHeight * (1 - imgRatio / targetRatio)) / 2;
+    }
+
+    const targetScaleW = rect.width / (lightboxImg.clientWidth - clipInsetX * 2);
+    const targetScaleH = rect.height / (lightboxImg.clientHeight - clipInsetY * 2);
+    const finalScale = Math.max(targetScaleW, targetScaleH);
+
+    lightboxImg.style.transition = `transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), clip-path 0.4s cubic-bezier(0.4, 0, 0.2, 1)`;
+    lightboxImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${finalScale})`;
+    lightboxImg.style.clipPath = `inset(${clipInsetY}px ${clipInsetX}px)`;
     
-    // 等飞回动画贴合后，瞬间关闭遮罩并恢复原图
     setTimeout(() => {
       lightbox.style.transition = "none"; 
       lightbox.classList.remove("show");
@@ -459,6 +455,7 @@ function closeLightbox() {
       setTimeout(() => {
         currentSourceImg = null; 
         isFlipped = false;
+        savedRect = null;
         
         flipWrapper.style.transition = "none";
         flipWrapper.style.transform = "rotateY(0deg)"; 
@@ -475,46 +472,29 @@ function closeLightbox() {
         lightboxImg.style.opacity = "1"; 
         lightboxImg.style.clipPath = "none"; 
 
-        const existingMarker = flipWrapper.querySelector('.secret-marker');
-        if (existingMarker) existingMarker.remove();
-        
-        // 恢复遮罩层的默认过渡
         lightbox.style.transition = "opacity 0.1s ease, visibility 0.1s ease"; 
       }, 10); 
-    }, 350); 
+    }, 420); 
   };
 
-  // ================= 核心逻辑判断 =================
-
   if (isFlipped) {
-    // 1. 如果当前在背面：先翻转回正面
     isFlipped = false;
-    isAnimating = true; // 锁定，防止翻转期间用户乱滑
+    isAnimating = true; 
     
-    // 让文字卡片快速淡出
     const backTextEl = document.querySelector('.text-paper');
     if (backTextEl) {
       backTextEl.style.transition = "opacity 0.2s ease";
       backTextEl.style.opacity = "0";
     }
 
-    // 翻转回 0 度
     flipWrapper.style.transition = "transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)";
     flipWrapper.style.transform = "rotateY(0deg)";
 
-    // 等翻转动画完成 (0.45秒) 后，执行飞回逻辑
     setTimeout(() => {
       isAnimating = false;
-      // 确保此时背面彻底隐藏，防止闪光
-      const imgName = lightboxImg.src.split('/').pop();
-      if (!photoSecrets[imgName] && backTextEl) {
-         backTextEl.style.opacity = "0"; // 如果没配文，保持隐藏
-      }
       doFlyBack();
     }, 450); 
-
   } else {
-    // 2. 如果当前就在正面：直接飞回
     doFlyBack();
   }
   
@@ -1023,7 +1003,6 @@ function formatDate(now) {
   return `${now.getDate()} ${monthEn} ${yyyy}`;
 }
 
-/* 安全地设置倒计时卡片内容 */
 function setCdCard(boxEl, titleEl, cdValueContainerEl, isToday, titleHtml, normalTitle, days, todayEmoji) {
   if (!boxEl || !titleEl || !cdValueContainerEl) return;
   
@@ -1198,7 +1177,6 @@ function updateClock() {
   }
 }
 
-/* ================= 新的时钟定时器逻辑 ================= */
 let clockTimeout = null;
 let hideButtonsTimer = null; 
 
@@ -1306,7 +1284,6 @@ themeBtn.addEventListener("mouseleave", () => {
   resetHideTimer();
 });
 
-/* ========== 布局选择器（上拉菜单）逻辑 ========== */
 const layoutPicker = document.getElementById("layout-picker");
 const layoutPickerToggle = document.getElementById("layout-picker-toggle");
 const layoutPickerMenu = document.getElementById("layout-picker-menu");
@@ -1400,7 +1377,6 @@ if (clockBtn) {
   });
 }
 
-/* ========== 11. 彩蛋信件交互 ========== */
 let letterScrollLocked = false;
 function preventLetterBgScroll(e) {
   if (!letterScrollLocked) return;
@@ -1445,7 +1421,6 @@ function closeLetter(id) {
   }
 }
 
-/* ========== 右上角音乐播放逻辑（渐入渐出） ========== */
 const bgm = document.getElementById("bgm");
 const musicToggleBtn = document.getElementById("music-toggle-btn");
 
@@ -1496,7 +1471,6 @@ if (musicToggleBtn && bgm) {
   });
 }
 
-/* ========== 加载页面控制 ========== */
 const loadingScreen = document.getElementById("loading-screen");
 
 if (sessionStorage.getItem("hasVisited")) {
