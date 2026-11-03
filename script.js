@@ -416,6 +416,50 @@ function openLightbox(src, sourceImg) {
   });
 }
 
+// 时间线图片位于 .event 内，而 .event 本身可能仍在执行 translateY 过渡。
+// 等它的 transform 过渡结束后再读取目标位置，避免动画结束时图片突然向下跳。
+async function waitForTimelinePosition(sourceImg) {
+  const timelineEvent = sourceImg && sourceImg.closest(".event");
+  if (!timelineEvent) return;
+
+  const elements = [];
+  let node = sourceImg;
+  while (node) {
+    elements.push(node);
+    if (node === timelineEvent) break;
+    node = node.parentElement;
+  }
+
+  // 最多检查几轮，兼容前一个过渡结束后紧接着触发的新过渡。
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const movingAnimations = elements.flatMap(element => {
+      if (typeof element.getAnimations !== "function") return [];
+
+      return element.getAnimations().filter(animation => {
+        if (animation.playState === "finished" || animation.playState === "idle") return false;
+
+        const isTransformTransition = animation.transitionProperty === "transform";
+        const keyframes = animation.effect && typeof animation.effect.getKeyframes === "function"
+          ? animation.effect.getKeyframes()
+          : [];
+        const animatesTransform = keyframes.some(frame =>
+          Object.prototype.hasOwnProperty.call(frame, "transform")
+        );
+
+        return isTransformTransition || animatesTransform;
+      });
+    });
+
+    if (movingAnimations.length === 0) break;
+
+    await Promise.all(movingAnimations.map(animation =>
+      animation.finished.catch(() => {})
+    ));
+
+    await new Promise(resolve => requestAnimationFrame(resolve));
+  }
+}
+
 function closeLightbox() {
   isAnimating = false; 
 
@@ -439,8 +483,11 @@ function closeLightbox() {
     return;
   }
 
-  const doFlyBack = () => {
-    // ★ 关键：每次关闭都实时读取源图当前的坐标，而不是用第一次缓存的 savedRect
+  const doFlyBack = async () => {
+    // 时间线卡片可能还在执行自身的垂直位移动画，先等它稳定。
+    await waitForTimelinePosition(currentSourceImg);
+
+    // 每次关闭都在父级位置稳定后，重新读取源图的实际坐标。
     const rect = currentSourceImg
       ? currentSourceImg.getBoundingClientRect()
       : savedRect;
