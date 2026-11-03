@@ -81,11 +81,9 @@ const themeBtn = document.getElementById("theme-btn");
 const currentTheme = localStorage.getItem("theme");
 
 if (currentTheme === "fun") {
-  // 如果本地存的是万兽之王，就恢复它
   document.body.classList.add("theme-fun");
   themeBtn.textContent = "👑";
 } else {
-  // 否则默认是浪漫主题
   document.body.classList.remove("theme-fun");
   themeBtn.textContent = "🌸";
 }
@@ -314,22 +312,18 @@ function openLightbox(src, sourceImg) {
   
   const imgName = src.split('/').pop(); 
   
-  // 清理旧的标记
   const existingMarker = flipWrapper.querySelector('.secret-marker');
   if (existingMarker) existingMarker.remove();
 
   if (photoSecrets[imgName]) {
     backText.textContent = photoSecrets[imgName];
     
-    // ★ 1. 创建标记，但此时它处于透明隐藏状态
     const marker = document.createElement('div');
     marker.className = 'secret-marker';
     marker.textContent = '✨'; 
     document.querySelector('.flip-front').appendChild(marker);
     
-    // ★ 2. 等 450ms（照片飞入动画 400ms 结束后），再给它加上 show 类
     setTimeout(() => {
-      // 确保用户没有在这期间关掉遮罩
       if (lightbox.classList.contains("show")) {
         marker.classList.add("show");
       }
@@ -344,11 +338,10 @@ function openLightbox(src, sourceImg) {
   flipWrapper.classList.remove("flipped");
   flipWrapper.style.transition = "none";
   flipWrapper.style.transform = "rotateY(0deg)";
-  flipWrapper.style.opacity = "1"; // ★ 确保有这一行
+  flipWrapper.style.opacity = "1";
   
   lightbox.classList.add("show");
   
-  // ...（下面保持你原来计算位置和飞入动画的代码不动）...
   window.addEventListener('wheel', preventScroll, { passive: false });
   window.addEventListener('touchmove', preventScroll, { passive: false });
 
@@ -382,26 +375,19 @@ function closeLightbox() {
 
   if (currentSourceImg) {
    if (isFlipped) {
-      // ★ 核心修复：既然在反面，我们直接抓取“白底黑字”的那个卡片
       const backTextEl = document.querySelector('.text-paper');
       
       if (backTextEl) {
-        // 给卡片加上平滑缩放和淡出的动画
         backTextEl.style.transition = "transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease";
         backTextEl.style.transformOrigin = "center center";
-        // 让它以 3D 的状态原地缩小（因为 .flip-back 已经做了反转，它在视觉上是正的）
         backTextEl.style.transform = "scale(0.85)"; 
         backTextEl.style.opacity = "0";
       }
       
-      // 同时，为了绝对防止底下的照片闪现，瞬间把照片彻底隐藏
       lightboxImg.style.transition = "none";
       lightboxImg.style.opacity = "0";
       
-      // 外层容器保持不动，等待卡片缩小完毕
-      
     } else {
-      // ★ 正面关闭：正常飞回原本的图片位置
       const rect = currentSourceImg.getBoundingClientRect();
       const viewportCenterX = window.innerWidth / 2;
       const viewportCenterY = window.innerHeight / 2;
@@ -423,22 +409,19 @@ function closeLightbox() {
     flipWrapper.style.opacity = "0";
   }
   
-  // 等待缩小动画播完，隐藏遮罩
   setTimeout(() => {
     lightbox.classList.remove("show");
     window.removeEventListener('wheel', preventScroll);
     window.removeEventListener('touchmove', preventScroll);
     
-    // 等遮罩黑掉后，偷偷重置状态
     setTimeout(() => {
       currentSourceImg = null; 
       isFlipped = false;
       
       flipWrapper.style.transition = "none";
       flipWrapper.style.transform = "rotateY(0deg)"; 
-      flipWrapper.style.opacity = "1"; // 恢复外层容器透明度
+      flipWrapper.style.opacity = "1";
       
-      // 恢复文字卡片的初始状态，供下一次打开使用
       const backTextEl = document.querySelector('.text-paper');
       if (backTextEl) {
         backTextEl.style.transition = "none";
@@ -453,7 +436,7 @@ function closeLightbox() {
       const existingMarker = flipWrapper.querySelector('.secret-marker');
       if (existingMarker) existingMarker.remove();
     }, 100); 
-  }, 250); // 等待 0.25s 让卡片缩小完毕
+  }, 250);
 }
 
 /* ================= 手势翻转 & 点击判定逻辑 ================= */
@@ -462,7 +445,6 @@ let pointerStartY = 0;
 let pointerStartTime = 0;
 let isPointerDown = false;
 
-// 1. 手指/鼠标 按下
 lightbox.addEventListener('pointerdown', (e) => {
   isPointerDown = true;
   pointerStartX = e.clientX;
@@ -470,7 +452,6 @@ lightbox.addEventListener('pointerdown', (e) => {
   pointerStartTime = new Date().getTime();
 });
 
-// 2. 手指/鼠标 抬起
 lightbox.addEventListener('pointerup', (e) => {
   if (!isPointerDown) return;
   isPointerDown = false;
@@ -478,13 +459,11 @@ lightbox.addEventListener('pointerup', (e) => {
   const deltaX = e.clientX - pointerStartX;
   const deltaY = e.clientY - pointerStartY;
   const timeDiff = new Date().getTime() - pointerStartTime;
-  const distance = Math.hypot(deltaX, deltaY); // 计算移动距离
+  const distance = Math.hypot(deltaX, deltaY);
 
-  // ★ 判断 1：如果是横向滑动（距离大于 50px，且横向位移大于纵向），则触发翻转
   if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY) && timeDiff < 500) {
     triggerFlip(deltaX < 0 ? 1 : -1);
   } 
-  // ★ 判断 2：如果是纯粹的“点击”（移动距离小于 10px），并且点的是黑边，直接关闭
   else if (distance < 10) {
     if (e.target.id === "lightbox") {
       closeLightbox();
@@ -492,14 +471,12 @@ lightbox.addEventListener('pointerup', (e) => {
   }
 });
 
-// 阻止手机端默认的长按菜单和拖拽
 lightbox.addEventListener('contextmenu', e => e.preventDefault());
 
-/* ================= 手势翻转逻辑 ================= */
 let touchStartX = 0;
 let touchStartY = 0;
 let touchStartTime = 0;
-let touchEndTime = 0; // ★ 记录滑动结束时间
+let touchEndTime = 0;
 
 let mouseStartX = 0;
 let mouseStartTime = 0;
@@ -535,8 +512,6 @@ function triggerFlip(direction) {
   }, 600);
 }
 
-// 手机触摸事件
-// 手机触摸事件
 lightbox.addEventListener('touchstart', (e) => {
   if (e.touches.length !== 1) return;
   touchStartX = e.touches[0].clientX;
@@ -551,13 +526,11 @@ lightbox.addEventListener('touchend', (e) => {
   const deltaY = e.changedTouches[0].clientY - touchStartY;
   const timeDiff = new Date().getTime() - touchStartTime;
 
-  // 只要滑动距离够，就触发翻转
   if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY) && timeDiff < 500) {
     triggerFlip(deltaX < 0 ? 1 : -1);
   }
 }, { passive: true });
 
-// 电脑鼠标事件
 lightbox.addEventListener('mousedown', (e) => {
   isMouseDown = true;
   mouseStartX = e.clientX;
@@ -576,18 +549,13 @@ lightbox.addEventListener('mouseup', (e) => {
   }
 });
 
-// 绑定照片点击打开
 document.querySelectorAll(".event .card img").forEach(img => {
   img.addEventListener("click", () => openLightbox(img.src, img));
 });
 
-// ★ 点击黑边关闭（极简判定，100%跟手）
 lightbox.addEventListener("click", (e) => {
-  // 如果点的是最外层的 lightbox（纯黑背景）
   if (e.target.id === "lightbox") {
-    // 如果正在翻转动画中，不让关
     if (isAnimating) return; 
-    
     closeLightbox();
   }
 });
@@ -598,7 +566,6 @@ themeBtn.addEventListener("click", () => {
   const isFun = document.body.classList.contains("theme-fun");
   themeBtn.textContent = isFun ? "👑" : "🌸";
   
-  // 将当前状态存入浏览器本地
   localStorage.setItem("theme", isFun ? "fun" : "romantic");
   
   fillPetals();
@@ -783,15 +750,12 @@ const clockMarker = document.getElementById("clock-m-marker");
 function jumpAndSpeak(markerEl, event) {
   if (!markerEl) return;
   
-  // 1. 跳跃
   markerEl.classList.remove("jump");
   void markerEl.offsetWidth;
   markerEl.classList.add("jump");
 
-  // 2. 简单弹出一个原生提示（或者以后你可以自己写个好看的DOM气泡）
   const randomWord = loveWords[Math.floor(Math.random() * loveWords.length)];
   
-  // 创建一个小气泡
   const bubble = document.createElement("div");
   bubble.textContent = randomWord;
   bubble.style.cssText = `
@@ -812,19 +776,8 @@ function jumpAndSpeak(markerEl, event) {
   
   markerEl.appendChild(bubble);
 
-  // 动画结束后移除气泡
   setTimeout(() => bubble.remove(), 1000);
 }
-
-// 顺便在 style.css 加个气泡向上的动画
-/*
-@keyframes fadeUp {
-  0% { opacity: 0; transform: translate(-50%, 10px); }
-  20% { opacity: 1; transform: translate(-50%, 0); }
-  80% { opacity: 1; transform: translate(-50%, -10px); }
-  100% { opacity: 0; transform: translate(-50%, -20px); }
-}
-*/
 
 if (normalMarker) normalMarker.addEventListener("click", () => jumpAndSpeak(normalMarker));
 if (clockMarker) clockMarker.addEventListener("click", () => jumpAndSpeak(clockMarker));
@@ -852,7 +805,6 @@ if (photoWall) {
     img.src = src;
     img.alt = "我们的照片";
     
-    // ★ 同样绑定飞入动画
     img.addEventListener("click", () => {
       openLightbox(img.src, img);
     });
@@ -988,7 +940,7 @@ function formatDate(now) {
   return `${now.getDate()} ${monthEn} ${yyyy}`;
 }
 
-/* 安全地设置倒计时卡片内容：只改文本和子结构，避免退出再进入后元素引用失效 */
+/* 安全地设置倒计时卡片内容 */
 function setCdCard(boxEl, titleEl, cdValueContainerEl, isToday, titleHtml, normalTitle, days, todayEmoji) {
   if (!boxEl || !titleEl || !cdValueContainerEl) return;
   
@@ -1000,7 +952,6 @@ function setCdCard(boxEl, titleEl, cdValueContainerEl, isToday, titleHtml, norma
     }
   } else {
     boxEl.classList.remove("is-today");
-    // ★ 关键修改：按标题传入不同格式，利用 <br> 换行
     titleEl.innerHTML = normalTitle;
     
     const newHtml = `<span>${days}</span> 天`;
@@ -1064,7 +1015,6 @@ function updateClock() {
   const clockBoxHer = document.querySelector(".right-col .box-cd"); 
   const clockBoxHim = document.querySelector(".right-col .box-cd:last-child"); 
 
-  // 1. 纪念日卡片
   let nextAnnYear = currentYear;
   if (today > new Date(currentYear, ANNIVERSARY.month, ANNIVERSARY.day)) nextAnnYear = currentYear + 1;
   const anniversaryCount = nextAnnYear - START_YEAR;
@@ -1083,7 +1033,6 @@ function updateClock() {
     "❤️❤️"
   );
 
-  // 2. Cindy 卡片
   let nextHerYear = currentYear;
   if (today > new Date(currentYear, HER_BIRTHDAY.month, HER_BIRTHDAY.day)) nextHerYear = currentYear + 1;
   const herAge = nextHerYear - HER_BIRTH_YEAR;
@@ -1102,7 +1051,6 @@ function updateClock() {
     "🎉🎂"
   );
 
-  // 3. Kai Peng 卡片
   let nextHimYear = currentYear;
   if (today > new Date(currentYear, HIS_BIRTHDAY.month, HIS_BIRTHDAY.day)) nextHimYear = currentYear + 1;
   const hisAge = nextHimYear - HIS_BIRTH_YEAR;
@@ -1121,7 +1069,6 @@ function updateClock() {
     "🎉🎂"
   );
 
-  // ================= 更新底部进度条 =================
   const totalDays = 3650;
   const percent = Math.min((days / totalDays) * 100, 100);
   const fillEl = document.getElementById("clock-m-fill");
@@ -1276,41 +1223,101 @@ themeBtn.addEventListener("mouseleave", () => {
   resetHideTimer();
 });
 
-// ★ 布局切换逻辑
-const layoutBtn = document.getElementById("clock-layout-btn");
+/* ========== 布局选择器（上拉菜单）逻辑 ========== */
+const layoutPicker = document.getElementById("layout-picker");
+const layoutPickerToggle = document.getElementById("layout-picker-toggle");
+const layoutPickerMenu = document.getElementById("layout-picker-menu");
+const layoutPickerCurrent = document.getElementById("layout-picker-current");
+const layoutOptions = document.querySelectorAll(".layout-option");
 const clockContainer = document.querySelector(".clock-container");
 
-// 0 = 默认三列, 1 = 极简左右分屏, 2 = 上下结构
+const LAYOUT_NAMES = ["默认三列", "极简分屏", "上下结构", "纯粹时钟"];
+
 let currentLayoutIndex = parseInt(localStorage.getItem("clockLayoutIndex")) || 0;
+if (isNaN(currentLayoutIndex) || currentLayoutIndex < 0 || currentLayoutIndex > 3) {
+  currentLayoutIndex = 0;
+}
 
 function applyLayout() {
-  // 先清空所有布局类名
-  clockContainer.classList.remove("layout-minimal", "layout-stacked");
+  if (!clockContainer) return;
+  
+  clockContainer.classList.remove("layout-minimal", "layout-stacked", "layout-pure");
   
   if (currentLayoutIndex === 1) {
     clockContainer.classList.add("layout-minimal");
   } else if (currentLayoutIndex === 2) {
     clockContainer.classList.add("layout-stacked");
+  } else if (currentLayoutIndex === 3) {
+    clockContainer.classList.add("layout-pure");
   }
-  // index 为 0 时不加类名，就是默认布局
-  
+
+  if (layoutPickerCurrent) {
+    layoutPickerCurrent.textContent = LAYOUT_NAMES[currentLayoutIndex];
+  }
+
+  layoutOptions.forEach(opt => {
+    const idx = parseInt(opt.dataset.layout);
+    opt.classList.toggle("active", idx === currentLayoutIndex);
+  });
+
   localStorage.setItem("clockLayoutIndex", currentLayoutIndex);
 }
 
-// 页面加载时恢复布局
+function openLayoutMenu() {
+  if (!layoutPicker) return;
+  layoutPicker.classList.add("open");
+}
+
+function closeLayoutMenu() {
+  if (!layoutPicker) return;
+  layoutPicker.classList.remove("open");
+}
+
+if (layoutPickerToggle) {
+  layoutPickerToggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (layoutPicker.classList.contains("open")) {
+      closeLayoutMenu();
+    } else {
+      openLayoutMenu();
+    }
+  });
+}
+
+layoutOptions.forEach(opt => {
+  opt.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const idx = parseInt(opt.dataset.layout);
+    if (!isNaN(idx) && idx >= 0 && idx <= 3) {
+      currentLayoutIndex = idx;
+      applyLayout();
+      closeLayoutMenu();
+    }
+  });
+});
+
+document.addEventListener("click", (e) => {
+  if (!layoutPicker) return;
+  if (layoutPicker.classList.contains("open") && !layoutPicker.contains(e.target)) {
+    closeLayoutMenu();
+  }
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && layoutPicker && layoutPicker.classList.contains("open")) {
+    closeLayoutMenu();
+  }
+});
+
 applyLayout();
 
-if (layoutBtn) {
-  layoutBtn.addEventListener("click", () => {
-    // 0 -> 1 -> 2 -> 0 循环
-    currentLayoutIndex = (currentLayoutIndex + 1) % 3;
-    applyLayout();
+if (clockBtn) {
+  clockBtn.addEventListener("click", () => {
+    closeLayoutMenu();
   });
 }
 
 /* ========== 11. 彩蛋信件交互 ========== */
-
-// ★ 专门用于锁定背景滚动的函数
 let letterScrollLocked = false;
 function preventLetterBgScroll(e) {
   if (!letterScrollLocked) return;
@@ -1326,12 +1333,10 @@ function openLetter(id) {
   if (modal) {
     modal.style.display = 'flex';
     
-    // ★ 1. 开启背景锁定
     letterScrollLocked = true;
     window.addEventListener('wheel', preventLetterBgScroll, { passive: false });
     window.addEventListener('touchmove', preventLetterBgScroll, { passive: false });
     
-    // ★ 2. 隐藏右下角的悬浮按钮
     document.body.classList.add('hide-buttons');
     
     setTimeout(() => {
@@ -1345,17 +1350,15 @@ function closeLetter(id) {
   if (modal) {
     modal.classList.remove('show');
     
-    // ★ 3. 关闭背景锁定
     letterScrollLocked = false;
     window.removeEventListener('wheel', preventLetterBgScroll);
     window.removeEventListener('touchmove', preventLetterBgScroll);
     
-    // ★ 4. 恢复右下角的悬浮按钮
     document.body.classList.remove('hide-buttons');
     
     setTimeout(() => {
       modal.style.display = 'none';
-    }, 400); // 等待淡出动画结束
+    }, 400);
   }
 }
 
@@ -1365,13 +1368,10 @@ const musicToggleBtn = document.getElementById("music-toggle-btn");
 
 let fadeInterval = null;
 
-// 渐入渐出的核心函数
 function fadeAudio(targetVolume, callback) {
   clearInterval(fadeInterval);
   
-  // 步进值：每次改变 0.05 的音量
   const step = 0.05;
-  // 每 50 毫秒执行一次（0.05 * (1000/50) = 1，即 1 秒内从 0 到 1）
   const intervalTime = 50; 
 
   fadeInterval = setInterval(() => {
@@ -1386,7 +1386,6 @@ function fadeAudio(targetVolume, callback) {
 
     bgm.volume = nextVolume;
 
-    // 如果到达了目标音量，清除定时器
     if (nextVolume === targetVolume) {
       clearInterval(fadeInterval);
       if (callback) callback();
@@ -1395,20 +1394,17 @@ function fadeAudio(targetVolume, callback) {
 }
 
 if (musicToggleBtn && bgm) {
-  // 初始音量设为 0
   bgm.volume = 0;
 
   musicToggleBtn.addEventListener("click", () => {
     if (bgm.paused) {
-      // 播放并渐入
       bgm.play().then(() => {
         musicToggleBtn.textContent = "🎵";
-        fadeAudio(1); // 目标音量为 1（最大）
+        fadeAudio(1);
       }).catch((err) => {
         console.log("播放失败:", err);
       });
     } else {
-      // 渐出并在结束后暂停
       musicToggleBtn.textContent = "🔇";
       fadeAudio(0, () => {
         bgm.pause();
@@ -1420,12 +1416,9 @@ if (musicToggleBtn && bgm) {
 /* ========== 加载页面控制 ========== */
 const loadingScreen = document.getElementById("loading-screen");
 
-// ★ 判断：如果用户在当前浏览器会话中已经看过加载页了，就直接跳过
 if (sessionStorage.getItem("hasVisited")) {
-  // 直接隐藏，不播动画
   if (loadingScreen) loadingScreen.style.display = "none";
 } else {
-  // 第一次访问，记录状态，并播放加载动画
   sessionStorage.setItem("hasVisited", "true");
   
   let progress = 0;
