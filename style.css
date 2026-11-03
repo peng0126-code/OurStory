@@ -646,21 +646,114 @@ body.theme-fun .year-group.collapsed .year-header {
 
 /* ========== 图片放大遮罩 ========== */
 .lightbox {
-  display: none;
+  display: flex;
+  visibility: hidden;
+  opacity: 0;
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.85);
-  z-index: 999;
+  z-index: 9999;
   justify-content: center;
   align-items: center;
   padding: 20px;
+  transition: opacity 0.1s ease, visibility 0.1s ease;
 }
-.lightbox.show { display: flex; }
-.lightbox img {
-  max-width: 90%;
-  max-height: 90%;
+
+.lightbox.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ★ 3D 舞台 */
+.flip-wrapper {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 90vw;
+  max-height: 90vh;
+  perspective: 1500px;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+}
+
+.flip-wrapper.fade-out {
+  opacity: 0 !important;
+}
+
+.flip-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flip-front {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flip-front img {
+  max-width: 90vw;
+  max-height: 90vh;
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  display: block;
+}
+
+.flip-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotateY(180deg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.text-paper {
+  background-color: #ffffff;
+  color: #333333;
+  width: 100%;
+  height: 100%;
+  min-width: 280px; 
+  min-height: 200px; 
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  box-sizing: border-box;
+  
+  font-family: "Kaiti SC", "KaiTi", "STKaiti", "cursive", serif;
+  font-size: 1.6rem;
+  line-height: 1.8;
+  text-align: center;
+  word-break: break-word;
+}
+
+/* ========== 秘密配文标记 ========== */
+.secret-marker {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none; 
+  z-index: 10;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+}
+
+.secret-marker.show {
+  opacity: 0.9;
+}
+
+body.theme-fun .secret-marker {
+  filter: sepia(1) saturate(5) hue-rotate(5deg); 
 }
 
 /* ========== 照片墙 ========== */
@@ -783,13 +876,11 @@ body.in-clock-mode .photo-nav-btn {
   gap: 2vh;
 }
 
-/* ★ 加宽左右两列，留出空间给多行文字 */
 .left-col { flex: 1.5; }   
 .center-col { flex: 7; } 
 .right-col { flex: 1.5; }  
 
 .clock-box {
-  /* ★ 改成毛玻璃效果（和极简/上下布局一样） */
   background: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -819,7 +910,6 @@ body.in-clock-mode .photo-nav-btn {
   padding: 4vh 0;
 }
 
-/* AM/PM 与日期同一行：左 AMPM，右日期 */
 .clock-topline {
   width: 100%;
   height: 8vh;
@@ -869,10 +959,18 @@ body.theme-fun .clock-date {
   border: 1px solid var(--main-light);
   color: var(--text-mid);
   padding: 6px 16px;
+
+  width: 110px;      /* 统一宽度，你可以根据喜好微调 */
+  height: 32px;      /* 统一高度 */
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
   border-radius: 20px;
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-family: inherit;
 }
 .clock-toggle-btn:hover {
   background: var(--main);
@@ -890,7 +988,6 @@ body.theme-fun .clock-toggle-btn:hover {
 }
 
 body.theme-fun .clock-box {
-  /* ★ 万兽之王主题的毛玻璃效果 */
   background: rgba(42, 33, 23, 0.4);
   border: 1px solid rgba(201, 160, 74, 0.2);
   box-shadow: 0 8px 20px rgba(0,0,0,0.2);
@@ -926,7 +1023,6 @@ body.theme-fun .center-col .clock-box {
   font-weight: normal; 
 }
 
-/* ★ 标题双行紧凑靠上 */
 .box-cd .c-cd-title {
   font-size: 1rem;
   color: var(--text-mid);
@@ -934,7 +1030,6 @@ body.theme-fun .center-col .clock-box {
   text-align: center;
   line-height: 1.2;
 }
-/* ★ 数字块和"天"独立一行居中，加大间距让数字看起来更独立 */
 .box-cd .c-cd-value {
   font-size: 1.2rem;
   color: var(--text-mid);
@@ -971,11 +1066,10 @@ body.theme-fun .center-col .clock-box {
 }
 
 body.theme-fun .flip-digit {
-  /* ★ 核心修改：用带点透明度的暗金/深灰，加上发光边框，把卡片“托”出来 */
-  background: rgba(201, 160, 74, 0.1); /* 淡暗金色半透明背景 */
-  border: 1px solid rgba(201, 160, 74, 0.3); /* 明显的暗金边框 */
+  background: rgba(201, 160, 74, 0.1);
+  border: 1px solid rgba(201, 160, 74, 0.3);
   box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 0 15px rgba(201, 160, 74, 0.15);
-  backdrop-filter: blur(10px); /* 加一点毛玻璃效果更高级 */
+  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
 
@@ -1088,7 +1182,6 @@ body.theme-fun .clock-bottom {
   .clock-top { margin-bottom: 1vh; gap: 1.5vw; }
   .clock-column { gap: 1vh; }
   
-  /* ★ 手机横屏也同步加宽左右列 */
   .left-col { flex: 1.5; }
   .center-col { flex: 7; }
   .right-col { flex: 1.5; }
@@ -1362,35 +1455,25 @@ body.theme-fun .clock-box.is-today::before {
   z-index: 1;
 }
 
-/* ========== 小人跳跃动画（极致丝滑版） ========== */
+/* ========== 小人跳跃动画 ========== */
 @keyframes jumpAnimation {
   0% {transform: translate(-50%, -50%) scale(1, 1); }
-  /* 1. 蓄力下蹲：稍微压扁，准备起跳 */
   12% {transform: translate(-50%, -40%) scale(1.08, 0.85); }
-  /* 2. 极速起跳：身体拉长，离开地面 */
   30% {transform: translate(-50%, -65%) scale(0.92, 1.15); }
-  /* 3. 空中减速：接近最高点，恢复比例 */
   45% {transform: translate(-50%, -95%) scale(1, 1); }
-  /* 4. 到达最高点：完美悬浮的瞬间（停留极短） */
   50% {transform: translate(-50%, -100%) scale(1, 1); }
-  /* 5. 极速下落：重力加速，身体略微拉长 */
   65% {transform: translate(-50%, -65%) scale(0.95, 1.1); }
-  /* 6. 触地瞬间：猛烈撞击 */
   80% {transform: translate(-50%, -45%) scale(1.1, 0.85); }
-  /* 7. 落地回弹：身体轻微弹起 */
   90% {transform: translate(-50%, -52%) scale(0.98, 1.02); }
-  /* 8. 恢复原状 */
   100% {transform: translate(-50%, -50%) scale(1, 1); }
 }
 
 .milestone-marker.jump, 
 .clock-m-marker.jump {
-  /* 时间延长到 0.8s，使用带有回弹感的贝塞尔曲线 */
   animation: jumpAnimation 0.8s cubic-bezier(0.28, 0.84, 0.42, 1) forwards;
   cursor: pointer;
 }
 
-/* 气泡冒出的动画 */
 @keyframes bubblePop {
   0% { opacity: 0; transform: translate(-50%, 10px) scale(0.8); }
   50% { opacity: 1; transform: translate(-50%, -15px) scale(1.05); }
@@ -1407,25 +1490,22 @@ body.theme-fun .clock-box.is-today::before {
   border: none;
   font-size: 20px;
   cursor: pointer;
-  opacity: 0.3; /* 默认半透明，不抢视觉 */
+  opacity: 0.3;
   transition: all 0.3s ease;
   padding: 5px;
   outline: none;
 }
 
-/* ★ 新增：进入全屏时钟模式且隐藏按钮时，音乐按钮也一起向右滑出隐藏 */
 body.in-clock-mode.hide-buttons #music-toggle-btn {
   transform: translateX(100px) !important;
   opacity: 0;
 }
 
-/* 悬停时稍微亮一点，提示用户可以点 */
 #music-toggle-btn:hover {
   opacity: 1;
   transform: scale(1.15);
 }
 
-/* 确保原生音频控件永远不显示 */
 #bgm {
   display: none;
 }
@@ -1436,224 +1516,28 @@ body.in-clock-mode.hide-buttons #music-toggle-btn {
   -moz-user-select: none !important;
   -ms-user-select: none !important;
   user-select: none !important;
-  -webkit-touch-callout: none !important; /* 禁止 iOS 长按菜单 */
-  -webkit-tap-highlight-color: transparent; /* 禁止移动端点击时的灰/蓝底色 */
+  -webkit-touch-callout: none !important;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* 特别是图片，禁止拖拽 */
 img {
   -webkit-user-drag: none !important;
-  pointer-events: auto; /* 保留点击事件，但禁止拖拽 */
-}
-
-/* ========== 图片放大遮罩 ========== */
-.lightbox {
-  display: flex;
-  visibility: hidden;
-  opacity: 0;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  z-index: 9999;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  transition: opacity 0.1s ease, visibility 0.1s ease;
-}
-
-.lightbox.show {
-  visibility: visible;
-  opacity: 1;
-}
-
-/* ★ 3D 舞台 */
-.flip-wrapper {
-  position: relative;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  max-width: 90vw;
-  max-height: 90vh;
-  perspective: 1500px;
-  transform-style: preserve-3d;
-  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-  will-change: transform;
-}
-
-.flip-wrapper.fade-out {
-  opacity: 0 !important;
-}
-
-/* 正反面共用基础 */
-.flip-face {
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-/* 正面：图片 */
-.flip-front {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.flip-front img {
-  max-width: 90vw;
-  max-height: 90vh;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-  display: block;
-}
-
-/* 背面：文字 */
-.flip-back {
-  position: absolute;
-  /* 保证背面和正面一样大且重合 */
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  transform: rotateY(180deg);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* 白底黑字信纸样式 */
-.text-paper {
-  background-color: #ffffff;
-  color: #333333;
-  width: 100%;
-  height: 100%;
-  min-width: 280px; 
-  min-height: 200px; 
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
-  box-sizing: border-box;
-  
-  font-family: "Kaiti SC", "KaiTi", "STKaiti", "cursive", serif;
-  font-size: 1.6rem;
-  line-height: 1.8;
-  text-align: center;
-  word-break: break-word;
-}
-
-/* ========== 图片翻转交互 ========== */
-.lightbox-flip-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  perspective: 1200px;
-  /* ★ 核心修复 1：开启 3D 空间，确保正反面独立 */
-  transform-style: preserve-3d;
-}
-
-/* 前后两面共用的 3D 基础设置 */
-.lightbox-front,
-.lightbox-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  /* ★ 核心修复 2：隐藏背面 */
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-/* 正面图片 */
-.lightbox-front img {
-  max-width: 90%;
-  max-height: 90%;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease;
-  transform-origin: center center;
-  will-change: transform, opacity;
-}
-
-/* 背面文字区域 */
-.lightbox-back {
-  transform: rotateY(180deg); /* 默认反转 180 度藏在后面 */
-  /* ★ 核心修复 3：默认完全透明，防止加载瞬间闪现 */
-  opacity: 0; 
-  transition: opacity 0.3s ease;
-}
-
-/* 当触发翻转时，让背面显现 */
-.lightbox-flip-container.flipped .lightbox-back {
-  opacity: 1;
-}
-
-/* 背面的深色磨砂卡片 */
-.lightbox-back p {
-  font-family: "Kaiti SC", "KaiTi", "STKaiti", "cursive", serif;
-  font-size: 1.6rem;
-  color: #fff;
-  text-align: center;
-  line-height: 1.8;
-  padding: 2.5rem 2rem;
-  max-width: 85%;
-  background: rgba(30, 30, 30, 0.85);
-  border-radius: 20px;
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  box-shadow: 0 15px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.2);
-  border: 1px solid rgba(255,255,255,0.15);
-  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-  word-break: break-all;
-  /* ★ 文字本身不需要翻转，保持正向 */
-  transform: rotateY(0deg); 
-}
-
-/* ========== 秘密配文标记 ========== */
-.secret-marker {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  font-size: 14px;
-  
-  /* ★ 核心修改：默认完全透明，并加上淡入过渡 */
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  
-  pointer-events: none; 
-  z-index: 10;
-  text-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
-}
-
-/* 当加上这个类时，标记慢慢浮现 */
-.secret-marker.show {
-  opacity: 0.9; /* 这个数值决定它最终有多显眼（0.4是半透明，1是完全不透明） */
-}
-
-body.theme-fun .secret-marker {
-  filter: sepia(1) saturate(5) hue-rotate(5deg); 
+  pointer-events: auto;
 }
 
 /* ========== 加载遮罩层 ========== */
 #loading-screen {
   position: fixed;
   inset: 0;
-  background: var(--bg-top); /* 跟随当前主题的背景色 */
-  z-index: 99999; /* 必须在所有元素最上层 */
+  background: var(--bg-top);
+  z-index: 99999;
   display: flex;
   justify-content: center;
   align-items: center;
   transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s ease;
-  /* 默认向上滑出 */
   transform: translateY(0);
 }
 
-/* 当加上 hidden 类时，向上滑出并消失 */
 #loading-screen.hidden {
   transform: translateY(-100%);
   opacity: 0;
@@ -1709,12 +1593,9 @@ body.theme-fun .secret-marker {
   to { opacity: 1; }
 }
 
-/* ========== 极简时钟布局 (左4/5 + 右1/5 分屏版) ========== */
-
-/* 1. 主容器使用 Grid 布局，完美分屏 */
+/* ========== 极简时钟布局 ========== */
 .clock-container.layout-minimal .clock-top {
   display: grid;
-  /* ★ 核心修改：左边 4 份，右边 1 份 */
   grid-template-columns: 4.2fr 1fr; 
   grid-template-areas: 
     "clock card1"
@@ -1726,12 +1607,10 @@ body.theme-fun .secret-marker {
   margin-bottom: 0; 
 }
 
-/* 2. 隐藏里程碑 */
 .clock-container.layout-minimal .clock-bottom {
   display: none !important;
 }
 
-/* 3. 时钟区域占满左半边，高度铺满整个屏幕 */
 .clock-container.layout-minimal .center-col {
   grid-area: clock;
   display: flex;
@@ -1740,19 +1619,16 @@ body.theme-fun .secret-marker {
   height: 100%;
 }
 
-/* 4. 把原来的左右列变成透明容器 */
 .clock-container.layout-minimal .left-col,
 .clock-container.layout-minimal .right-col {
   display: contents;
 }
 
-/* 5. 依次把 4 个卡片塞进右侧的 1x4 网格 */
 .clock-container.layout-minimal .left-col .box-days { grid-area: card1; }
 .clock-container.layout-minimal .left-col .box-cd { grid-area: card2; }
 .clock-container.layout-minimal .right-col .box-cd:nth-child(1) { grid-area: card3; }
 .clock-container.layout-minimal .right-col .box-cd:nth-child(2) { grid-area: card4; }
 
-/* 6. 卡片毛玻璃美化 */
 .clock-container.layout-minimal .clock-box:not(.box-time) {
   border-radius: 20px;
   padding: 1vh 0.5vw;
@@ -1768,13 +1644,11 @@ body.theme-fun .secret-marker {
   align-items: center;
 }
 
-/* 万兽之王主题的卡片背景 */
 body.theme-fun .clock-container.layout-minimal .clock-box:not(.box-time) {
   background: rgba(42, 33, 23, 0.4);
   border: 1px solid rgba(201, 160, 74, 0.2);
 }
 
-/* 7. 文字排版适配（因为卡片变得更窄，数字得再缩小一点保证不换行） */
 .clock-container.layout-minimal .box-cd .c-cd-title {
   font-size: 0.75rem;
   margin-bottom: 0.5vh;
@@ -1786,7 +1660,7 @@ body.theme-fun .clock-container.layout-minimal .clock-box:not(.box-time) {
   text-align: center;
 }
 .clock-container.layout-minimal .box-cd .c-cd-value span {
-  font-size: 1.8vw; /* 变窄后数字适当缩小 */
+  font-size: 1.8vw;
 }
 .clock-container.layout-minimal .box-days .c-label {
   font-size: 0.8rem;
@@ -1799,13 +1673,11 @@ body.theme-fun .clock-container.layout-minimal .clock-box:not(.box-time) {
   font-size: 0.8rem;
 }
 
-/* 8. 时钟区域的顶部与底部排版 */
 .clock-container.layout-minimal .clock-topline {
   height: auto;
   padding: 0 3vw 2vh 3vw;
 }
 
-/* 9. ★ 配合变宽的时钟，字体稍微放大 */
 .clock-container.layout-minimal .flip-clock {
   font-size: 16vw !important; 
 }
@@ -1813,7 +1685,6 @@ body.theme-fun .clock-container.layout-minimal .clock-box:not(.box-time) {
   font-size: 10vw !important; 
 }
 
-/* 手机横屏专门适配 */
 @media (orientation: landscape) and (max-height: 500px) {
   .clock-container.layout-minimal .flip-clock {
     font-size: 13vw !important;
@@ -1826,17 +1697,16 @@ body.theme-fun .clock-container.layout-minimal .clock-box:not(.box-time) {
 /* ========== 第三种布局：上时钟 + 下卡片 ========== */
 .clock-container.layout-stacked .clock-top {
   display: grid;
-  /* ★ 改回 2fr 1fr，给下面卡片留出足够的空间 */
-  grid-template-rows: 4fr 1fr; 
+  /* ★ 从 4fr 1fr 改为 4.5fr 1fr 或者 5fr 1fr，稍微多给上面一点点空间 */
+  grid-template-rows: 4.5fr 1fr; 
   grid-template-columns: 1fr 1fr 1fr 1fr; 
   grid-template-areas: 
     "clock clock clock clock"
     "card1 card2 card3 card4";
-  gap: 2vh 1.5vw;
+  gap: 1.5vh 1.5vw; /* ★ 把行间距从 2vh 改小一点为 1.5vh */
   height: 100%;
 }
 
-/* 1. 时钟放上面 */
 .clock-container.layout-stacked .center-col {
   grid-area: clock;
   width: 100%;
@@ -1844,10 +1714,9 @@ body.theme-fun .clock-container.layout-minimal .clock-box:not(.box-time) {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  overflow: hidden; /* 防止内容溢出 */
+  overflow: hidden;
 }
 
-/* 2. 卡片放下面 */
 .clock-container.layout-stacked .left-col,
 .clock-container.layout-stacked .right-col {
   display: contents; 
@@ -1858,12 +1727,10 @@ body.theme-fun .clock-container.layout-minimal .clock-box:not(.box-time) {
 .clock-container.layout-stacked .right-col .box-cd:nth-child(1) { grid-area: card3; }
 .clock-container.layout-stacked .right-col .box-cd:nth-child(2) { grid-area: card4; }
 
-/* 隐藏里程碑 */
 .clock-container.layout-stacked .clock-bottom {
   display: none !important;
 }
 
-/* 3. 下方卡片的毛玻璃美化 */
 .clock-container.layout-stacked .clock-box:not(.box-time) {
   border-radius: 20px;
   padding: 1vh 1vw;
@@ -1884,39 +1751,39 @@ body.theme-fun .clock-container.layout-stacked .clock-box:not(.box-time) {
   border: 1px solid rgba(201, 160, 74, 0.2);
 }
 
-/* 4. 文字适配 */
 .clock-container.layout-stacked .box-cd .c-cd-title,
 .clock-container.layout-stacked .box-days .c-label {
   font-size: 0.85rem;
-  margin-bottom: 0.5vh;
+  margin-bottom: 0.2vh;
   text-align: center;
 }
 .clock-container.layout-stacked .box-cd .c-cd-value span,
 .clock-container.layout-stacked .box-days .c-value #clock-days {
   font-size: 2.5vw; 
+  line-height: 1;
 }
 
-/* 5. ★ 核心修复：时钟大小自适应屏幕高度，并加上最大限制 */
+.clock-container.layout-stacked .box-cd .c-cd-value {
+  margin-top: 0;
+  line-height: 1.1;
+}
+
 .clock-container.layout-stacked .flip-clock {
-  /* 用 min() 函数：取 "15vw" 和 "25vh" 里面更小的那个，防止电脑上高度溢出 */
   font-size: min(15vw, 25vh) !important; 
 }
 .clock-container.layout-stacked .flip-colon {
   font-size: min(10vw, 16vh) !important; 
 }
 
-/* 6. 调整时钟顶部的日期排版 */
 .clock-container.layout-stacked .clock-topline {
   height: auto;
   padding: 0 5vw 2vh 5vw;
 }
 
-/* 7. 让底部的切换按钮往下沉一点点 */
 .clock-container.layout-stacked .clock-toggle-group {
-  margin-top: 3vh; /* 数值越大越靠下，你可以根据喜好在 2vh ~ 5vh 之间微调 */
+  margin-top: 3vh;
 }
 
-/* 手机横屏专门适配 */
 @media (orientation: landscape) and (max-height: 500px) {
   .clock-container.layout-stacked .flip-clock {
     font-size: min(13vw, 30vh) !important;
@@ -1925,4 +1792,227 @@ body.theme-fun .clock-container.layout-stacked .clock-box:not(.box-time) {
   .clock-container.layout-stacked .box-days .c-label { font-size: 0.75rem; }
   .clock-container.layout-stacked .box-cd .c-cd-value span,
   .clock-container.layout-stacked .box-days .c-value #clock-days { font-size: 2.5vw; }
+}
+
+/* ========== 第四种布局：纯粹时钟 ========== */
+.clock-container.layout-pure .clock-top {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  margin-bottom: 0;
+}
+
+.clock-container.layout-pure .left-col,
+.clock-container.layout-pure .right-col,
+.clock-container.layout-pure .clock-bottom {
+  display: none !important;
+}
+
+.clock-container.layout-pure .center-col {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.clock-container.layout-pure .center-col .clock-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; 
+  align-items: center;
+  height: 100%;
+  padding: 3vh 0;
+}
+
+.clock-container.layout-pure .clock-topline {
+  position: static;
+  width: 100%;
+  padding: 0 8vw;
+  height: auto;
+}
+
+.clock-container.layout-pure .flip-clock {
+  font-size: min(23vw, 36vh) !important; 
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.clock-container.layout-pure .flip-colon {
+  font-size: min(15vw, 24vh) !important; 
+}
+
+.clock-container.layout-pure .clock-toggle-group {
+  position: static;
+  margin-top: 0;
+}
+
+/* ========== 布局选择器（上拉菜单） ========== */
+.layout-picker {
+  position: relative;
+  display: inline-block;
+}
+
+.layout-picker-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--main-light);
+  color: var(--text-mid);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.layout-picker-toggle:hover {
+  background: var(--main);
+  color: #fff;
+  border-color: var(--main);
+}
+
+body.theme-fun .layout-picker-toggle {
+  border-color: #5a4a34;
+  color: #b8a898;
+}
+
+body.theme-fun .layout-picker-toggle:hover {
+  background: #c9a04a;
+  color: #0a0a0f;
+  border-color: #c9a04a;
+}
+
+.layout-picker-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.layout-picker-label {
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.layout-picker-arrow {
+  font-size: 0.6rem;
+  transition: transform 0.3s ease;
+  line-height: 1;
+}
+
+.layout-picker.open .layout-picker-arrow {
+  transform: rotate(180deg);
+}
+
+/* 菜单面板：从按钮上方弹出 */
+.layout-picker-menu {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  min-width: 150px;
+  background: var(--card-bg);
+  border: 1px solid var(--main-light);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+  z-index: 100;
+}
+
+.layout-picker.open .layout-picker-menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+body.theme-fun .layout-picker-menu {
+  background: #1a1215;
+  border-color: #5a4a34;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* 菜单项 */
+.layout-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+  text-align: left;
+  font-family: inherit;
+}
+
+.layout-option:hover {
+  background: var(--main-light);
+  color: var(--text);
+}
+
+body.theme-fun .layout-option {
+  color: #e8dcc8;
+}
+
+body.theme-fun .layout-option:hover {
+  background: #3a2e24;
+  color: #e8dcc8;
+}
+
+/* 当前选中项高亮 */
+.layout-option.active {
+  background: var(--main);
+  color: #fff;
+  font-weight: bold;
+}
+
+body.theme-fun .layout-option.active {
+  background: #c9a04a;
+  color: #0a0a0f;
+}
+
+.layout-option-icon {
+  font-size: 1rem;
+  width: 1.2em;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.layout-option-label {
+  flex: 1;
+  white-space: nowrap;
+}
+
+.layout-picker.open .layout-picker-toggle {
+  background: var(--main);
+  color: #fff;
+  border-color: var(--main);
+}
+
+body.theme-fun .layout-picker.open .layout-picker-toggle {
+  background: #c9a04a;
+  color: #0a0a0f;
+  border-color: #c9a04a;
+}
+
+@media (max-width: 700px) {
+  .layout-picker-menu {
+    min-width: 180px;
+  }
+  .layout-picker-label {
+    font-size: 0.78rem;
+  }
 }
