@@ -65,15 +65,20 @@ const realDays = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
 // 从 0 开始滚
 const daysEl = document.getElementById("days");
 daysEl.textContent = "0";
-setTimeout(() => {
-  animateNumber(daysEl, realDays, 3500);
-}, 300);
 
-// 之后每秒更新（但不再滚动，直接显示真实值）
-setTimeout(() => {
-  updateCounter();
-  setInterval(updateCounter, 1000);
-}, 3800);
+// ★ 把启动逻辑放进 window.load 事件里，和里程碑共用同一个触发点
+window.addEventListener("load", () => {
+  // 统一延迟 500ms 启动，确保和里程碑小人同步
+  setTimeout(() => {
+    animateNumber(daysEl, realDays, 3500);
+  }, 500);
+
+  // 等滚动结束后（3.5秒动画 + 0.5秒延迟 = 4000ms），开始每秒更新
+  setTimeout(() => {
+    updateCounter();
+    setInterval(updateCounter, 1000);
+  }, 4000);
+});
 
 
 /* ========== 2. 读取保存的主题状态 ========== */
@@ -646,7 +651,7 @@ function updateMilestone() {
 window.addEventListener("load", () => {
   milestoneFill.style.width = "0%";
   milestoneMarker.style.left = "0%";
-  setTimeout(updateMilestone, 300);
+  setTimeout(updateMilestone, 500);
 });
 
 /* ========== 倒计时逻辑 ========== */
