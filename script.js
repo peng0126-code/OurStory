@@ -322,18 +322,15 @@ function openLightbox(src, sourceImg) {
 
   if (photoSecrets[imgName]) {
     backText.textContent = photoSecrets[imgName];
-    
     const marker = document.createElement('div');
     marker.className = 'secret-marker';
     marker.textContent = '✨'; 
     document.querySelector('.flip-front').appendChild(marker);
-    
     setTimeout(() => {
       if (lightbox.classList.contains("show")) {
         marker.classList.add("show");
       }
     }, 450);
-    
   } else {
     backText.textContent = ""; 
   }
@@ -345,6 +342,11 @@ function openLightbox(src, sourceImg) {
   flipWrapper.style.transform = "rotateY(0deg)";
   flipWrapper.style.opacity = "1";
   
+  if (sourceImg) {
+    sourceImg.style.opacity = "0";
+    sourceImg.style.transition = "none";
+  }
+
   lightbox.classList.add("show");
   
   window.addEventListener('wheel', preventScroll, { passive: false });
@@ -360,88 +362,164 @@ function openLightbox(src, sourceImg) {
   const translateX = imgCenterX - viewportCenterX;
   const translateY = imgCenterY - viewportCenterY;
   
-  const scale = Math.max(rect.width / lightboxImg.clientWidth, rect.height / lightboxImg.clientHeight) || 0.1;
+  const currentWidth = lightboxImg.clientWidth || 300;
+  const currentHeight = lightboxImg.clientHeight || 300;
+  
+  // ★ 计算等比缩小的倍数（取宽高比中较大的那个，保证能填满小格子）
+  const scaleX = rect.width / currentWidth;
+  const scaleY = rect.height / currentHeight;
+  const targetScale = Math.max(scaleX, scaleY) || 0.1;
 
+  // ★ 打开时的裁切：等比缩小后，算出图片超出了格子多少像素，直接切掉
+  const finalW = currentWidth * targetScale;
+  const finalH = currentHeight * targetScale;
+  const insetX = Math.max(0, (finalW - rect.width) / 2);
+  const insetY = Math.max(0, (finalH - rect.height) / 2);
+  
+  // 设置初始状态：运用像素级裁切，并移动到原图位置
+  lightboxImg.style.clipPath = `inset(${insetY}px ${insetX}px)`;
   lightboxImg.style.transition = "none";
-  lightboxImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-  lightboxImg.style.opacity = "0";
+  lightboxImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${targetScale})`;
   
   void lightboxImg.offsetWidth;
   
   requestAnimationFrame(() => {
-    lightboxImg.style.transition = "transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease";
+    // 飞入中央，恢复不裁切
+    lightboxImg.style.transition = "transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), clip-path 0.45s cubic-bezier(0.25, 1, 0.5, 1)";
     lightboxImg.style.transform = "translate(0, 0) scale(1)";
-    lightboxImg.style.opacity = "1";
+    lightboxImg.style.clipPath = "inset(0px 0px)"; // 取消裁切
   });
 }
 
 function closeLightbox() {
   isAnimating = false; 
 
-  if (currentSourceImg) {
-   if (isFlipped) {
-      const backTextEl = document.querySelector('.text-paper');
-      
-      if (backTextEl) {
-        backTextEl.style.transition = "transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease";
-        backTextEl.style.transformOrigin = "center center";
-        backTextEl.style.transform = "scale(0.85)"; 
-        backTextEl.style.opacity = "0";
-      }
-      
-      lightboxImg.style.transition = "none";
-      lightboxImg.style.opacity = "0";
-      
-    } else {
-      const rect = currentSourceImg.getBoundingClientRect();
-      const viewportCenterX = window.innerWidth / 2;
-      const viewportCenterY = window.innerHeight / 2;
-      
-      const imgCenterX = rect.left + rect.width / 2;
-      const imgCenterY = rect.top + rect.height / 2;
-      
-      const translateX = imgCenterX - viewportCenterX;
-      const translateY = imgCenterY - viewportCenterY;
-      const scale = Math.max(rect.width / lightboxImg.clientWidth, rect.height / lightboxImg.clientHeight) || 0.1;
-  
-      flipWrapper.style.transition = "transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease";
-      flipWrapper.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale}) rotateY(0deg)`;
-      flipWrapper.style.opacity = "0";
-    }
-  } else {
-    flipWrapper.style.transition = "transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease";
+  const existingMarker = flipWrapper.querySelector('.secret-marker');
+  if (existingMarker) {
+    existingMarker.style.transition = "opacity 0.2s ease"; // 给个极短的淡出，视觉更柔和
+    existingMarker.style.opacity = "0";
+    setTimeout(() => existingMarker.remove(), 200); // 200毫秒后彻底删除
+  }
+
+  // 如果没有原图（兜底情况）
+  if (!currentSourceImg) {
+    flipWrapper.style.transition = "transform 0.25s ease, opacity 0.25s ease";
     flipWrapper.style.transform = "scale(0.8) rotateY(0deg)";
     flipWrapper.style.opacity = "0";
-  }
-  
-  setTimeout(() => {
-    lightbox.classList.remove("show");
-    window.removeEventListener('wheel', preventScroll);
-    window.removeEventListener('touchmove', preventScroll);
-    
     setTimeout(() => {
-      currentSourceImg = null; 
-      isFlipped = false;
+      lightbox.classList.remove("show");
+      setTimeout(() => {
+        flipWrapper.style.transition = "none";
+        flipWrapper.style.transform = "rotateY(0deg)";
+        flipWrapper.style.opacity = "1";
+      }, 100);
+    }, 250);
+    return;
+  }
+
+  // 定义一个执行飞回逻辑的内部函数
+  const doFlyBack = () => {
+    const rect = currentSourceImg.getBoundingClientRect();
+    const viewportCenterX = window.innerWidth / 2;
+    const viewportCenterY = window.innerHeight / 2;
+    
+    const imgCenterX = rect.left + rect.width / 2;
+    const imgCenterY = rect.top + rect.height / 2;
+    
+    const translateX = imgCenterX - viewportCenterX;
+    const translateY = imgCenterY - viewportCenterY;
+    
+    const currentWidth = lightboxImg.clientWidth || 300;
+    const currentHeight = lightboxImg.clientHeight || 300;
+    
+    const scaleX = rect.width / currentWidth;
+    const scaleY = rect.height / currentHeight;
+    const targetScale = Math.max(scaleX, scaleY) || 0.1;
+    
+    const finalW = currentWidth * targetScale;
+    const finalH = currentHeight * targetScale;
+    const insetX = Math.max(0, (finalW - rect.width) / 2);
+    const insetY = Math.max(0, (finalH - rect.height) / 2);
+    
+    // 飞回动画
+    lightboxImg.style.transition = `transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), clip-path 0.35s cubic-bezier(0.4, 0, 0.2, 1)`;
+    lightboxImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${targetScale})`;
+    lightboxImg.style.clipPath = `inset(${insetY}px ${insetX}px)`;
+    
+    // 等飞回动画贴合后，瞬间关闭遮罩并恢复原图
+    setTimeout(() => {
+      lightbox.style.transition = "none"; 
+      lightbox.classList.remove("show");
+      void lightbox.offsetWidth; 
       
-      flipWrapper.style.transition = "none";
-      flipWrapper.style.transform = "rotateY(0deg)"; 
-      flipWrapper.style.opacity = "1";
-      
-      const backTextEl = document.querySelector('.text-paper');
-      if (backTextEl) {
-        backTextEl.style.transition = "none";
-        backTextEl.style.transform = "none";
-        backTextEl.style.opacity = "1";
+      if (currentSourceImg) {
+        currentSourceImg.style.opacity = "1";
       }
       
-      lightboxImg.style.transition = "none";
-      lightboxImg.style.transform = "none";
-      lightboxImg.style.opacity = "1"; 
+      setTimeout(() => {
+        currentSourceImg = null; 
+        isFlipped = false;
+        
+        flipWrapper.style.transition = "none";
+        flipWrapper.style.transform = "rotateY(0deg)"; 
+        
+        const backTextEl = document.querySelector('.text-paper');
+        if (backTextEl) {
+          backTextEl.style.transition = "none";
+          backTextEl.style.transform = "none";
+          backTextEl.style.opacity = "1";
+        }
+        
+        lightboxImg.style.transition = "none";
+        lightboxImg.style.transform = "none"; 
+        lightboxImg.style.opacity = "1"; 
+        lightboxImg.style.clipPath = "none"; 
 
-      const existingMarker = flipWrapper.querySelector('.secret-marker');
-      if (existingMarker) existingMarker.remove();
-    }, 100); 
-  }, 250);
+        const existingMarker = flipWrapper.querySelector('.secret-marker');
+        if (existingMarker) existingMarker.remove();
+        
+        // 恢复遮罩层的默认过渡
+        lightbox.style.transition = "opacity 0.1s ease, visibility 0.1s ease"; 
+      }, 10); 
+    }, 350); 
+  };
+
+  // ================= 核心逻辑判断 =================
+
+  if (isFlipped) {
+    // 1. 如果当前在背面：先翻转回正面
+    isFlipped = false;
+    isAnimating = true; // 锁定，防止翻转期间用户乱滑
+    
+    // 让文字卡片快速淡出
+    const backTextEl = document.querySelector('.text-paper');
+    if (backTextEl) {
+      backTextEl.style.transition = "opacity 0.2s ease";
+      backTextEl.style.opacity = "0";
+    }
+
+    // 翻转回 0 度
+    flipWrapper.style.transition = "transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)";
+    flipWrapper.style.transform = "rotateY(0deg)";
+
+    // 等翻转动画完成 (0.45秒) 后，执行飞回逻辑
+    setTimeout(() => {
+      isAnimating = false;
+      // 确保此时背面彻底隐藏，防止闪光
+      const imgName = lightboxImg.src.split('/').pop();
+      if (!photoSecrets[imgName] && backTextEl) {
+         backTextEl.style.opacity = "0"; // 如果没配文，保持隐藏
+      }
+      doFlyBack();
+    }, 450); 
+
+  } else {
+    // 2. 如果当前就在正面：直接飞回
+    doFlyBack();
+  }
+  
+  window.removeEventListener('wheel', preventScroll);
+  window.removeEventListener('touchmove', preventScroll);
 }
 
 /* ================= 手势翻转 & 点击判定逻辑 ================= */
