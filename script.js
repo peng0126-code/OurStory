@@ -288,7 +288,7 @@ const backText = document.getElementById("lightbox-back-text");
 let currentSourceImg = null; 
 let isFlipped = false;
 let isAnimating = false; 
-let savedRect = null; // 保存打开时的精确坐标
+let savedRect = null; // 仍然保留，作为兜底
 
 const photoSecrets = {
   "cindybirthday2023.jpg": "当初要记得你朋友的名字难了我好一阵子。",
@@ -306,14 +306,40 @@ function preventScroll(e) {
   if (e.cancelable) e.preventDefault();
 }
 
+/* 完全复位 lightboxImg / flipWrapper 的视觉状态 */
+function resetLightboxVisual() {
+  flipWrapper.style.transition = "none";
+  flipWrapper.style.transform = "rotateY(0deg)";
+  flipWrapper.style.opacity = "1";
+  flipWrapper.style.width = "";
+  flipWrapper.style.height = "";
+
+  lightboxImg.style.transition = "none";
+  lightboxImg.style.transform = "none";
+  lightboxImg.style.clipPath = "none";
+  lightboxImg.style.opacity = "1";
+  lightboxImg.style.width = "";
+  lightboxImg.style.height = "";
+
+  const backTextEl = document.querySelector('.text-paper');
+  if (backTextEl) {
+    backTextEl.style.transition = "none";
+    backTextEl.style.transform = "none";
+    backTextEl.style.opacity = "1";
+  }
+}
+
 function openLightbox(src, sourceImg) {
   currentSourceImg = sourceImg;
+  savedRect = sourceImg.getBoundingClientRect();
+
+  // ★ 先彻底清除上一次关闭可能残留的状态，保证 clientWidth 准确
+  resetLightboxVisual();
+
   lightboxImg.src = src;
-  
-  savedRect = sourceImg.getBoundingClientRect(); // 备份坐标
-  
+
   const imgName = src.split('/').pop(); 
-  
+
   const existingMarker = flipWrapper.querySelector('.secret-marker');
   if (existingMarker) existingMarker.remove();
 
@@ -334,11 +360,7 @@ function openLightbox(src, sourceImg) {
   
   isFlipped = false;
   isAnimating = false;
-  flipWrapper.classList.remove("flipped");
-  flipWrapper.style.transition = "none";
-  flipWrapper.style.transform = "rotateY(0deg)";
-  flipWrapper.style.opacity = "1";
-  
+
   if (sourceImg) {
     sourceImg.style.opacity = "0";
     sourceImg.style.transition = "none";
@@ -349,38 +371,47 @@ function openLightbox(src, sourceImg) {
   window.addEventListener('wheel', preventScroll, { passive: false });
   window.addEventListener('touchmove', preventScroll, { passive: false });
 
-  const rect = savedRect; 
-  const viewportCenterX = window.innerWidth / 2;
-  const viewportCenterY = window.innerHeight / 2;
-  
-  const imgCenterX = rect.left + rect.width / 2;
-  const imgCenterY = rect.top + rect.height / 2;
-  
-  const translateX = imgCenterX - viewportCenterX;
-  const translateY = imgCenterY - viewportCenterY;
-  
-  const currentWidth = lightboxImg.clientWidth || 300;
-  const currentHeight = lightboxImg.clientHeight || 300;
-  
-  const scaleX = rect.width / currentWidth;
-  const scaleY = rect.height / currentHeight;
-  const targetScale = Math.max(scaleX, scaleY) || 0.1;
-
-  const finalW = currentWidth * targetScale;
-  const finalH = currentHeight * targetScale;
-  const insetX = Math.max(0, (finalW - rect.width) / 2);
-  const insetY = Math.max(0, (finalH - rect.height) / 2);
-  
-  lightboxImg.style.clipPath = `inset(${insetY}px ${insetX}px)`;
-  lightboxImg.style.transition = "none";
-  lightboxImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${targetScale})`;
-  
-  void lightboxImg.offsetWidth;
-  
+  // ★ 等一帧布局稳定后再计算起始 transform / scale，避免第二次偏大
+  const startRect = savedRect;
   requestAnimationFrame(() => {
-    lightboxImg.style.transition = "transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), clip-path 0.45s cubic-bezier(0.25, 1, 0.5, 1)";
-    lightboxImg.style.transform = "translate(0, 0) scale(1)";
-    lightboxImg.style.clipPath = "inset(0px 0px)"; 
+    requestAnimationFrame(() => {
+      if (!lightbox.classList.contains("show")) return;
+
+      const rect = startRect;
+      const viewportCenterX = window.innerWidth / 2;
+      const viewportCenterY = window.innerHeight / 2;
+
+      const imgCenterX = rect.left + rect.width / 2;
+      const imgCenterY = rect.top + rect.height / 2;
+
+      const translateX = imgCenterX - viewportCenterX;
+      const translateY = imgCenterY - viewportCenterY;
+
+      const lbRect = lightboxImg.getBoundingClientRect();
+      const currentWidth = lbRect.width || 300;
+      const currentHeight = lbRect.height || 300;
+
+      const scaleX = rect.width / currentWidth;
+      const scaleY = rect.height / currentHeight;
+      const targetScale = Math.max(scaleX, scaleY) || 0.1;
+
+      const finalW = currentWidth * targetScale;
+      const finalH = currentHeight * targetScale;
+      const insetX = Math.max(0, (finalW - rect.width) / 2);
+      const insetY = Math.max(0, (finalH - rect.height) / 2);
+
+      lightboxImg.style.clipPath = `inset(${insetY}px ${insetX}px)`;
+      lightboxImg.style.transition = "none";
+      lightboxImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${targetScale})`;
+
+      void lightboxImg.offsetWidth;
+
+      requestAnimationFrame(() => {
+        lightboxImg.style.transition = "transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), clip-path 0.45s cubic-bezier(0.25, 1, 0.5, 1)";
+        lightboxImg.style.transform = "translate(0, 0) scale(1)";
+        lightboxImg.style.clipPath = "inset(0px 0px)"; 
+      });
+    });
   });
 }
 
@@ -401,42 +432,49 @@ function closeLightbox() {
     setTimeout(() => {
       lightbox.classList.remove("show");
       setTimeout(() => {
-        flipWrapper.style.transition = "none";
-        flipWrapper.style.transform = "rotateY(0deg)";
-        flipWrapper.style.opacity = "1";
+        resetLightboxVisual();
       }, 100);
     }, 250);
     return;
   }
 
   const doFlyBack = () => {
-    const rect = savedRect; 
+    // ★ 关键：每次关闭都实时读取源图当前的坐标，而不是用第一次缓存的 savedRect
+    const rect = currentSourceImg
+      ? currentSourceImg.getBoundingClientRect()
+      : savedRect;
+
     const viewportCenterX = window.innerWidth / 2;
     const viewportCenterY = window.innerHeight / 2;
-    
+
     const imgCenterX = rect.left + rect.width / 2;
     const imgCenterY = rect.top + rect.height / 2;
-    
+
     const translateX = imgCenterX - viewportCenterX;
     const translateY = imgCenterY - viewportCenterY;
-    
+
     const imgNaturalW = lightboxImg.naturalWidth;
     const imgNaturalH = lightboxImg.naturalHeight;
-    
+
     const targetRatio = rect.width / rect.height;
     const imgRatio = imgNaturalW / imgNaturalH;
-    
+
+    // 用当前布局尺寸计算裁剪内缩
+    const lbRect = lightboxImg.getBoundingClientRect();
+    const lbWidth = lbRect.width || lightboxImg.clientWidth || 300;
+    const lbHeight = lbRect.height || lightboxImg.clientHeight || 300;
+
     let clipInsetX = 0;
     let clipInsetY = 0;
-    
+
     if (imgRatio > targetRatio) {
-      clipInsetX = (lightboxImg.clientWidth * (1 - targetRatio / imgRatio)) / 2;
+      clipInsetX = (lbWidth * (1 - targetRatio / imgRatio)) / 2;
     } else {
-      clipInsetY = (lightboxImg.clientHeight * (1 - imgRatio / targetRatio)) / 2;
+      clipInsetY = (lbHeight * (1 - imgRatio / targetRatio)) / 2;
     }
 
-    const targetScaleW = rect.width / (lightboxImg.clientWidth - clipInsetX * 2);
-    const targetScaleH = rect.height / (lightboxImg.clientHeight - clipInsetY * 2);
+    const targetScaleW = rect.width / (lbWidth - clipInsetX * 2);
+    const targetScaleH = rect.height / (lbHeight - clipInsetY * 2);
     const finalScale = Math.max(targetScaleW, targetScaleH);
 
     lightboxImg.style.transition = `transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), clip-path 0.4s cubic-bezier(0.4, 0, 0.2, 1)`;
@@ -456,21 +494,9 @@ function closeLightbox() {
         currentSourceImg = null; 
         isFlipped = false;
         savedRect = null;
-        
-        flipWrapper.style.transition = "none";
-        flipWrapper.style.transform = "rotateY(0deg)"; 
-        
-        const backTextEl = document.querySelector('.text-paper');
-        if (backTextEl) {
-          backTextEl.style.transition = "none";
-          backTextEl.style.transform = "none";
-          backTextEl.style.opacity = "1";
-        }
-        
-        lightboxImg.style.transition = "none";
-        lightboxImg.style.transform = "none"; 
-        lightboxImg.style.opacity = "1"; 
-        lightboxImg.style.clipPath = "none"; 
+
+        // ★ 彻底复位，避免第二次打开时 clientWidth 被残留状态污染
+        resetLightboxVisual();
 
         lightbox.style.transition = "opacity 0.1s ease, visibility 0.1s ease"; 
       }, 10); 
@@ -539,7 +565,6 @@ lightbox.addEventListener('contextmenu', e => e.preventDefault());
 let touchStartX = 0;
 let touchStartY = 0;
 let touchStartTime = 0;
-let touchEndTime = 0;
 
 let mouseStartX = 0;
 let mouseStartTime = 0;
