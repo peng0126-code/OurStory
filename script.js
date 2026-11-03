@@ -289,6 +289,39 @@ let currentSourceImg = null;
 let isFlipped = false;
 let isAnimating = false; 
 let savedRect = null; // 仍然保留，作为兜底
+let currentSourceEvent = null;
+let savedSourceEventStyles = null;
+
+// 时间线照片打开期间，固定父级 .event 的当前视觉位置，避免归位目标在动画中改变。
+function freezeTimelineSource(sourceImg) {
+  restoreTimelineSource();
+
+  const event = sourceImg && sourceImg.closest(".event");
+  if (!event) return; // 照片墙等非时间线图片不处理
+
+  const computedTransform = getComputedStyle(event).transform;
+
+  currentSourceEvent = event;
+  savedSourceEventStyles = {
+    transition: event.style.transition,
+    transform: event.style.transform
+  };
+
+  event.style.transition = "none";
+  event.style.transform = computedTransform === "none" ? "none" : computedTransform;
+  void event.offsetWidth;
+}
+
+// 归位动画结束后恢复时间线卡片原本的内联样式。
+function restoreTimelineSource() {
+  if (!currentSourceEvent || !savedSourceEventStyles) return;
+
+  currentSourceEvent.style.transition = savedSourceEventStyles.transition;
+  currentSourceEvent.style.transform = savedSourceEventStyles.transform;
+
+  currentSourceEvent = null;
+  savedSourceEventStyles = null;
+}
 
 const photoSecrets = {
   "cindybirthday2023.jpg": "当初要记得你朋友的名字难了我好一阵子。",
@@ -331,6 +364,11 @@ function resetLightboxVisual() {
 
 function openLightbox(src, sourceImg) {
   currentSourceImg = sourceImg;
+
+  // 时间线卡片在 Lightbox 打开期间固定在当前视觉位置；
+  // 照片墙不属于 .event，不会受到影响。
+  freezeTimelineSource(sourceImg);
+
   savedRect = sourceImg.getBoundingClientRect();
 
   // ★ 先彻底清除上一次关闭可能残留的状态，保证 clientWidth 准确
@@ -360,7 +398,6 @@ function openLightbox(src, sourceImg) {
 
   isFlipped = false;
   isAnimating = false;
-
   if (sourceImg) {
     sourceImg.style.opacity = "0";
     sourceImg.style.transition = "none";
@@ -416,50 +453,6 @@ function openLightbox(src, sourceImg) {
   });
 }
 
-// 时间线图片位于 .event 内，而 .event 本身可能仍在执行 translateY 过渡。
-// 等它的 transform 过渡结束后再读取目标位置，避免动画结束时图片突然向下跳。
-async function waitForTimelinePosition(sourceImg) {
-  const timelineEvent = sourceImg && sourceImg.closest(".event");
-  if (!timelineEvent) return;
-
-  const elements = [];
-  let node = sourceImg;
-  while (node) {
-    elements.push(node);
-    if (node === timelineEvent) break;
-    node = node.parentElement;
-  }
-
-  // 最多检查几轮，兼容前一个过渡结束后紧接着触发的新过渡。
-  for (let attempt = 0; attempt < 4; attempt++) {
-    const movingAnimations = elements.flatMap(element => {
-      if (typeof element.getAnimations !== "function") return [];
-
-      return element.getAnimations().filter(animation => {
-        if (animation.playState === "finished" || animation.playState === "idle") return false;
-
-        const isTransformTransition = animation.transitionProperty === "transform";
-        const keyframes = animation.effect && typeof animation.effect.getKeyframes === "function"
-          ? animation.effect.getKeyframes()
-          : [];
-        const animatesTransform = keyframes.some(frame =>
-          Object.prototype.hasOwnProperty.call(frame, "transform")
-        );
-
-        return isTransformTransition || animatesTransform;
-      });
-    });
-
-    if (movingAnimations.length === 0) break;
-
-    await Promise.all(movingAnimations.map(animation =>
-      animation.finished.catch(() => {})
-    ));
-
-    await new Promise(resolve => requestAnimationFrame(resolve));
-  }
-}
-
 function closeLightbox() {
   isAnimating = false; 
 
@@ -471,6 +464,7 @@ function closeLightbox() {
   }
 
   if (!currentSourceImg) {
+    restoreTimelineSource();
     flipWrapper.style.transition = "transform 0.25s ease, opacity 0.25s ease";
     flipWrapper.style.transform = "scale(0.8) rotateY(0deg)";
     flipWrapper.style.opacity = "0";
@@ -483,11 +477,8 @@ function closeLightbox() {
     return;
   }
 
-  const doFlyBack = async () => {
-    // 时间线卡片可能还在执行自身的垂直位移动画，先等它稳定。
-    await waitForTimelinePosition(currentSourceImg);
-
-    // 每次关闭都在父级位置稳定后，重新读取源图的实际坐标。
+  const doFlyBack = () => {
+    // 时间线父级在打开期间已被冻结，因此这里读取到的是稳定的归位位置。
     const rect = currentSourceImg
       ? currentSourceImg.getBoundingClientRect()
       : savedRect;
@@ -536,6 +527,7 @@ function closeLightbox() {
 
       if (currentSourceImg) {
         currentSourceImg.style.opacity = "1";
+      restoreTimelineSource();
       }
 
       setTimeout(() => {
