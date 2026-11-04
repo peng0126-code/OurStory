@@ -516,7 +516,7 @@ function closeLightbox() {
       const isFromBottom = imgCenterY > viewportCenterY; // 源图在视口下半部 = 从下往上回位
 
       if (isFromBottom) {
-        translateY += 3;   // 从下往上：补偿量不同（先试 1，见下方调参）
+        translateY += 3.5;   // 从下往上：补偿量不同（先试 1，见下方调参）
       } else {
         translateY += 3;   // 从上往下：保持原来的 3
       }
