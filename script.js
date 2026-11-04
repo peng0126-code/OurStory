@@ -503,7 +503,7 @@ function closeLightbox() {
     const translateX = imgCenterX - lightboxCenterX;
     let translateY = imgCenterY - lightboxCenterY;
 
-    // ★ 方案 A：手机时间线「正面照片」落点补偿
+    // ★ 方案 A：手机时间线「正面照片」落点补偿（往下压 1~2px）
     // 翻转照片走的是 450ms 等待后的路径，rect 更稳定，不需要补偿。
     const isMobileTimeline =
       currentSourceImg &&
@@ -511,15 +511,7 @@ function closeLightbox() {
       window.matchMedia("(max-width: 700px)").matches;
 
     if (isMobileTimeline && !wasFlipped) {
-      // 用源图中心相对视口中心判断"从上往下"还是"从下往上"
-      const viewportCenterY = window.innerHeight / 2;
-      const isFromBottom = imgCenterY > viewportCenterY; // 源图在视口下半部 = 从下往上回位
-
-      if (isFromBottom) {
-        translateY += 5.5;   // 从下往上：补偿量不同（先试 1，见下方调参）
-      } else {
-        translateY += 3;   // 从上往下：保持原来的 3
-      }
+      translateY += 3; // 按实际偏差在 1~2 之间微调
     }
 
     let clipInsetX = 0;
