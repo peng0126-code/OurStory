@@ -1047,7 +1047,7 @@ body.theme-fun .center-col .clock-box {
   display: flex;
   align-items: center;
   gap: 0.5vw;
-  font-size: 11vw; 
+  font-size: min(11vw, 20vh);
   font-weight: bold;
   color: var(--main);
   font-family: "Courier New", Courier, monospace; 
@@ -1076,7 +1076,7 @@ body.theme-fun .flip-digit {
 .flip-colon {
   display: flex;
   align-items: center;
-  font-size: 7vw;
+  font-size: min(7vw, 13vh); 
   transform: translateY(-5%);
 }
 
@@ -1684,10 +1684,10 @@ body.theme-fun .clock-container.layout-minimal .clock-box:not(.box-time) {
 }
 
 .clock-container.layout-minimal .flip-clock {
-  font-size: 16vw !important; 
+  font-size: min(16vw, 30vh) !important; 
 }
 .clock-container.layout-minimal .flip-colon {
-  font-size: 10vw !important; 
+  font-size: min(10vw, 19vh) !important; 
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
@@ -1786,7 +1786,7 @@ body.theme-fun .clock-container.layout-stacked .clock-box:not(.box-time) {
 }
 
 .clock-container.layout-stacked .clock-toggle-group {
-  margin-top: 3vh;
+  margin-top: 1.5vh;
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
@@ -1837,7 +1837,7 @@ body.theme-fun .clock-container.layout-stacked .clock-box:not(.box-time) {
 }
 
 .clock-container.layout-pure .flip-clock {
-  font-size: min(23vw, 36vh) !important; 
+  font-size: min(18vw, 36vh) !important; 
   margin: 0;
   display: flex;
   align-items: center;
