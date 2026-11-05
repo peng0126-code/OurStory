@@ -828,75 +828,113 @@ function getDaysUntil(targetMonth, targetDay) {
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
 
+/* 统一渲染倒计时卡片，避免 innerHTML 替换掉带 id 的元素后引用失效。
+   每次调用都重新查询 .countdown-value 容器，保证跨 0 点后仍能正确切回。 */
+function renderCountdownValue(cardEl, isToday, days, todayEmoji) {
+  if (!cardEl) return;
+
+  const valueEl = cardEl.querySelector(".countdown-value");
+  if (!valueEl) return;
+
+  if (isToday) {
+    // 只有当前不是"当天"结构时才重建，避免每秒重写 DOM
+    if (!valueEl.querySelector(".cd-today-emoji")) {
+      valueEl.innerHTML = `<span class="cd-today-emoji" style="font-size:1.5rem;letter-spacing:2px;color:var(--main);font-weight:bold;">${todayEmoji}</span>`;
+    } else {
+      const emojiEl = valueEl.querySelector(".cd-today-emoji");
+      if (emojiEl.textContent !== todayEmoji) emojiEl.textContent = todayEmoji;
+    }
+  } else {
+    // 非当天：确保结构是 <span id="cd-xxx">N</span> 天
+    const numEl = valueEl.querySelector(".cd-num");
+    if (!numEl) {
+      valueEl.innerHTML = `<span class="cd-num">${days}</span> 天`;
+    } else {
+      if (numEl.textContent !== String(days)) numEl.textContent = days;
+    }
+  }
+}
+
 function updateCountdowns() {
   const now = new Date();
   now.setHours(0, 0, 0, 0); 
   const currentYear = now.getFullYear();
 
-  const cdAnniversary = document.getElementById("cd-anniversary");
-  const cdHer = document.getElementById("cd-her");
-  const cdHim = document.getElementById("cd-him");
+  const cardAnn = document.getElementById("card-anniversary");
+  const cardHer = document.getElementById("card-her");
+  const cardHim = document.getElementById("card-him");
 
   const titleAnniversary = document.getElementById("title-anniversary");
   const titleHer = document.getElementById("title-her");
   const titleHim = document.getElementById("title-him");
 
-  const cardAnn = document.getElementById("card-anniversary");
-  const cardHer = document.getElementById("card-her");
-  const cardHim = document.getElementById("card-him");
-
+  // ---------- 周年 ----------
   let nextAnnYear = currentYear;
   let annDateThisYear = new Date(currentYear, ANNIVERSARY.month, ANNIVERSARY.day);
   if (now > annDateThisYear) nextAnnYear = currentYear + 1;
   const anniversaryCount = nextAnnYear - START_YEAR;
+  const isTodayAnn = (now.getMonth() === ANNIVERSARY.month && now.getDate() === ANNIVERSARY.day);
 
+  if (cardAnn && titleAnniversary) {
+    if (isTodayAnn) {
+      cardAnn.classList.add("is-today");
+      titleAnniversary.innerHTML = `第 ${anniversaryCount} 周年<br>纪念日快乐`;
+      renderCountdownValue(cardAnn, true, 0, "❤️❤️");
+    } else {
+      cardAnn.classList.remove("is-today");
+      titleAnniversary.textContent = anniversaryCount === 1 ? "距离 1 周年纪念" : `距离 ${anniversaryCount} 周年纪念`;
+      renderCountdownValue(cardAnn, false, getDaysUntil(ANNIVERSARY.month, ANNIVERSARY.day), "");
+    }
+  }
+
+  // ---------- Cindy 生日 ----------
   let nextHerYear = currentYear;
   let herDateThisYear = new Date(currentYear, HER_BIRTHDAY.month, HER_BIRTHDAY.day);
   if (now > herDateThisYear) nextHerYear = currentYear + 1;
   const herAge = nextHerYear - HER_BIRTH_YEAR;
+  const isTodayHer = (now.getMonth() === HER_BIRTHDAY.month && now.getDate() === HER_BIRTHDAY.day);
 
+  if (cardHer && titleHer) {
+    if (isTodayHer) {
+      cardHer.classList.add("is-today");
+      titleHer.innerHTML = `Cindy<br>${herAge}岁生日快乐`;
+      renderCountdownValue(cardHer, true, 0, "🎉🎂");
+    } else {
+      cardHer.classList.remove("is-today");
+      titleHer.textContent = `距离Cindy ${herAge}岁生日`;
+      renderCountdownValue(cardHer, false, getDaysUntil(HER_BIRTHDAY.month, HER_BIRTHDAY.day), "");
+    }
+  }
+
+  // ---------- Kai Peng 生日 ----------
   let nextHimYear = currentYear;
   let himDateThisYear = new Date(currentYear, HIS_BIRTHDAY.month, HIS_BIRTHDAY.day);
   if (now > himDateThisYear) nextHimYear = currentYear + 1;
   const hisAge = nextHimYear - HIS_BIRTH_YEAR;
-
-  const isTodayAnn = (now.getMonth() === ANNIVERSARY.month && now.getDate() === ANNIVERSARY.day);
-  const isTodayHer = (now.getMonth() === HER_BIRTHDAY.month && now.getDate() === HER_BIRTHDAY.day);
   const isTodayHim = (now.getMonth() === HIS_BIRTHDAY.month && now.getDate() === HIS_BIRTHDAY.day);
 
-  if (isTodayAnn) {
-    cardAnn.classList.add("is-today");
-    titleAnniversary.innerHTML = `第 ${anniversaryCount} 周年<br>纪念日快乐`;
-    cdAnniversary.parentElement.innerHTML = `<span style="font-size:1.5rem;letter-spacing:2px;color:var(--main);font-weight:bold;">❤️❤️</span>`;
-  } else {
-    cardAnn.classList.remove("is-today");
-    titleAnniversary.textContent = anniversaryCount === 1 ? "距离 1 周年纪念" : `距离 ${anniversaryCount} 周年纪念`;
-    cdAnniversary.parentElement.innerHTML = `<span id="cd-anniversary">${getDaysUntil(ANNIVERSARY.month, ANNIVERSARY.day)}</span> 天`;
-  }
-
-  if (isTodayHer) {
-    cardHer.classList.add("is-today");
-    titleHer.innerHTML = `Cindy<br>${herAge}岁生日快乐`;
-    cdHer.parentElement.innerHTML = `<span style="font-size:1.5rem;letter-spacing:2px;color:var(--main);font-weight:bold;">🎉🎂</span>`;
-  } else {
-    cardHer.classList.remove("is-today");
-    titleHer.textContent = `距离Cindy ${herAge}岁生日`;
-    cdHer.parentElement.innerHTML = `<span id="cd-her">${getDaysUntil(HER_BIRTHDAY.month, HER_BIRTHDAY.day)}</span> 天`;
-  }
-
-  if (isTodayHim) {
-    cardHim.classList.add("is-today");
-    titleHim.innerHTML = `Kai Peng<br>${hisAge}岁生日快乐`;
-    cdHim.parentElement.innerHTML = `<span style="font-size:1.5rem;letter-spacing:2px;color:var(--main);font-weight:bold;">🎉🎂</span>`;
-  } else {
-    cardHim.classList.remove("is-today");
-    titleHim.textContent = `距离Kai Peng ${hisAge}岁生日`;
-    cdHim.parentElement.innerHTML = `<span id="cd-him">${getDaysUntil(HIS_BIRTHDAY.month, HIS_BIRTHDAY.day)}</span> 天`;
+  if (cardHim && titleHim) {
+    if (isTodayHim) {
+      cardHim.classList.add("is-today");
+      titleHim.innerHTML = `Kai Peng<br>${hisAge}岁生日快乐`;
+      renderCountdownValue(cardHim, true, 0, "🎉🎂");
+    } else {
+      cardHim.classList.remove("is-today");
+      titleHim.textContent = `距离Kai Peng ${hisAge}岁生日`;
+      renderCountdownValue(cardHim, false, getDaysUntil(HIS_BIRTHDAY.month, HIS_BIRTHDAY.day), "");
+    }
   }
 }
 
 updateCountdowns(); 
+
 setInterval(updateCountdowns, 1000); 
+
+// 页面重新可见 / 窗口聚焦时立即刷新，切回标签页就不会看到旧数字
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) updateCountdowns();
+});
+window.addEventListener("focus", updateCountdowns);
 
 
 const loveWords = ["喜欢你！", "贴贴~", "今天也很想你", "薛之谦！", "❤️", "抱抱", "喵", "￣3￣"];
