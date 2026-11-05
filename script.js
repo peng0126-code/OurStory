@@ -896,7 +896,7 @@ function updateCountdowns() {
 }
 
 updateCountdowns(); 
-setInterval(updateCountdowns, 1000 * 60 * 60); 
+setInterval(updateCountdowns, 1000); 
 
 
 const loveWords = ["喜欢你！", "贴贴~", "今天也很想你", "薛之谦！", "❤️", "抱抱", "喵", "￣3￣"];
