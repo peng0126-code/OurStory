@@ -1,5 +1,14 @@
+/* ========== 0. 锁定马来西亚时间（UTC+8） ========== */
+// 返回一个"假装是本地时间"的 Date，字段值等于 UTC+8 的当前时间
+function getMalaysiaNow() {
+  const now = new Date();
+  const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
+  return new Date(utcMs + 8 * 3600 * 1000);
+}
+
 /* ========== 1. 天数 + 年月日时分秒 ========== */
-const startDate = new Date("2023-01-05T00:00:00");
+// 显式 +08:00，锁定为马来西亚时间的绝对时刻
+const startDate = new Date("2023-01-05T00:00:00+08:00");
 
 function updateNum(id, value) {
   const el = document.getElementById(id);
@@ -13,7 +22,7 @@ function updateNum(id, value) {
 }
 
 function updateCounter() {
-  const now = new Date();
+  const now = getMalaysiaNow();
 
   const diffMs = now - startDate;
   const totalDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
@@ -57,23 +66,11 @@ function animateNumber(el, target, duration = 3.5) {
   requestAnimationFrame(step);
 }
 
-const now = new Date();
-const realDays = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
+const nowInit = getMalaysiaNow();
+const realDays = Math.floor((nowInit - startDate) / (1000 * 60 * 60 * 24));
 
 const daysEl = document.getElementById("days");
-daysEl.textContent = "0";
-
-window.addEventListener("load", () => {
-  setTimeout(() => {
-    animateNumber(daysEl, realDays, 3500);
-  }, 500);
-
-  setTimeout(() => {
-    updateCounter();
-    setInterval(updateCounter, 1000);
-  }, 4000);
-});
-
+if (daysEl) daysEl.textContent = "0";
 
 /* ========== 2. 读取保存的主题状态 ========== */
 const themeBtn = document.getElementById("theme-btn");
@@ -93,7 +90,7 @@ const PETAL_COUNT = 25;
 const PETAL_INTERVAL = 1500;
 const MAX_PETALS = 25;
 
-const USE_IMAGE = false; 
+const USE_IMAGE = false;
 
 const FUN_EMOJIS = ["🦊", "🦁", "⛓️‍💥", "👑", "🗡️"];
 
@@ -173,11 +170,12 @@ let petalTimer = setInterval(() => createPetal(false), PETAL_INTERVAL);
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     clearInterval(petalTimer);
+    petalTimer = null;
   } else {
+    if (petalTimer) clearInterval(petalTimer);
     petalTimer = setInterval(() => createPetal(false), PETAL_INTERVAL);
   }
 });
-
 
 /* ========== 4. 时间线按年份折叠 + 滚动淡入淡出 ========== */
 const timelineContainer = document.querySelector(".timeline");
@@ -194,7 +192,7 @@ if (timelineContainer && rawEvents.length > 0) {
       return;
     }
 
-    const year = dateText.substring(0, 4); 
+    const year = dateText.substring(0, 4);
     if (!yearsData[year]) yearsData[year] = [];
     yearsData[year].push(event);
   });
@@ -285,19 +283,18 @@ const lightboxImg = document.getElementById("lightbox-img");
 const flipWrapper = document.getElementById("flip-wrapper");
 const backText = document.getElementById("lightbox-back-text");
 
-let currentSourceImg = null; 
+let currentSourceImg = null;
 let isFlipped = false;
-let isAnimating = false; 
-let savedRect = null; // 仍然保留，作为兜底
+let isAnimating = false;
+let savedRect = null;
 let currentSourceEvent = null;
 let savedSourceEventStyles = null;
 
-// 时间线照片打开期间，固定父级 .event 的当前视觉位置，避免归位目标在动画中改变。
 function freezeTimelineSource(sourceImg) {
   restoreTimelineSource();
 
   const event = sourceImg && sourceImg.closest(".event");
-  if (!event) return; // 照片墙等非时间线图片不处理
+  if (!event) return;
 
   const computedTransform = getComputedStyle(event).transform;
 
@@ -312,7 +309,6 @@ function freezeTimelineSource(sourceImg) {
   void event.offsetWidth;
 }
 
-// 归位动画结束后恢复时间线卡片原本的内联样式。
 function restoreTimelineSource() {
   if (!currentSourceEvent || !savedSourceEventStyles) return;
 
@@ -339,7 +335,6 @@ function preventScroll(e) {
   if (e.cancelable) e.preventDefault();
 }
 
-/* 完全复位 lightboxImg / flipWrapper 的视觉状态 */
 function resetLightboxVisual() {
   flipWrapper.style.transition = "none";
   flipWrapper.style.transform = "rotateY(0deg)";
@@ -365,18 +360,15 @@ function resetLightboxVisual() {
 function openLightbox(src, sourceImg) {
   currentSourceImg = sourceImg;
 
-  // 时间线卡片在 Lightbox 打开期间固定在当前视觉位置；
-  // 照片墙不属于 .event，不会受到影响。
   freezeTimelineSource(sourceImg);
 
   savedRect = sourceImg.getBoundingClientRect();
 
-  // ★ 先彻底清除上一次关闭可能残留的状态，保证 clientWidth 准确
   resetLightboxVisual();
 
   lightboxImg.src = src;
 
-  const imgName = src.split('/').pop(); 
+  const imgName = src.split('/').pop();
 
   const existingMarker = flipWrapper.querySelector('.secret-marker');
   if (existingMarker) existingMarker.remove();
@@ -385,7 +377,7 @@ function openLightbox(src, sourceImg) {
     backText.textContent = photoSecrets[imgName];
     const marker = document.createElement('div');
     marker.className = 'secret-marker';
-    marker.textContent = '✨'; 
+    marker.textContent = '✨';
     document.querySelector('.flip-front').appendChild(marker);
     setTimeout(() => {
       if (lightbox.classList.contains("show")) {
@@ -393,7 +385,7 @@ function openLightbox(src, sourceImg) {
       }
     }, 450);
   } else {
-    backText.textContent = ""; 
+    backText.textContent = "";
   }
 
   isFlipped = false;
@@ -408,7 +400,6 @@ function openLightbox(src, sourceImg) {
   window.addEventListener('wheel', preventScroll, { passive: false });
   window.addEventListener('touchmove', preventScroll, { passive: false });
 
-  // ★ 等一帧布局稳定后再计算起始 transform / scale，避免第二次偏大
   const startRect = savedRect;
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
@@ -418,8 +409,6 @@ function openLightbox(src, sourceImg) {
       const imgCenterX = rect.left + rect.width / 2;
       const imgCenterY = rect.top + rect.height / 2;
 
-      // 以图片当前实际中心作为坐标原点，不假设它一定等于视口中心。
-      // 这样可兼容桌面 scrollbar-gutter、遮罩 padding 和不同设备的可视区域。
       const lbRect = lightboxImg.getBoundingClientRect();
       const lightboxCenterX = lbRect.left + lbRect.width / 2;
       const lightboxCenterY = lbRect.top + lbRect.height / 2;
@@ -447,7 +436,7 @@ function openLightbox(src, sourceImg) {
       requestAnimationFrame(() => {
         lightboxImg.style.transition = "transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), clip-path 0.45s cubic-bezier(0.25, 1, 0.5, 1)";
         lightboxImg.style.transform = "translate(0, 0) scale(1)";
-        lightboxImg.style.clipPath = "inset(0px 0px)"; 
+        lightboxImg.style.clipPath = "inset(0px 0px)";
       });
     });
   });
@@ -478,7 +467,6 @@ function closeLightbox() {
   }
 
   const doFlyBack = (wasFlipped) => {
-    // 时间线父级在打开期间已被冻结，因此这里读取到的是稳定的归位位置。
     const rect = currentSourceImg
       ? currentSourceImg.getBoundingClientRect()
       : savedRect;
@@ -492,26 +480,22 @@ function closeLightbox() {
     const targetRatio = rect.width / rect.height;
     const imgRatio = imgNaturalW / imgNaturalH;
 
-    // 用当前布局尺寸计算裁剪内缩
     const lbRect = lightboxImg.getBoundingClientRect();
     const lbWidth = lbRect.width || lightboxImg.clientWidth || 300;
     const lbHeight = lbRect.height || lightboxImg.clientHeight || 300;
 
-    // 用 lightbox 图片真实中心计算位移，避免桌面和手机的居中基准差异。
     const lightboxCenterX = lbRect.left + lbRect.width / 2;
     const lightboxCenterY = lbRect.top + lbRect.height / 2;
     const translateX = imgCenterX - lightboxCenterX;
     let translateY = imgCenterY - lightboxCenterY;
 
-    // ★ 方案 A：手机时间线「正面照片」落点补偿（往下压 1~2px）
-    // 翻转照片走的是 450ms 等待后的路径，rect 更稳定，不需要补偿。
     const isMobileTimeline =
       currentSourceImg &&
       currentSourceEvent &&
       window.matchMedia("(max-width: 700px)").matches;
 
     if (isMobileTimeline && !wasFlipped) {
-      translateY += 3; // 按实际偏差在 1~2 之间微调
+      translateY += 3;
     }
 
     let clipInsetX = 0;
@@ -532,7 +516,6 @@ function closeLightbox() {
     lightboxImg.style.clipPath = `inset(${clipInsetY}px ${clipInsetX}px)`;
 
     setTimeout(() => {
-
       const isMobileTimelineNow =
         currentSourceImg &&
         currentSourceEvent &&
@@ -562,7 +545,6 @@ function closeLightbox() {
         isFlipped = false;
         savedRect = null;
 
-        // ★ 彻底复位，避免第二次打开时 clientWidth 被残留状态污染
         resetLightboxVisual();
 
         lightbox.style.transition = "opacity 0.1s ease, visibility 0.1s ease";
@@ -620,7 +602,7 @@ lightbox.addEventListener('pointerup', (e) => {
 
   if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY) && timeDiff < 500) {
     triggerFlip(deltaX < 0 ? 1 : -1);
-  } 
+  }
   else if (distance < 10) {
     if (e.target.id === "lightbox") {
       closeLightbox();
@@ -642,10 +624,10 @@ function triggerFlip(direction) {
   if (isAnimating) return;
 
   const imgName = lightboxImg.src.split('/').pop();
-  if (!photoSecrets[imgName]) return; 
+  if (!photoSecrets[imgName]) return;
 
   if (isFlipped) {
-    direction = -direction; 
+    direction = -direction;
   }
 
   isAnimating = true;
@@ -711,7 +693,7 @@ document.querySelectorAll(".event .card img").forEach(img => {
 
 lightbox.addEventListener("click", (e) => {
   if (e.target.id === "lightbox") {
-    if (isAnimating) return; 
+    if (isAnimating) return;
     closeLightbox();
   }
 });
@@ -761,7 +743,7 @@ for (let i = 0; i < NODE_COUNT; i++) {
 }
 
 function getCurrentDays() {
-  const now = new Date();
+  const now = getMalaysiaNow();
   const diff = now - startDate;
   return Math.floor(diff / (1000 * 60 * 60 * 24));
 }
@@ -799,23 +781,17 @@ function updateMilestone() {
   requestAnimationFrame(step);
 }
 
-window.addEventListener("load", () => {
-  milestoneFill.style.width = "0%";
-  milestoneMarker.style.left = "0%";
-  setTimeout(updateMilestone, 500);
-});
+/* ========== 倒计时逻辑（锁定 UTC+8） ========== */
+const START_YEAR = 2023;
+const HER_BIRTH_YEAR = 2005;
+const HIS_BIRTH_YEAR = 2001;
 
-/* ========== 倒计时逻辑 ========== */
-const START_YEAR = 2023;       
-const HER_BIRTH_YEAR = 2005;   
-const HIS_BIRTH_YEAR = 2001;   
-
-const HER_BIRTHDAY = { month: 5, day: 3 };   
-const HIS_BIRTHDAY = { month: 0, day: 26 };  
-const ANNIVERSARY = { month: 0, day: 5 };    
+const HER_BIRTHDAY = { month: 5, day: 3 };
+const HIS_BIRTHDAY = { month: 0, day: 26 };
+const ANNIVERSARY = { month: 0, day: 5 };
 
 function getDaysUntil(targetMonth, targetDay) {
-  const now = new Date();
+  const now = getMalaysiaNow();
   now.setHours(0, 0, 0, 0);
 
   let target = new Date(now.getFullYear(), targetMonth, targetDay);
@@ -828,8 +804,6 @@ function getDaysUntil(targetMonth, targetDay) {
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
 
-/* 统一渲染倒计时卡片，避免 innerHTML 替换掉带 id 的元素后引用失效。
-   每次调用都重新查询 .countdown-value 容器，保证跨 0 点后仍能正确切回。 */
 function renderCountdownValue(cardEl, isToday, days, todayEmoji) {
   if (!cardEl) return;
 
@@ -837,7 +811,6 @@ function renderCountdownValue(cardEl, isToday, days, todayEmoji) {
   if (!valueEl) return;
 
   if (isToday) {
-    // 只有当前不是"当天"结构时才重建，避免每秒重写 DOM
     if (!valueEl.querySelector(".cd-today-emoji")) {
       valueEl.innerHTML = `<span class="cd-today-emoji" style="font-size:1.5rem;letter-spacing:2px;color:var(--main);font-weight:bold;">${todayEmoji}</span>`;
     } else {
@@ -845,7 +818,6 @@ function renderCountdownValue(cardEl, isToday, days, todayEmoji) {
       if (emojiEl.textContent !== todayEmoji) emojiEl.textContent = todayEmoji;
     }
   } else {
-    // 非当天：确保结构是 <span id="cd-xxx">N</span> 天
     const numEl = valueEl.querySelector(".cd-num");
     if (!numEl) {
       valueEl.innerHTML = `<span class="cd-num">${days}</span> 天`;
@@ -856,8 +828,8 @@ function renderCountdownValue(cardEl, isToday, days, todayEmoji) {
 }
 
 function updateCountdowns() {
-  const now = new Date();
-  now.setHours(0, 0, 0, 0); 
+  const now = getMalaysiaNow();
+  now.setHours(0, 0, 0, 0);
   const currentYear = now.getFullYear();
 
   const cardAnn = document.getElementById("card-anniversary");
@@ -868,7 +840,6 @@ function updateCountdowns() {
   const titleHer = document.getElementById("title-her");
   const titleHim = document.getElementById("title-him");
 
-  // ---------- 周年 ----------
   let nextAnnYear = currentYear;
   let annDateThisYear = new Date(currentYear, ANNIVERSARY.month, ANNIVERSARY.day);
   if (now > annDateThisYear) nextAnnYear = currentYear + 1;
@@ -887,7 +858,6 @@ function updateCountdowns() {
     }
   }
 
-  // ---------- Cindy 生日 ----------
   let nextHerYear = currentYear;
   let herDateThisYear = new Date(currentYear, HER_BIRTHDAY.month, HER_BIRTHDAY.day);
   if (now > herDateThisYear) nextHerYear = currentYear + 1;
@@ -906,7 +876,6 @@ function updateCountdowns() {
     }
   }
 
-  // ---------- Kai Peng 生日 ----------
   let nextHimYear = currentYear;
   let himDateThisYear = new Date(currentYear, HIS_BIRTHDAY.month, HIS_BIRTHDAY.day);
   if (now > himDateThisYear) nextHimYear = currentYear + 1;
@@ -926,16 +895,57 @@ function updateCountdowns() {
   }
 }
 
-updateCountdowns(); 
+/* ========== 统一的每秒 tick（计数器 + 倒计时） ========== */
+let globalTickTimer = null;
 
-setInterval(updateCountdowns, 1000); 
+function startGlobalTick() {
+  if (globalTickTimer) return;
+  globalTickTimer = setInterval(() => {
+    updateCounter();
+    updateCountdowns();
+  }, 1000);
+}
 
-// 页面重新可见 / 窗口聚焦时立即刷新，切回标签页就不会看到旧数字
+function stopGlobalTick() {
+  if (globalTickTimer) {
+    clearInterval(globalTickTimer);
+    globalTickTimer = null;
+  }
+}
+
+updateCountdowns();
+
 document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) updateCountdowns();
+  if (document.hidden) {
+    stopGlobalTick();
+  } else {
+    updateCounter();
+    updateCountdowns();
+    startGlobalTick();
+  }
 });
-window.addEventListener("focus", updateCountdowns);
 
+window.addEventListener("focus", () => {
+  updateCounter();
+  updateCountdowns();
+});
+
+/* ========== 里程碑启动 & 统一 tick 启动（在 load 后） ========== */
+window.addEventListener("load", () => {
+  milestoneFill.style.width = "0%";
+  milestoneMarker.style.left = "0%";
+  setTimeout(updateMilestone, 500);
+
+  setTimeout(() => {
+    animateNumber(daysEl, realDays, 3500);
+  }, 500);
+
+  setTimeout(() => {
+    updateCounter();
+    updateCountdowns();
+    startGlobalTick();
+  }, 4000);
+});
 
 const loveWords = ["喜欢你！", "贴贴~", "今天也很想你", "薛之谦！", "❤️", "抱抱", "喵", "￣3￣"];
 const normalMarker = document.getElementById("milestone-marker");
@@ -1010,7 +1020,7 @@ if (photoWall) {
 /* ========== 9. 照片墙导航按钮 ========== */
 const photoNavBtn = document.getElementById("photo-nav-btn");
 const photoSection = document.querySelector(".photo-wall-section");
-const photoTitle = document.querySelector(".photo-wall-title"); 
+const photoTitle = document.querySelector(".photo-wall-title");
 
 function checkPhotoSectionPosition() {
   if (!photoSection || !photoNavBtn) return;
@@ -1042,7 +1052,7 @@ if (photoNavBtn && photoSection) {
   checkPhotoSectionPosition();
 }
 
-/* ========== 10. 时钟模式逻辑 ========== */
+/* ========== 10. 时钟模式逻辑（锁定 UTC+8） ========== */
 const clockBtn = document.getElementById("clock-btn");
 const clockOverlay = document.getElementById("clock-overlay");
 const closeClockMobile = document.getElementById("close-clock-mobile");
@@ -1157,7 +1167,7 @@ function setCdCard(boxEl, titleEl, cdValueContainerEl, isToday, titleHtml, norma
 function updateClock() {
   if (!clockOverlay.classList.contains("show")) return;
 
-  const now = new Date();
+  const now = getMalaysiaNow();
 
   let hours = now.getHours();
   let ampm = "";
@@ -1196,17 +1206,17 @@ function updateClock() {
   const clockDaysEl = document.getElementById("clock-days");
   if (clockDaysEl) clockDaysEl.textContent = days.toLocaleString();
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); 
+  const today = getMalaysiaNow();
+  today.setHours(0, 0, 0, 0);
   const currentYear = today.getFullYear();
 
   const isTodayAnn = (today.getMonth() === ANNIVERSARY.month && today.getDate() === ANNIVERSARY.day);
   const isTodayHer = (today.getMonth() === HER_BIRTHDAY.month && today.getDate() === HER_BIRTHDAY.day);
   const isTodayHim = (today.getMonth() === HIS_BIRTHDAY.month && today.getDate() === HIS_BIRTHDAY.day);
 
-  const clockBoxAnn = document.querySelector(".left-col .box-cd"); 
-  const clockBoxHer = document.querySelector(".right-col .box-cd"); 
-  const clockBoxHim = document.querySelector(".right-col .box-cd:last-child"); 
+  const clockBoxAnn = document.querySelector(".left-col .box-cd");
+  const clockBoxHer = document.querySelector(".right-col .box-cd");
+  const clockBoxHim = document.querySelector(".right-col .box-cd:last-child");
 
   let nextAnnYear = currentYear;
   if (today > new Date(currentYear, ANNIVERSARY.month, ANNIVERSARY.day)) nextAnnYear = currentYear + 1;
@@ -1309,14 +1319,14 @@ function updateClock() {
 }
 
 let clockTimeout = null;
-let hideButtonsTimer = null; 
+let hideButtonsTimer = null;
 
 function clockTick() {
   if (!clockOverlay.classList.contains("show")) return;
 
   updateClock();
 
-  const now = new Date();
+  const now = getMalaysiaNow();
   const delay = 1000 - now.getMilliseconds();
 
   clockTimeout = setTimeout(clockTick, delay);
@@ -1342,8 +1352,8 @@ function toggleClock(enter) {
   if (enter) {
     clockOverlay.classList.add("show");
     document.body.classList.add("in-clock-mode");
-    document.body.style.overflow = "hidden"; 
-    document.documentElement.style.overflow = "hidden"; 
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
 
     clockBtn.innerHTML = "❌";
     clockBtn.title = "退出时钟模式";
@@ -1357,13 +1367,13 @@ function toggleClock(enter) {
       clockTimeout = null;
     }
     clockTick();
-    resetHideTimer(); 
+    resetHideTimer();
   } else {
     clockOverlay.classList.remove("show");
     document.body.classList.remove("in-clock-mode");
-    document.body.classList.remove("hide-buttons"); 
-    document.body.style.overflow = ""; 
-    document.documentElement.style.overflow = ""; 
+    document.body.classList.remove("hide-buttons");
+    document.body.style.overflow = "";
+    document.documentElement.style.overflow = "";
 
     clockBtn.innerHTML = "⏰";
     clockBtn.title = "进入时钟模式";
@@ -1376,7 +1386,7 @@ function toggleClock(enter) {
       clearTimeout(clockTimeout);
       clockTimeout = null;
     }
-    if (hideButtonsTimer) { 
+    if (hideButtonsTimer) {
       clearTimeout(hideButtonsTimer);
       hideButtonsTimer = null;
     }
@@ -1386,6 +1396,7 @@ function toggleClock(enter) {
 clockBtn.addEventListener("click", () => {
   const isShowing = clockOverlay.classList.contains("show");
   toggleClock(!isShowing);
+  if (typeof closeLayoutMenu === "function") closeLayoutMenu();
 });
 
 if (closeClockMobile) {
@@ -1502,12 +1513,6 @@ document.addEventListener("keydown", (e) => {
 
 applyLayout();
 
-if (clockBtn) {
-  clockBtn.addEventListener("click", () => {
-    closeLayoutMenu();
-  });
-}
-
 let letterScrollLocked = false;
 function preventLetterBgScroll(e) {
   if (!letterScrollLocked) return;
@@ -1561,7 +1566,7 @@ function fadeAudio(targetVolume, callback) {
   clearInterval(fadeInterval);
 
   const step = 0.05;
-  const intervalTime = 50; 
+  const intervalTime = 50;
 
   fadeInterval = setInterval(() => {
     let currentVolume = bgm.volume;
@@ -1614,7 +1619,7 @@ if (sessionStorage.getItem("hasVisited")) {
 
   const progressInterval = setInterval(() => {
     progress += Math.random() * 10 + 5;
-    if (progress > 90) progress = 90; 
+    if (progress > 90) progress = 90;
     if (loaderBar) loaderBar.style.width = progress + "%";
   }, 200);
 
