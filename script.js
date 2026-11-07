@@ -1657,23 +1657,53 @@ function loadMusicTrack(index, autoplay = false) {
   currentTrackIndex = (index + MUSIC_PLAYLIST.length) % MUSIC_PLAYLIST.length;
   const track = MUSIC_PLAYLIST[currentTrackIndex];
 
-  bgm.pause();
-  bgm.src = track.src;
-  bgm.load();
+  // 1. 如果当前正在播放，先淡出
+  if (isMusicEnabled && !bgm.paused) {
+    
+    // 临时暂停倒计时，防止渐弱时歌单被收起
+    if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
 
-  updateMusicUI();
-
-  if (autoplay && isMusicEnabled) {
-    bgm.volume = 0;
-    bgm.play().then(() => {
-      fadeAudio(MUSIC_VOLUME);
-      setMusicExpandedState(); // 切歌时重置为展开并倒计时
-    }).catch((err) => {
-      console.log("播放失败:", err);
-      isMusicEnabled = false;
+    fadeAudio(0, () => {
+      // 淡出结束后，再切换真正的 src
+      bgm.pause();
+      bgm.src = track.src;
+      bgm.load();
       updateMusicUI();
-      setMusicMutedState();
+
+      // 2. 如果开启了自动播放，再重新渐入
+      if (autoplay && isMusicEnabled) {
+        bgm.volume = 0;
+        bgm.play().then(() => {
+          fadeAudio(MUSIC_VOLUME);
+          setMusicExpandedState(); // 切歌完成，重新开始 3 秒倒计时
+        }).catch((err) => {
+          console.log("播放失败:", err);
+          isMusicEnabled = false;
+          updateMusicUI();
+          setMusicMutedState();
+        });
+      }
     });
+
+  } else {
+    // 如果当前是暂停状态，不需要淡出，直接瞬间切歌
+    bgm.pause();
+    bgm.src = track.src;
+    bgm.load();
+    updateMusicUI();
+
+    if (autoplay && isMusicEnabled) {
+      bgm.volume = 0;
+      bgm.play().then(() => {
+        fadeAudio(MUSIC_VOLUME);
+        setMusicExpandedState();
+      }).catch((err) => {
+        console.log("播放失败:", err);
+        isMusicEnabled = false;
+        updateMusicUI();
+        setMusicMutedState();
+      });
+    }
   }
 }
 
