@@ -2318,3 +2318,52 @@ body.theme-fun #music-random-btn.active {
   color: #0a0a0f !important; 
   box-shadow: 0 2px 6px rgba(201, 160, 74, 0.4);
 }
+
+/* ========== 歌名固定宽度 + 跑马灯滚动 ========== */
+
+/* 1. 固定容器宽度 */
+.music-title-wrap {
+  width: 70px !important;    /* ★ 你想要的固定宽度 */
+  min-width: 70px !important;
+  max-width: 70px !important;
+  overflow: hidden;
+  margin-left: 12px;
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+}
+
+/* 2. 文字基础样式 */
+#music-current-title {
+  display: inline-block;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  color: var(--text-mid);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  /* 默认不滚动 */
+  transform: translateX(0);
+  text-overflow: clip !important; /* ★ 强制取消省略号 */
+  overflow: visible !important;   /* 让文字能突破容器宽度去滚动 */
+  min-width: max-content;         /* 保证文字本身的宽度不被压缩 */
+}
+
+/* 3. 跑马灯动画：完整展示文字后滚动 */
+#music-current-title.scrolling {
+  /* 动画时长和文字长度有关，由 JS 动态注入变量 --scroll-distance */
+  animation: marqueeScroll 5s linear infinite;
+}
+
+@keyframes marqueeScroll {
+  0%, 10% {
+    transform: translateX(0); /* 开头停顿一下 */
+  }
+  90%, 100% {
+    /* 向左滚动到文字的末尾 */
+    transform: translateX(var(--scroll-distance, -100px)); 
+  }
+}
+
+body.theme-fun #music-current-title {
+  color: #b8a898;
+}
