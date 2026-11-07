@@ -1480,36 +1480,6 @@ body.theme-fun .clock-box.is-today::before {
   100% { opacity: 0; transform: translate(-50%, -30px) scale(1); }
 }
 
-/* ========== 右上角低调音乐按钮 ========== */
-#music-toggle-btn {
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  z-index: 9999;
-  background: transparent;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  opacity: 0.3;
-  transition: all 0.3s ease;
-  padding: 5px;
-  outline: none;
-}
-
-body.in-clock-mode.hide-buttons #music-toggle-btn {
-  transform: translateX(100px) !important;
-  opacity: 0;
-}
-
-#music-toggle-btn:hover {
-  opacity: 1;
-  transform: scale(1.15);
-}
-
-#bgm {
-  display: none;
-}
-
 /* ========== 终极防选中、防长按菜单 ========== */
 * {
   -webkit-user-select: none !important;
@@ -1702,13 +1672,12 @@ body.theme-fun .clock-container.layout-minimal .clock-box:not(.box-time) {
 /* ========== 第三种布局：上时钟 + 下卡片 ========== */
 .clock-container.layout-stacked .clock-top {
   display: grid;
-  /* ★ 从 4fr 1fr 改为 4.5fr 1fr 或者 5fr 1fr，稍微多给上面一点点空间 */
   grid-template-rows: 4.5fr 1fr; 
   grid-template-columns: 1fr 1fr 1fr 1fr; 
   grid-template-areas: 
     "clock clock clock clock"
     "card1 card2 card3 card4";
-  gap: 1.5vh 1.5vw; /* ★ 把行间距从 2vh 改小一点为 1.5vh */
+  gap: 1.5vh 1.5vw; 
   height: 100%;
 }
 
@@ -2028,4 +1997,324 @@ body.lightbox-open .photo-wall img {
   transform: none !important;
   box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important; /* 恢复默认阴影 */
   transition: none !important;
+}
+
+/* ========== 优雅的音乐播放控件 ========== */
+
+/* 1. 整体容器定位（固定在右上角） */
+#music-controls {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column; /* 让歌单面板能往下排 */
+  align-items: flex-end;  /* 靠右对齐 */
+  transition: all 0.3s ease;
+}
+
+/* 时钟模式下隐藏 */
+body.in-clock-mode.hide-buttons #music-controls {
+  transform: translateX(150px) !important;
+  opacity: 0;
+}
+
+/* 2. 按钮条卡片 */
+.music-bar {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 40px;
+  padding: 4px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+body.theme-fun .music-bar {
+  background: rgba(42, 33, 23, 0.85);
+  border: 1px solid rgba(201, 160, 74, 0.3);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+/* 3. 内容展开/收缩控制 */
+.music-expanded-content {
+  display: flex;
+  align-items: center;
+  max-width: 250px;
+  opacity: 1;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* 未播放时，完全隐藏 */
+#music-controls.is-muted .music-expanded-content {
+  max-width: 0;
+  opacity: 0;
+}
+
+/* 处于 CD 收缩状态时，完全隐藏 */
+#music-controls.state-collapsed .music-expanded-content {
+  max-width: 0;
+  opacity: 0;
+}
+
+/* 4. 歌名展示 */
+.music-title-wrap {
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  margin-left: 12px;
+  margin-right: 8px;
+}
+
+#music-current-title {
+  font-size: 0.75rem;
+  color: var(--text-mid);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 100px;
+}
+
+body.theme-fun #music-current-title {
+  color: #b8a898;
+}
+
+.music-extra-btns {
+  display: flex;
+  align-items: center;
+}
+
+/* 5. 普通按钮（随机、下一首、歌单） */
+.music-bar button {
+  background: transparent;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: var(--text-mid);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.music-bar button:hover {
+  color: var(--main);
+  background: rgba(0, 0, 0, 0.05);
+  transform: scale(1.1);
+}
+
+body.theme-fun .music-bar button {
+  color: #8a7a68;
+}
+body.theme-fun .music-bar button:hover {
+  color: #c9a04a;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* 随机按钮激活状态 */
+#music-random-btn.active {
+  color: var(--main);
+  background: rgba(217, 140, 140, 0.15);
+}
+body.theme-fun #music-random-btn.active {
+  color: #c9a04a;
+  background: rgba(201, 160, 74, 0.2);
+}
+
+/* 6. 主按钮（播放/暂停/CD，保证正圆） */
+#music-toggle-btn {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important; /* 防止被压缩 */
+  min-height: 36px !important;
+  aspect-ratio: 1 / 1 !important; /* 强制宽高相等 */
+  border-radius: 50% !important;  
+  background: var(--main) !important;
+  color: #fff !important;
+  opacity: 1 !important;
+  box-shadow: 0 2px 8px rgba(217, 140, 140, 0.4);
+  margin-left: 4px;
+  padding: 0;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0; 
+}
+
+body.theme-fun #music-toggle-btn {
+  background: #c9a04a !important;
+  color: #0a0a0f !important;
+  box-shadow: 0 2px 8px rgba(201, 160, 74, 0.3);
+}
+
+#music-toggle-btn:hover {
+  transform: scale(1.05) !important;
+  box-shadow: 0 4px 12px rgba(217, 140, 140, 0.6);
+}
+
+/* 处于 CD 旋转状态时，变成暗淡的颜色 */
+#music-controls.state-collapsed #music-toggle-btn {
+  background: rgba(217, 140, 140, 0.2) !important; 
+  color: var(--main) !important;
+  box-shadow: 0 0 0 1px rgba(217, 140, 140, 0.4) !important; /* 用外发光代替边框，不会变形 */
+}
+
+body.theme-fun #music-controls.state-collapsed #music-toggle-btn {
+  background: rgba(201, 160, 74, 0.15) !important; 
+  color: #c9a04a !important;
+  box-shadow: 0 0 0 1px rgba(201, 160, 74, 0.5) !important; 
+}
+
+/* 7. 图标微调 */
+#music-toggle-btn svg {
+  display: block;
+}
+
+#music-toggle-btn .icon-play svg {
+  margin-left: 2px; 
+}
+
+/* ★ CD 转圈动画 */
+#music-toggle-btn .icon-cd {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: spinCD 3s linear infinite;
+}
+
+@keyframes spinCD {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 8. 下拉歌单面板 */
+.music-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  width: 180px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px) scale(0.95);
+  transform-origin: top right;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+}
+
+#music-controls.is-open .music-panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+body.theme-fun .music-panel {
+  background: rgba(26, 18, 21, 0.95);
+  border: 1px solid rgba(201, 160, 74, 0.3);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+.music-panel-header {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  padding: 12px 16px 8px;
+  letter-spacing: 1px;
+  font-weight: bold;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+body.theme-fun .music-panel-header {
+  border-bottom-color: rgba(255,255,255,0.05);
+  color: #c9a04a;
+}
+
+.music-list {
+  max-height: 160px; /* 限制最多显示4首 */
+  overflow-y: auto;
+  padding: 6px;
+}
+
+.music-list::-webkit-scrollbar { width: 4px; }
+.music-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 4px; }
+
+.music-item {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.85rem;
+  text-align: left;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.music-item:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+body.theme-fun .music-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.music-item.active {
+  background: var(--main-light);
+  color: var(--main);
+  font-weight: bold;
+}
+
+body.theme-fun .music-item.active {
+  background: rgba(201, 160, 74, 0.2);
+  color: #c9a04a;
+}
+
+#bgm {
+  display: none;
+}
+
+/* ========== 音乐播放器细节优化 ========== */
+
+/* 1. 上一首图标翻转 180度 */
+#music-prev-btn svg {
+  transform: scaleX(-1);
+}
+
+/* 2. 随机按钮（开启时的反差色圆形背景） */
+#music-random-btn {
+  border-radius: 50% !important; /* 保证正圆 */
+  transition: all 0.3s ease;
+}
+
+/* 浪漫模式下的随机激活状态：深粉色背景+白字 */
+#music-random-btn.active {
+  background: var(--main) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 6px rgba(217, 140, 140, 0.4);
+}
+
+/* 万兽之王模式下的随机激活状态：金色背景+暗字 */
+body.theme-fun #music-random-btn.active {
+  background: var(--main) !important; /* #c9a04a */
+  color: #0a0a0f !important; 
+  box-shadow: 0 2px 6px rgba(201, 160, 74, 0.4);
 }
