@@ -1199,6 +1199,7 @@ function updateClock() {
   flipDigit("clock-h2", hh[1]);
   flipDigit("clock-m1", mm[0]);
   flipDigit("clock-m2", mm[1]);
+  flipDigit("clock-m2", mm[1]);
   flipDigit("clock-s1", ss[0]);
   flipDigit("clock-s2", ss[1]);
 
@@ -1557,55 +1558,330 @@ function closeLetter(id) {
   }
 }
 
+/* ========== 优雅的背景音乐播放列表与控制 ========== */
 const bgm = document.getElementById("bgm");
+const musicControls = document.getElementById("music-controls");
 const musicToggleBtn = document.getElementById("music-toggle-btn");
+const musicPrevBtn = document.getElementById("music-prev-btn");
+const musicNextBtn = document.getElementById("music-next-btn");
+const musicRandomBtn = document.getElementById("music-random-btn");
+const musicListBtn = document.getElementById("music-list-btn");
+const musicListContainer = document.getElementById("music-list");
+const musicCurrentTitle = document.getElementById("music-current-title");
+const musicPanel = document.getElementById("music-panel");
 
+const MUSIC_PLAYLIST = [
+  { title: "刻在我心底的名字", src: "music/kezaixindi.mp3" },
+  { title: "任性", src: "music/renxing.mp3" },
+  { title: "如果可以", src: "music/ruguokeyi.mp3" },
+  { title: "想见你想见你想见你", src: "music/xiangjianni.mp3" },
+  { title: "初爱-日", src: "music/firstlove.mp3" }
+];
+
+let currentTrackIndex = 0;
+let isRandomMusic = false;
+let isMusicEnabled = false;
 let fadeInterval = null;
+const MUSIC_VOLUME = 1;
 
+// 获取图标的引用
+const iconPlay = musicToggleBtn.querySelector(".icon-play");
+const iconPause = musicToggleBtn.querySelector(".icon-pause");
+const iconCd = musicToggleBtn.querySelector(".icon-cd");
+
+let musicCollapseTimer = null;
+
+// 渲染歌单列表
+function renderMusicList() {
+  if (!musicListContainer) return;
+  musicListContainer.innerHTML = "";
+
+  MUSIC_PLAYLIST.forEach((track, index) => {
+    const btn = document.createElement("button");
+    btn.className = "music-item" + (index === currentTrackIndex ? " active" : "");
+    btn.textContent = track.title;
+    btn.title = track.title;
+    btn.addEventListener("click", () => {
+      loadMusicTrack(index, isMusicEnabled);
+      if (musicControls) musicControls.classList.remove("is-open");
+    });
+    musicListContainer.appendChild(btn);
+  });
+}
+
+// 更新主 UI 状态
+function updateMusicUI() {
+  if (!musicControls || !musicToggleBtn) return;
+
+  musicControls.classList.toggle("is-muted", !isMusicEnabled);
+
+  if (musicCurrentTitle) {
+    musicCurrentTitle.textContent = MUSIC_PLAYLIST[currentTrackIndex].title;
+  }
+
+  if (musicRandomBtn) {
+    musicRandomBtn.classList.toggle("active", isRandomMusic);
+    musicRandomBtn.title = isRandomMusic ? "随机播放：开启" : "随机播放：关闭";
+  }
+
+  renderMusicList();
+}
+
+// 淡入淡出
 function fadeAudio(targetVolume, callback) {
+  if (!bgm) return;
   clearInterval(fadeInterval);
-
   const step = 0.05;
   const intervalTime = 50;
 
   fadeInterval = setInterval(() => {
-    let currentVolume = bgm.volume;
-    let nextVolume = currentVolume;
-
-    if (currentVolume < targetVolume) {
-      nextVolume = Math.min(currentVolume + step, targetVolume);
-    } else if (currentVolume > targetVolume) {
-      nextVolume = Math.max(currentVolume - step, targetVolume);
-    }
+    const currentVolume = bgm.volume;
+    const nextVolume = currentVolume < targetVolume
+      ? Math.min(currentVolume + step, targetVolume)
+      : Math.max(currentVolume - step, targetVolume);
 
     bgm.volume = nextVolume;
 
     if (nextVolume === targetVolume) {
       clearInterval(fadeInterval);
+      fadeInterval = null;
       if (callback) callback();
     }
   }, intervalTime);
 }
 
-if (musicToggleBtn && bgm) {
-  bgm.volume = 0;
+// 加载指定歌曲
+function loadMusicTrack(index, autoplay = false) {
+  if (!bgm || !MUSIC_PLAYLIST.length) return;
 
-  musicToggleBtn.addEventListener("click", () => {
-    if (bgm.paused) {
-      bgm.play().then(() => {
-        musicToggleBtn.textContent = "🎵";
-        fadeAudio(1);
-      }).catch((err) => {
-        console.log("播放失败:", err);
-      });
-    } else {
-      musicToggleBtn.textContent = "🔇";
-      fadeAudio(0, () => {
-        bgm.pause();
-      });
+  currentTrackIndex = (index + MUSIC_PLAYLIST.length) % MUSIC_PLAYLIST.length;
+  const track = MUSIC_PLAYLIST[currentTrackIndex];
+
+  bgm.pause();
+  bgm.src = track.src;
+  bgm.load();
+
+  updateMusicUI();
+
+  if (autoplay && isMusicEnabled) {
+    bgm.volume = 0;
+    bgm.play().then(() => {
+      fadeAudio(MUSIC_VOLUME);
+      setMusicExpandedState(); // 切歌时重置为展开并倒计时
+    }).catch((err) => {
+      console.log("播放失败:", err);
+      isMusicEnabled = false;
+      updateMusicUI();
+      setMusicMutedState();
+    });
+  }
+}
+
+// 切换下一首
+function playNextTrack() {
+  if (MUSIC_PLAYLIST.length <= 1) return;
+
+  let nextIndex;
+  if (isRandomMusic) {
+    // 随机模式：确保不和当前歌重复
+    do {
+      nextIndex = Math.floor(Math.random() * MUSIC_PLAYLIST.length);
+    } while (nextIndex === currentTrackIndex);
+  } else {
+    // 顺序模式：直接下一首
+    nextIndex = (currentTrackIndex + 1) % MUSIC_PLAYLIST.length;
+  }
+
+  loadMusicTrack(nextIndex, isMusicEnabled);
+}
+
+// ★ 新增：切换上一首
+function playPrevTrack() {
+  if (MUSIC_PLAYLIST.length <= 1) return;
+
+  let prevIndex;
+  if (isRandomMusic) {
+    // 随机模式下，上一首也是随机（防止有人觉得“上一首”必须是刚才放的那首，看你的喜好）
+    do {
+      prevIndex = Math.floor(Math.random() * MUSIC_PLAYLIST.length);
+    } while (prevIndex === currentTrackIndex);
+  } else {
+    // 顺序模式下，上一首就是 index - 1
+    prevIndex = (currentTrackIndex - 1 + MUSIC_PLAYLIST.length) % MUSIC_PLAYLIST.length;
+  }
+
+  loadMusicTrack(prevIndex, isMusicEnabled);
+}
+
+// ================= 状态切换逻辑 =================
+
+// 状态1：暂停（只显示 ▶）
+function setMusicMutedState() {
+  musicControls.classList.remove("state-collapsed"); 
+  iconPlay.style.display = "inline-block";
+  iconPause.style.display = "none";
+  iconCd.style.display = "none";
+  musicToggleBtn.title = "开启音乐";
+  if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
+}
+
+// 状态2：展开操作（显示 歌名、按钮、||）
+function setMusicExpandedState() {
+  musicControls.classList.remove("state-collapsed");
+  iconPlay.style.display = "none";
+  iconPause.style.display = "inline-block"; 
+  iconCd.style.display = "none";
+  musicToggleBtn.title = "暂停音乐";
+  startCollapseTimer();
+}
+
+// 状态3：CD收缩（只显示 转动的 💿）
+function setMusicCollapsedState() {
+  if (!isMusicEnabled) return;
+  musicControls.classList.add("state-collapsed");
+  iconPlay.style.display = "none";
+  iconPause.style.display = "none";
+  iconCd.style.display = "inline-block"; 
+  musicToggleBtn.title = "展开控制";
+}
+
+// 启动 3 秒倒计时
+function startCollapseTimer() {
+  if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
+  musicCollapseTimer = setTimeout(() => {
+    // 只有在播放中、且没打开歌单时，才收缩成 CD
+    if (isMusicEnabled && !musicControls.classList.contains("is-open")) {
+      setMusicCollapsedState();
     }
+  }, 2000);
+}
+
+// ================= 事件绑定 =================
+
+// 1. 主按钮点击事件
+musicToggleBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+
+  if (!isMusicEnabled) {
+    // 【状态1 -> 状态2】
+    isMusicEnabled = true;
+    bgm.volume = 0;
+    bgm.play().then(() => {
+      updateMusicUI();
+      fadeAudio(MUSIC_VOLUME);
+      setMusicExpandedState();
+    }).catch(err => {
+      console.log("播放失败:", err);
+      isMusicEnabled = false;
+      setMusicMutedState();
+    });
+  } else if (musicControls.classList.contains("state-collapsed")) {
+    // 【状态3 -> 状态2】
+    setMusicExpandedState();
+  } else {
+    // 【状态2 -> 状态1】暂停播放
+    isMusicEnabled = false;
+    updateMusicUI();
+    fadeAudio(0, () => bgm.pause());
+    setMusicMutedState();
+    
+    // ★ 新增：暂停时，强制把展开的歌单面板收起来
+    musicControls.classList.remove("is-open");
+  }
+});
+
+
+// 2. 其它按钮（下一首、随机、歌单）点击时，重置倒计时
+musicControls.addEventListener("click", (e) => {
+  // ★ 新增：如果在时钟模式下，任何对播放器的操作都会重置隐藏倒计时
+  if (typeof resetHideTimer === "function" && document.body.classList.contains("in-clock-mode")) {
+    resetHideTimer();
+  }
+
+  if (e.target.closest("#music-toggle-btn")) return;
+  if (e.target.closest("#music-list-btn")) {
+    if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
+    return;
+  }
+  // 切歌等操作重置 3 秒
+  if (isMusicEnabled && !musicControls.classList.contains("state-collapsed")) {
+    startCollapseTimer();
+  }
+});
+
+if (musicNextBtn) musicNextBtn.addEventListener("click", playNextTrack);
+if (musicPrevBtn) musicPrevBtn.addEventListener("click", playPrevTrack);
+
+if (musicRandomBtn) {
+  musicRandomBtn.addEventListener("click", () => {
+    isRandomMusic = !isRandomMusic;
+    updateMusicUI();
+    if (isRandomMusic && MUSIC_PLAYLIST.length > 1) playNextTrack();
   });
 }
+
+if (musicListBtn) {
+  musicListBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    musicControls.classList.toggle("is-open");
+  });
+}
+
+// 3. 点击外部关闭歌单
+document.addEventListener("click", (e) => {
+  if (musicControls && musicControls.classList.contains("is-open") && !musicControls.contains(e.target)) {
+    musicControls.classList.remove("is-open");
+    // 关闭歌单后重新开始 3 秒倒计时
+    if (isMusicEnabled) startCollapseTimer();
+  }
+});
+
+// 4. 播放结束后自动下一首
+bgm.addEventListener("ended", () => {
+  if (isMusicEnabled) playNextTrack();
+});
+
+// 5. 如果鼠标悬浮在播放器上，不触发收缩
+musicControls.addEventListener("mouseenter", () => {
+  if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
+});
+musicControls.addEventListener("mouseleave", () => {
+  if (isMusicEnabled && !musicControls.classList.contains("state-collapsed")) {
+    startCollapseTimer();
+  }
+});
+
+/* ========== 终极优化：时钟模式下操作播放器重置隐藏倒计时 ========== */
+
+if (musicControls) {
+  // 1. 鼠标移动 / 点击时，重置右侧按钮的隐藏倒计时
+  musicControls.addEventListener("mousemove", () => {
+    if (document.body.classList.contains("in-clock-mode") && typeof resetHideTimer === "function") {
+      resetHideTimer();
+    }
+  });
+
+  // 2. 点击播放器面板任意区域（包括打开歌单、选中歌曲、按暂停等）
+  musicControls.addEventListener("click", (e) => {
+    if (document.body.classList.contains("in-clock-mode") && typeof resetHideTimer === "function") {
+      resetHideTimer();
+    }
+  });
+
+  // 3. 针对移动端：触摸滑动歌单时，也要重置倒计时
+  musicControls.addEventListener("touchmove", (e) => {
+    if (document.body.classList.contains("in-clock-mode") && typeof resetHideTimer === "function") {
+      resetHideTimer();
+    }
+  }, { passive: true });
+}
+
+// 初始化
+bgm.volume = 0;
+loadMusicTrack(0);
+updateMusicUI();
+setMusicMutedState();
+
 
 const loadingScreen = document.getElementById("loading-screen");
 
