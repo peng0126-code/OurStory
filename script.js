@@ -1617,6 +1617,33 @@ function updateMusicUI() {
 
   if (musicCurrentTitle) {
     musicCurrentTitle.textContent = MUSIC_PLAYLIST[currentTrackIndex].title;
+    
+    // ★ 重置滚动状态
+    musicCurrentTitle.classList.remove("scrolling");
+    musicCurrentTitle.style.transform = "translateX(0)";
+    musicCurrentTitle.style.removeProperty("--scroll-distance"); // 清除旧的变量
+    
+    // 延迟一帧，等文字渲染完成再测量
+    requestAnimationFrame(() => {
+      const containerWidth = musicCurrentTitle.parentElement.offsetWidth;
+      const textWidth = musicCurrentTitle.scrollWidth;
+      
+      // 如果文字宽度大于容器宽度，则触发滚动
+      if (textWidth > containerWidth) {
+        // 计算需要向左滑动的距离 (文字总宽 - 容器宽度 + 留一点右侧空白)
+        const scrollDistance = textWidth - containerWidth + 20; 
+        
+        // 把计算出的距离通过 CSS 变量传给 CSS 动画
+        musicCurrentTitle.style.setProperty("--scroll-distance", `-${scrollDistance}px`);
+        
+        // 动态计算动画时间，字越长滚得越久 (大概每 15px 走 0.4秒)
+        const duration = Math.max(3, scrollDistance * 0.08); 
+        musicCurrentTitle.style.animationDuration = `${duration}s`;
+        
+        // 添加类名启动动画
+        musicCurrentTitle.classList.add("scrolling");
+      }
+    });
   }
 
   if (musicRandomBtn) {
@@ -1912,6 +1939,139 @@ loadMusicTrack(0);
 updateMusicUI();
 setMusicMutedState();
 
+/* ========== 终极优化：操作期间不收缩 CD ========== */
+
+let isHoveringMusic = false;
+let isTouchingMusic = false;
+
+// 1. 鼠标进入：取消定时器，标记为正在悬停
+musicControls.addEventListener("mouseenter", () => {
+  isHoveringMusic = true;
+  if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
+});
+
+// 2. 鼠标移动（在内部移动也重置，确保不会中途缩回）
+musicControls.addEventListener("mousemove", () => {
+  if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
+});
+
+// 3. 鼠标离开：如果不在触摸操作中，开始 2 秒倒计时
+musicControls.addEventListener("mouseleave", () => {
+  isHoveringMusic = false;
+  // 只有播放中、且没有处于收缩状态、且没打开歌单时，才开始倒计时
+  if (isMusicEnabled && !musicControls.classList.contains("state-collapsed") && !musicControls.classList.contains("is-open") && !isTouchingMusic) {
+    startCollapseTimer();
+  }
+});
+
+// 4. 手机触屏按下：取消定时器
+musicControls.addEventListener("touchstart", () => {
+  isTouchingMusic = true;
+  if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
+}, { passive: true });
+
+// 5. 手机触屏离开：开始 2 秒倒计时
+musicControls.addEventListener("touchend", () => {
+  isTouchingMusic = false;
+  if (isMusicEnabled && !musicControls.classList.contains("state-collapsed") && !musicControls.classList.contains("is-open")) {
+    startCollapseTimer();
+  }
+}, { passive: true });
+
+// 6. 如果用户点击了切歌、随机、歌单等按钮，重置计时器（因为鼠标可能还悬停着，所以要重置）
+musicControls.addEventListener("click", (e) => {
+  // 点击任何非主按钮/非歌单按钮时，重置倒计时
+  if (!e.target.closest("#music-toggle-btn") && !e.target.closest("#music-list-btn")) {
+    if (isMusicEnabled && !musicControls.classList.contains("state-collapsed")) {
+      startCollapseTimer();
+    }
+  }
+});
+
+
+/* ========== 终极修正：完美跑马灯与自动收缩 ========== */
+// 重新覆盖 updateMusicUI 里的滚动判断逻辑
+const originalUpdateMusicUI = updateMusicUI;
+updateMusicUI = function() {
+  if (musicControls && musicToggleBtn) {
+    musicControls.classList.toggle("is-muted", !isMusicEnabled);
+    
+    if (musicCurrentTitle) {
+      musicCurrentTitle.textContent = MUSIC_PLAYLIST[currentTrackIndex].title;
+      
+      // 先重置动画
+      musicCurrentTitle.classList.remove("scrolling");
+      musicCurrentTitle.style.transform = "translateX(0)";
+      musicCurrentTitle.style.removeProperty("--scroll-distance");
+      
+      // 使用 setTimeout 确保在卡片展开动画完成后（0.4s）再计算宽度
+      setTimeout(() => {
+        const containerWidth = musicCurrentTitle.parentElement.offsetWidth;
+        const textWidth = musicCurrentTitle.scrollWidth;
+        
+        if (textWidth > containerWidth) {
+          const scrollDistance = textWidth - containerWidth + 10; // 留出 10px 空白
+          musicCurrentTitle.style.setProperty("--scroll-distance", `-${scrollDistance}px`);
+          
+          const duration = Math.max(3, scrollDistance * 0.1);
+          musicCurrentTitle.style.animationDuration = `${duration}s`;
+          
+          musicCurrentTitle.classList.add("scrolling");
+        }
+      }, 400); // 400ms 对应你 CSS 里展开的动画时间
+    }
+
+    if (musicRandomBtn) {
+      musicRandomBtn.classList.toggle("active", isRandomMusic);
+      musicRandomBtn.title = isRandomMusic ? "随机播放：开启" : "随机播放：关闭";
+    }
+
+    renderMusicList();
+  }
+};
+
+// 重写 startCollapseTimer 防止多出的事件冲突
+window.startCollapseTimer = function() {
+  if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
+  
+  musicCollapseTimer = setTimeout(() => {
+    // 判断条件：正在播放、没变成CD、没打开歌单、鼠标没悬停、手机没触摸
+    if (isMusicEnabled && 
+        !musicControls.classList.contains("state-collapsed") && 
+        !musicControls.classList.contains("is-open") &&
+        !window.isHoveringMusic &&
+        !window.isTouchingMusic) {
+      setMusicCollapsedState();
+    }
+  }, 2000);
+};
+
+window.isHoveringMusic = false;
+window.isTouchingMusic = false;
+
+// 重新绑定事件
+musicControls.addEventListener("mouseenter", () => {
+  window.isHoveringMusic = true;
+  if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
+});
+
+musicControls.addEventListener("mouseleave", () => {
+  window.isHoveringMusic = false;
+  window.startCollapseTimer();
+});
+
+musicControls.addEventListener("touchstart", () => {
+  window.isTouchingMusic = true;
+  if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
+}, { passive: true });
+
+musicControls.addEventListener("touchend", () => {
+  window.isTouchingMusic = false;
+  window.startCollapseTimer();
+}, { passive: true });
+
+// 初始化一下状态
+updateMusicUI();
 
 const loadingScreen = document.getElementById("loading-screen");
 
