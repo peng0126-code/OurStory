@@ -2367,3 +2367,26 @@ body.theme-fun #music-random-btn.active {
 body.theme-fun #music-current-title {
   color: #b8a898;
 }
+
+/* ========== 整体等比例缩小播放器（卡片 + 面板一起缩） ========== */
+
+/* 1. 直接对整个音乐控制容器进行缩放 */
+#music-controls {
+  top: 10px !important; /* 稍微贴近屏幕边缘 */
+  right: 10px !important;
+  transform: scale(0.65) !important; /* ★ 这里控制整体大小，0.8 就是缩小到80%，你可以改 0.75 或 0.85 */
+  transform-origin: top right !important; /* 以右上角为锚点缩放，保证位置不乱 */
+}
+
+/* 2. 清空掉之前加的局部缩放和面板反向放大，恢复默认 */
+.music-bar {
+  transform: none !important;
+}
+
+.music-panel {
+  transform: translateY(-10px) scale(1) !important; /* 恢复正常的滑出动画 */
+}
+
+#music-controls.is-open .music-panel {
+  transform: translateY(0) scale(1) !important;
+}
