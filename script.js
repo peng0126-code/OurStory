@@ -1558,7 +1558,9 @@ function closeLetter(id) {
   }
 }
 
-/* ========== 优雅的背景音乐播放列表与控制 ========== */
+/* ========================================================= */
+/* ========== 完整功能的音乐播放器（重写防收回机制） ========== */
+/* ========================================================= */
 const bgm = document.getElementById("bgm");
 const musicControls = document.getElementById("music-controls");
 const musicToggleBtn = document.getElementById("music-toggle-btn");
@@ -1568,7 +1570,6 @@ const musicRandomBtn = document.getElementById("music-random-btn");
 const musicListBtn = document.getElementById("music-list-btn");
 const musicListContainer = document.getElementById("music-list");
 const musicCurrentTitle = document.getElementById("music-current-title");
-const musicPanel = document.getElementById("music-panel");
 
 const MUSIC_PLAYLIST = [
   { title: "刻在我心底的名字", src: "music/kezaixindi.mp3" },
@@ -1584,12 +1585,74 @@ let isMusicEnabled = false;
 let fadeInterval = null;
 const MUSIC_VOLUME = 1;
 
-// 获取图标的引用
+let isHoveringMusic = false;
+let isTouchingMusic = false;
+let lastInteractionTime = 0; // 记录最后一次交互的时间戳
+
 const iconPlay = musicToggleBtn.querySelector(".icon-play");
 const iconPause = musicToggleBtn.querySelector(".icon-pause");
 const iconCd = musicToggleBtn.querySelector(".icon-cd");
 
-let musicCollapseTimer = null;
+// ================= 状态切换逻辑 =================
+
+// 状态1：暂停（黑胶不转，仅显示黑胶）
+function setMusicMutedState() {
+  musicControls.classList.remove("state-collapsed"); 
+  musicToggleBtn.title = "开启音乐";
+  
+  // 隐藏歌名和按钮
+  const expandedContent = document.querySelector(".music-expanded-content");
+  if (expandedContent) {
+    expandedContent.style.opacity = "0";
+    expandedContent.style.pointerEvents = "none";
+  }
+}
+
+// 状态2：展开操作（显示歌名、按钮，黑胶转动）
+function setMusicExpandedState() {
+  musicControls.classList.remove("state-collapsed");
+  musicToggleBtn.title = "暂停音乐";
+  lastInteractionTime = Date.now(); // 刷新交互时间
+
+  // 显示歌名和按钮
+  const expandedContent = document.querySelector(".music-expanded-content");
+  if (expandedContent) {
+    expandedContent.style.opacity = "1";
+    expandedContent.style.pointerEvents = "auto";
+  }
+}
+
+// 状态3：CD收缩（只显示转动的黑胶）
+function setMusicCollapsedState() {
+  if (!isMusicEnabled) return;
+  musicControls.classList.add("state-collapsed");
+  musicToggleBtn.title = "展开控制";
+  
+  // 隐藏歌名和按钮
+  const expandedContent = document.querySelector(".music-expanded-content");
+  if (expandedContent) {
+    expandedContent.style.opacity = "0";
+    expandedContent.style.pointerEvents = "none";
+  }
+}
+
+// ★ 核心防收回修复：常驻全局检测器
+// 每 500 毫秒检查一次：
+// 1. 正在播放
+// 2. 当前不是 CD 状态
+// 3. 没打开歌单
+// 4. 鼠标不在播放器上（isHoveringMusic 为 false）
+// 5. 距离最后一次操作超过 2000ms
+setInterval(() => {
+  if (!isMusicEnabled) return;
+  if (musicControls.classList.contains("state-collapsed")) return;
+  if (musicControls.classList.contains("is-open")) return;
+  if (isHoveringMusic || isTouchingMusic) return;
+
+  if (Date.now() - lastInteractionTime > 2000) {
+    setMusicCollapsedState();
+  }
+}, 500);
 
 // 渲染歌单列表
 function renderMusicList() {
@@ -1604,12 +1667,13 @@ function renderMusicList() {
     btn.addEventListener("click", () => {
       loadMusicTrack(index, isMusicEnabled);
       if (musicControls) musicControls.classList.remove("is-open");
+      lastInteractionTime = Date.now();
     });
     musicListContainer.appendChild(btn);
   });
 }
 
-// 更新主 UI 状态
+// 更新主 UI 状态与跑马灯
 function updateMusicUI() {
   if (!musicControls || !musicToggleBtn) return;
 
@@ -1618,32 +1682,24 @@ function updateMusicUI() {
   if (musicCurrentTitle) {
     musicCurrentTitle.textContent = MUSIC_PLAYLIST[currentTrackIndex].title;
     
-    // ★ 重置滚动状态
+    // 重置滚动状态
     musicCurrentTitle.classList.remove("scrolling");
     musicCurrentTitle.style.transform = "translateX(0)";
-    musicCurrentTitle.style.removeProperty("--scroll-distance"); // 清除旧的变量
+    musicCurrentTitle.style.removeProperty("--scroll-distance");
     
-    // 延迟一帧，等文字渲染完成再测量
-    requestAnimationFrame(() => {
+    // 延迟 400ms（等待卡片展开）再计算宽度
+    setTimeout(() => {
       const containerWidth = musicCurrentTitle.parentElement.offsetWidth;
       const textWidth = musicCurrentTitle.scrollWidth;
       
-      // 如果文字宽度大于容器宽度，则触发滚动
-      if (textWidth > containerWidth) {
-        // 计算需要向左滑动的距离 (文字总宽 - 容器宽度 + 留一点右侧空白)
-        const scrollDistance = textWidth - containerWidth + 20; 
-        
-        // 把计算出的距离通过 CSS 变量传给 CSS 动画
+      if (textWidth > containerWidth && containerWidth > 0) {
+        const scrollDistance = textWidth - containerWidth + 10; 
         musicCurrentTitle.style.setProperty("--scroll-distance", `-${scrollDistance}px`);
-        
-        // 动态计算动画时间，字越长滚得越久 (大概每 15px 走 0.4秒)
-        const duration = Math.max(3, scrollDistance * 0.08); 
+        const duration = Math.max(3, scrollDistance * 0.1); 
         musicCurrentTitle.style.animationDuration = `${duration}s`;
-        
-        // 添加类名启动动画
         musicCurrentTitle.classList.add("scrolling");
       }
-    });
+    }, 400);
   }
 
   if (musicRandomBtn) {
@@ -1684,25 +1740,20 @@ function loadMusicTrack(index, autoplay = false) {
   currentTrackIndex = (index + MUSIC_PLAYLIST.length) % MUSIC_PLAYLIST.length;
   const track = MUSIC_PLAYLIST[currentTrackIndex];
 
-  // 1. 如果当前正在播放，先淡出
-  if (isMusicEnabled && !bgm.paused) {
-    
-    // 临时暂停倒计时，防止渐弱时歌单被收起
-    if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
+  lastInteractionTime = Date.now();
 
+  if (isMusicEnabled && !bgm.paused) {
     fadeAudio(0, () => {
-      // 淡出结束后，再切换真正的 src
       bgm.pause();
       bgm.src = track.src;
       bgm.load();
       updateMusicUI();
 
-      // 2. 如果开启了自动播放，再重新渐入
       if (autoplay && isMusicEnabled) {
         bgm.volume = 0;
         bgm.play().then(() => {
           fadeAudio(MUSIC_VOLUME);
-          setMusicExpandedState(); // 切歌完成，重新开始 3 秒倒计时
+          setMusicExpandedState(); 
         }).catch((err) => {
           console.log("播放失败:", err);
           isMusicEnabled = false;
@@ -1711,9 +1762,7 @@ function loadMusicTrack(index, autoplay = false) {
         });
       }
     });
-
   } else {
-    // 如果当前是暂停状态，不需要淡出，直接瞬间切歌
     bgm.pause();
     bgm.src = track.src;
     bgm.load();
@@ -1740,77 +1789,30 @@ function playNextTrack() {
 
   let nextIndex;
   if (isRandomMusic) {
-    // 随机模式：确保不和当前歌重复
     do {
       nextIndex = Math.floor(Math.random() * MUSIC_PLAYLIST.length);
     } while (nextIndex === currentTrackIndex);
   } else {
-    // 顺序模式：直接下一首
     nextIndex = (currentTrackIndex + 1) % MUSIC_PLAYLIST.length;
   }
 
   loadMusicTrack(nextIndex, isMusicEnabled);
 }
 
-// ★ 新增：切换上一首
+// 切换上一首
 function playPrevTrack() {
   if (MUSIC_PLAYLIST.length <= 1) return;
 
   let prevIndex;
   if (isRandomMusic) {
-    // 随机模式下，上一首也是随机（防止有人觉得“上一首”必须是刚才放的那首，看你的喜好）
     do {
       prevIndex = Math.floor(Math.random() * MUSIC_PLAYLIST.length);
     } while (prevIndex === currentTrackIndex);
   } else {
-    // 顺序模式下，上一首就是 index - 1
     prevIndex = (currentTrackIndex - 1 + MUSIC_PLAYLIST.length) % MUSIC_PLAYLIST.length;
   }
 
   loadMusicTrack(prevIndex, isMusicEnabled);
-}
-
-// ================= 状态切换逻辑 =================
-
-// 状态1：暂停（只显示 ▶）
-function setMusicMutedState() {
-  musicControls.classList.remove("state-collapsed"); 
-  iconPlay.style.display = "inline-block";
-  iconPause.style.display = "none";
-  iconCd.style.display = "none";
-  musicToggleBtn.title = "开启音乐";
-  if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
-}
-
-// 状态2：展开操作（显示 歌名、按钮、||）
-function setMusicExpandedState() {
-  musicControls.classList.remove("state-collapsed");
-  iconPlay.style.display = "none";
-  iconPause.style.display = "inline-block"; 
-  iconCd.style.display = "none";
-  musicToggleBtn.title = "暂停音乐";
-  startCollapseTimer();
-}
-
-// 状态3：CD收缩（只显示 转动的 💿）
-function setMusicCollapsedState() {
-  if (!isMusicEnabled) return;
-  musicControls.classList.add("state-collapsed");
-  iconPlay.style.display = "none";
-  iconPause.style.display = "none";
-  iconCd.style.display = "inline-block"; 
-  musicToggleBtn.title = "展开控制";
-}
-
-// 启动 3 秒倒计时
-function startCollapseTimer() {
-  if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
-  musicCollapseTimer = setTimeout(() => {
-    // 只有在播放中、且没打开歌单时，才收缩成 CD
-    if (isMusicEnabled && !musicControls.classList.contains("is-open")) {
-      setMusicCollapsedState();
-    }
-  }, 2000);
 }
 
 // ================= 事件绑定 =================
@@ -1818,9 +1820,9 @@ function startCollapseTimer() {
 // 1. 主按钮点击事件
 musicToggleBtn.addEventListener("click", (e) => {
   e.stopPropagation();
+  lastInteractionTime = Date.now();
 
   if (!isMusicEnabled) {
-    // 【状态1 -> 状态2】
     isMusicEnabled = true;
     bgm.volume = 0;
     bgm.play().then(() => {
@@ -1833,36 +1835,31 @@ musicToggleBtn.addEventListener("click", (e) => {
       setMusicMutedState();
     });
   } else if (musicControls.classList.contains("state-collapsed")) {
-    // 【状态3 -> 状态2】
     setMusicExpandedState();
   } else {
-    // 【状态2 -> 状态1】暂停播放
     isMusicEnabled = false;
     updateMusicUI();
     fadeAudio(0, () => bgm.pause());
     setMusicMutedState();
-    
-    // ★ 新增：暂停时，强制把展开的歌单面板收起来
     musicControls.classList.remove("is-open");
   }
 });
 
-
-// 2. 其它按钮（下一首、随机、歌单）点击时，重置倒计时
+// 2. 其它按钮（下一首、随机、歌单）点击时
 musicControls.addEventListener("click", (e) => {
-  // ★ 新增：如果在时钟模式下，任何对播放器的操作都会重置隐藏倒计时
+  lastInteractionTime = Date.now(); // 任何点击都刷新交互时间
+  
   if (typeof resetHideTimer === "function" && document.body.classList.contains("in-clock-mode")) {
     resetHideTimer();
   }
 
   if (e.target.closest("#music-toggle-btn")) return;
   if (e.target.closest("#music-list-btn")) {
-    if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
     return;
   }
-  // 切歌等操作重置 3 秒
+  // 切歌等操作，重新恢复展开状态并刷新时间
   if (isMusicEnabled && !musicControls.classList.contains("state-collapsed")) {
-    startCollapseTimer();
+    setMusicExpandedState();
   }
 });
 
@@ -1881,6 +1878,7 @@ if (musicListBtn) {
   musicListBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     musicControls.classList.toggle("is-open");
+    lastInteractionTime = Date.now();
   });
 }
 
@@ -1888,8 +1886,7 @@ if (musicListBtn) {
 document.addEventListener("click", (e) => {
   if (musicControls && musicControls.classList.contains("is-open") && !musicControls.contains(e.target)) {
     musicControls.classList.remove("is-open");
-    // 关闭歌单后重新开始 3 秒倒计时
-    if (isMusicEnabled) startCollapseTimer();
+    lastInteractionTime = Date.now(); // 关闭时刷新时间，开始新一轮倒计时
   }
 });
 
@@ -1898,40 +1895,41 @@ bgm.addEventListener("ended", () => {
   if (isMusicEnabled) playNextTrack();
 });
 
-// 5. 如果鼠标悬浮在播放器上，不触发收缩
+// 5. 鼠标悬停与触摸状态绑定（关键修复）
 musicControls.addEventListener("mouseenter", () => {
-  if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
-});
-musicControls.addEventListener("mouseleave", () => {
-  if (isMusicEnabled && !musicControls.classList.contains("state-collapsed")) {
-    startCollapseTimer();
+  isHoveringMusic = true;
+  lastInteractionTime = Date.now(); // 鼠标进入也算一次交互
+  if (typeof resetHideTimer === "function" && document.body.classList.contains("in-clock-mode")) {
+    resetHideTimer();
   }
 });
 
-/* ========== 终极优化：时钟模式下操作播放器重置隐藏倒计时 ========== */
+// 注意：删除 mousemove 清除定时器的逻辑，改为持续刷新时间戳
+musicControls.addEventListener("mousemove", () => {
+  lastInteractionTime = Date.now();
+  if (typeof resetHideTimer === "function" && document.body.classList.contains("in-clock-mode")) {
+    resetHideTimer();
+  }
+});
 
-if (musicControls) {
-  // 1. 鼠标移动 / 点击时，重置右侧按钮的隐藏倒计时
-  musicControls.addEventListener("mousemove", () => {
-    if (document.body.classList.contains("in-clock-mode") && typeof resetHideTimer === "function") {
-      resetHideTimer();
-    }
-  });
+musicControls.addEventListener("mouseleave", () => {
+  isHoveringMusic = false;
+  // 鼠标离开时，刷新交互时间，让 2000ms 倒计时从这一刻开始算
+  lastInteractionTime = Date.now();
+});
 
-  // 2. 点击播放器面板任意区域（包括打开歌单、选中歌曲、按暂停等）
-  musicControls.addEventListener("click", (e) => {
-    if (document.body.classList.contains("in-clock-mode") && typeof resetHideTimer === "function") {
-      resetHideTimer();
-    }
-  });
+musicControls.addEventListener("touchstart", () => {
+  isTouchingMusic = true;
+  lastInteractionTime = Date.now();
+  if (typeof resetHideTimer === "function" && document.body.classList.contains("in-clock-mode")) {
+    resetHideTimer();
+  }
+}, { passive: true });
 
-  // 3. 针对移动端：触摸滑动歌单时，也要重置倒计时
-  musicControls.addEventListener("touchmove", (e) => {
-    if (document.body.classList.contains("in-clock-mode") && typeof resetHideTimer === "function") {
-      resetHideTimer();
-    }
-  }, { passive: true });
-}
+musicControls.addEventListener("touchend", () => {
+  isTouchingMusic = false;
+  lastInteractionTime = Date.now(); // 松手后开始倒计时
+}, { passive: true });
 
 // 初始化
 bgm.volume = 0;
@@ -1939,140 +1937,7 @@ loadMusicTrack(0);
 updateMusicUI();
 setMusicMutedState();
 
-/* ========== 终极优化：操作期间不收缩 CD ========== */
-
-let isHoveringMusic = false;
-let isTouchingMusic = false;
-
-// 1. 鼠标进入：取消定时器，标记为正在悬停
-musicControls.addEventListener("mouseenter", () => {
-  isHoveringMusic = true;
-  if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
-});
-
-// 2. 鼠标移动（在内部移动也重置，确保不会中途缩回）
-musicControls.addEventListener("mousemove", () => {
-  if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
-});
-
-// 3. 鼠标离开：如果不在触摸操作中，开始 2 秒倒计时
-musicControls.addEventListener("mouseleave", () => {
-  isHoveringMusic = false;
-  // 只有播放中、且没有处于收缩状态、且没打开歌单时，才开始倒计时
-  if (isMusicEnabled && !musicControls.classList.contains("state-collapsed") && !musicControls.classList.contains("is-open") && !isTouchingMusic) {
-    startCollapseTimer();
-  }
-});
-
-// 4. 手机触屏按下：取消定时器
-musicControls.addEventListener("touchstart", () => {
-  isTouchingMusic = true;
-  if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
-}, { passive: true });
-
-// 5. 手机触屏离开：开始 2 秒倒计时
-musicControls.addEventListener("touchend", () => {
-  isTouchingMusic = false;
-  if (isMusicEnabled && !musicControls.classList.contains("state-collapsed") && !musicControls.classList.contains("is-open")) {
-    startCollapseTimer();
-  }
-}, { passive: true });
-
-// 6. 如果用户点击了切歌、随机、歌单等按钮，重置计时器（因为鼠标可能还悬停着，所以要重置）
-musicControls.addEventListener("click", (e) => {
-  // 点击任何非主按钮/非歌单按钮时，重置倒计时
-  if (!e.target.closest("#music-toggle-btn") && !e.target.closest("#music-list-btn")) {
-    if (isMusicEnabled && !musicControls.classList.contains("state-collapsed")) {
-      startCollapseTimer();
-    }
-  }
-});
-
-
-/* ========== 终极修正：完美跑马灯与自动收缩 ========== */
-// 重新覆盖 updateMusicUI 里的滚动判断逻辑
-const originalUpdateMusicUI = updateMusicUI;
-updateMusicUI = function() {
-  if (musicControls && musicToggleBtn) {
-    musicControls.classList.toggle("is-muted", !isMusicEnabled);
-    
-    if (musicCurrentTitle) {
-      musicCurrentTitle.textContent = MUSIC_PLAYLIST[currentTrackIndex].title;
-      
-      // 先重置动画
-      musicCurrentTitle.classList.remove("scrolling");
-      musicCurrentTitle.style.transform = "translateX(0)";
-      musicCurrentTitle.style.removeProperty("--scroll-distance");
-      
-      // 使用 setTimeout 确保在卡片展开动画完成后（0.4s）再计算宽度
-      setTimeout(() => {
-        const containerWidth = musicCurrentTitle.parentElement.offsetWidth;
-        const textWidth = musicCurrentTitle.scrollWidth;
-        
-        if (textWidth > containerWidth) {
-          const scrollDistance = textWidth - containerWidth + 10; // 留出 10px 空白
-          musicCurrentTitle.style.setProperty("--scroll-distance", `-${scrollDistance}px`);
-          
-          const duration = Math.max(3, scrollDistance * 0.1);
-          musicCurrentTitle.style.animationDuration = `${duration}s`;
-          
-          musicCurrentTitle.classList.add("scrolling");
-        }
-      }, 400); // 400ms 对应你 CSS 里展开的动画时间
-    }
-
-    if (musicRandomBtn) {
-      musicRandomBtn.classList.toggle("active", isRandomMusic);
-      musicRandomBtn.title = isRandomMusic ? "随机播放：开启" : "随机播放：关闭";
-    }
-
-    renderMusicList();
-  }
-};
-
-// 重写 startCollapseTimer 防止多出的事件冲突
-window.startCollapseTimer = function() {
-  if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
-  
-  musicCollapseTimer = setTimeout(() => {
-    // 判断条件：正在播放、没变成CD、没打开歌单、鼠标没悬停、手机没触摸
-    if (isMusicEnabled && 
-        !musicControls.classList.contains("state-collapsed") && 
-        !musicControls.classList.contains("is-open") &&
-        !window.isHoveringMusic &&
-        !window.isTouchingMusic) {
-      setMusicCollapsedState();
-    }
-  }, 2000);
-};
-
-window.isHoveringMusic = false;
-window.isTouchingMusic = false;
-
-// 重新绑定事件
-musicControls.addEventListener("mouseenter", () => {
-  window.isHoveringMusic = true;
-  if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
-});
-
-musicControls.addEventListener("mouseleave", () => {
-  window.isHoveringMusic = false;
-  window.startCollapseTimer();
-});
-
-musicControls.addEventListener("touchstart", () => {
-  window.isTouchingMusic = true;
-  if (musicCollapseTimer) clearTimeout(musicCollapseTimer);
-}, { passive: true });
-
-musicControls.addEventListener("touchend", () => {
-  window.isTouchingMusic = false;
-  window.startCollapseTimer();
-}, { passive: true });
-
-// 初始化一下状态
-updateMusicUI();
-
+/* ========== 加载遮罩层 ========== */
 const loadingScreen = document.getElementById("loading-screen");
 
 if (sessionStorage.getItem("hasVisited")) {
