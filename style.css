@@ -1994,10 +1994,6 @@ body.theme-fun #music-random-btn.active {
   min-height: 38px !important;
   border-radius: 8px !important;
   
-  /* ★ 浪漫模式底座：比白色外壳深的紫灰色，形成对比 */
-  background: #e0d4d4 !important; 
-  box-shadow: inset 0 2px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.1) !important;
-  
   /* ★ 控制黑胶在底座里的左右位置，margin-right 越大，给右侧唱针留的空间越多 */
   margin-left: 4px;
   margin-right: 6px; 
@@ -2009,12 +2005,6 @@ body.theme-fun #music-random-btn.active {
   position: relative;
   transition: all 0.4s ease;
   overflow: hidden;
-}
-
-/* ★ 万兽之王模式底座：深暗金色，与黑色黑胶区分明显 */
-body.theme-fun #music-toggle-btn {
-  background: #3d3020 !important; 
-  box-shadow: inset 0 2px 6px rgba(0,0,0,0.6), 0 1px 3px rgba(201,160,74,0.2) !important;
 }
 
 /* 隐藏原有图标 */
