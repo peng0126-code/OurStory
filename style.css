@@ -35,7 +35,6 @@ body {
   line-height: 1.8;
   overflow-x: hidden;
   transition: background 0.6s ease, color 0.6s ease;
-
   scrollbar-gutter: stable; 
 }
 
@@ -70,16 +69,10 @@ body {
   line-height: 1;
 }
 @keyframes fall {
-  0% {
-    transform: translateY(-30px) rotate(0deg) translateX(0);
-    opacity: 0;
-  }
+  0% { transform: translateY(-30px) rotate(0deg) translateX(0); opacity: 0; }
   10% { opacity: 0.9; }
   90% { opacity: 0.9; }
-  100% {
-    transform: translateY(120vh) rotate(720deg) translateX(80px);
-    opacity: 0;
-  }
+  100% { transform: translateY(120vh) rotate(720deg) translateX(80px); opacity: 0; }
 }
 
 /* ========== 主题切换按钮 ========== */
@@ -107,7 +100,7 @@ body.hide-buttons .theme-btn {
   transform: scale(1.1);
 }
 .photo-nav-btn {
-  bottom: 130px;
+  bottom: 120px; /* 拉近间距 */
 }
 body.theme-fun .theme-btn {
   background: #1a1a1a;
@@ -520,13 +513,12 @@ body.theme-fun .event .card:hover {
   }
 }
 
-/* ========== 年份折叠面板样式 (胶囊标签风) ========== */
+/* ========== 年份折叠面板样式 ========== */
 .year-group {
   position: relative;
   z-index: 2;
   margin-bottom: 10px;
 }
-
 .year-header {
   display: flex;
   justify-content: center;
@@ -536,49 +528,41 @@ body.theme-fun .event .card:hover {
   font-weight: bold;
   color: var(--main);
   letter-spacing: 1px;
-  
   background: #fce8e8; 
   padding: 6px 20px;
   border-radius: 30px;
   border: 1px solid var(--main-light);
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  
   width: fit-content;
   margin: 10px auto 20px;
   cursor: pointer;
   transition: all 0.3s ease;
   user-select: none;
-  
   position: relative;
   z-index: 5; 
 }
-
 .year-header:hover {
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 6px 16px rgba(0,0,0,0.08);
 }
-
 .year-group.collapsed .year-header {
   background: var(--card-bg); 
   border-color: var(--main-light);
   box-shadow: 0 2px 8px rgba(0,0,0,0.02);
   color: var(--text-mid);
 }
-
 body.theme-fun .year-header {
   background: #3a2e24; 
   border-color: #5a4a34;
   box-shadow: 0 4px 15px rgba(0,0,0,0.6);
   color: var(--main);
 }
-
 body.theme-fun .year-group.collapsed .year-header {
   background: #1a1215; 
   border-color: #2a2117;
   box-shadow: none;
   color: #5a4a34;
 }
-
 .year-header .arrow {
   display: inline-block;
   width: 0;
@@ -590,25 +574,21 @@ body.theme-fun .year-group.collapsed .year-header {
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), border-top-color 0.3s ease; 
   transform-origin: 50% 30%; 
 }
-
 .year-group.collapsed .year-header .arrow {
   border-top-color: var(--text-light);
   transform: rotate(180deg);
 }
-
 .year-content {
   overflow: hidden;
   min-height: 1px; 
   transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease, margin-bottom 0.6s ease;
   opacity: 1;
 }
-
 .year-group.collapsed .year-content {
   max-height: 0 !important;
   opacity: 0;
   margin-bottom: 0;
 }
-
 .timeline > .event:last-child {
   margin-top: 40px;
 }
@@ -621,7 +601,6 @@ body.theme-fun .year-group.collapsed .year-header {
     justify-content: flex-start;
     z-index: 5;
   }
-
   body.theme-fun .year-header {
     border-radius: 0 30px 30px 0;
   }
@@ -658,13 +637,10 @@ body.theme-fun .year-group.collapsed .year-header {
   padding: 20px;
   transition: opacity 0.1s ease, visibility 0.1s ease;
 }
-
 .lightbox.show {
   visibility: visible;
   opacity: 1;
 }
-
-/* ★ 3D 舞台 */
 .flip-wrapper {
   position: relative;
   display: inline-flex;
@@ -677,22 +653,18 @@ body.theme-fun .year-group.collapsed .year-header {
   transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
   will-change: transform;
 }
-
 .flip-wrapper.fade-out {
   opacity: 0 !important;
 }
-
 .flip-face {
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
-
 .flip-front {
   display: flex;
   justify-content: center;
   align-items: center;
 }
-
 .flip-front img {
   max-width: 90vw;
   max-height: 90vh;
@@ -700,7 +672,6 @@ body.theme-fun .year-group.collapsed .year-header {
   box-shadow: 0 10px 40px rgba(0,0,0,0.5);
   display: block;
 }
-
 .flip-back {
   position: absolute;
   top: 0;
@@ -712,7 +683,6 @@ body.theme-fun .year-group.collapsed .year-header {
   justify-content: center;
   align-items: center;
 }
-
 .text-paper {
   background-color: #ffffff;
   color: #333333;
@@ -727,7 +697,6 @@ body.theme-fun .year-group.collapsed .year-header {
   align-items: center;
   padding: 2rem;
   box-sizing: border-box;
-  
   font-family: "Kaiti SC", "KaiTi", "STKaiti", "cursive", serif;
   font-size: 1.6rem;
   line-height: 1.8;
@@ -747,11 +716,9 @@ body.theme-fun .year-group.collapsed .year-header {
   z-index: 10;
   text-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
 }
-
 .secret-marker.show {
   opacity: 0.9;
 }
-
 body.theme-fun .secret-marker {
   filter: sepia(1) saturate(5) hue-rotate(5deg); 
 }
@@ -805,7 +772,7 @@ body.theme-fun .photo-wall img {
 
 /* ========== 时钟按钮 ========== */
 .clock-btn {
-  bottom: 75px;
+  bottom: 70px; /* 拉近间距 */
   font-size: 20px;
   z-index: 10000 !important;
 }
@@ -836,7 +803,6 @@ body.in-clock-mode .photo-nav-btn {
   display: flex;
   opacity: 1;
 }
-
 .rotate-hint {
   display: none;
   flex-direction: column;
@@ -855,7 +821,6 @@ body.in-clock-mode .photo-nav-btn {
   0%, 100% { transform: rotate(0deg); }
   50% { transform: rotate(90deg); }
 }
-
 .clock-container {
   display: none;
   flex-direction: column;
@@ -875,18 +840,15 @@ body.in-clock-mode .photo-nav-btn {
   flex-direction: column;
   gap: 2vh;
 }
-
 .left-col { flex: 1.5; }   
 .center-col { flex: 7; } 
 .right-col { flex: 1.5; }  
-
 .clock-box {
   background: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 8px 20px rgba(0,0,0,0.03);
   border: 1px solid rgba(255,255,255,0.6);
-  
   border-radius: 20px;
   display: flex;
   flex-direction: column;
@@ -895,7 +857,6 @@ body.in-clock-mode .photo-nav-btn {
   transition: background 0.6s ease, border-color 0.6s ease, box-shadow 0.6s ease;
   overflow: hidden;
 }
-
 .left-col .clock-box,
 .right-col .clock-box {
   flex: 1;
@@ -909,7 +870,6 @@ body.in-clock-mode .photo-nav-btn {
   justify-content: space-between;
   padding: 4vh 0;
 }
-
 .clock-topline {
   width: 100%;
   height: 8vh;
@@ -923,13 +883,11 @@ body.in-clock-mode .photo-nav-btn {
   color: var(--main);
   letter-spacing: 2px;
 }
-
 .clock-ampm {
   opacity: 0;
   transition: opacity 0.3s;
   text-align: left;
 }
-
 .clock-date {
   text-align: right;
   font-size: 2vw;
@@ -937,35 +895,29 @@ body.in-clock-mode .photo-nav-btn {
   color: var(--main);
   letter-spacing: 2px;
 }
-
 body.theme-fun .clock-topline {
   color: #c9a04a;
 }
-
 body.theme-fun .clock-ampm,
 body.theme-fun .clock-date {
   color: #c9a04a;
 }
-
 .clock-toggle-group {
   display: flex;
   gap: 1vw;
   justify-content: center;
   align-items: center;
 }
-
 .clock-toggle-btn {
   background: transparent;
   border: 1px solid var(--main-light);
   color: var(--text-mid);
   padding: 6px 16px;
-
-  width: 110px;      /* 统一宽度，你可以根据喜好微调 */
-  height: 32px;      /* 统一高度 */
+  width: 110px;      
+  height: 32px;      
   display: inline-flex;
   justify-content: center;
   align-items: center;
-
   border-radius: 20px;
   font-size: 0.9rem;
   cursor: pointer;
@@ -986,19 +938,16 @@ body.theme-fun .clock-toggle-btn:hover {
   color: #0a0a0f;
   border-color: #c9a04a;
 }
-
 body.theme-fun .clock-box {
   background: rgba(42, 33, 23, 0.4);
   border: 1px solid rgba(201, 160, 74, 0.2);
   box-shadow: 0 8px 20px rgba(0,0,0,0.2);
 }
-
 body.theme-fun .center-col .clock-box {
   background: transparent; 
   border: none; 
   box-shadow: none; 
 }
-
 .box-days .c-label {
   font-size: 1rem;
   color: var(--text-mid);
@@ -1022,7 +971,6 @@ body.theme-fun .center-col .clock-box {
   color: var(--text-mid);
   font-weight: normal; 
 }
-
 .box-cd .c-cd-title {
   font-size: 1rem;
   color: var(--text-mid);
@@ -1042,7 +990,6 @@ body.theme-fun .center-col .clock-box {
   font-weight: bold;
   color: var(--main);
 }
-
 .flip-clock {
   display: flex;
   align-items: center;
@@ -1064,7 +1011,6 @@ body.theme-fun .center-col .clock-box {
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   transition: transform 0.15s ease, opacity 0.15s ease;
 }
-
 body.theme-fun .flip-digit {
   background: rgba(201, 160, 74, 0.1);
   border: 1px solid rgba(201, 160, 74, 0.3);
@@ -1072,14 +1018,12 @@ body.theme-fun .flip-digit {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
-
 .flip-colon {
   display: flex;
   align-items: center;
   font-size: min(7vw, 13vh); 
   transform: translateY(-5%);
 }
-
 .clock-bottom {
   flex: 1.2;
   display: flex;
@@ -1181,22 +1125,17 @@ body.theme-fun .clock-bottom {
   .clock-container { padding: 1vh 2vw; }
   .clock-top { margin-bottom: 1vh; gap: 1.5vw; }
   .clock-column { gap: 1vh; }
-  
   .left-col { flex: 1.5; }
   .center-col { flex: 7; }
   .right-col { flex: 1.5; }
-  
   .box-days .c-label { font-size: 0.85rem; margin-bottom: 0.5vh; }
   .box-days .c-value #clock-days { font-size: 4vw; margin-bottom: 2px; }
   .box-days .c-unit { font-size: 0.85rem; font-weight: normal; }
-  
   .box-cd .c-cd-title { font-size: 0.85rem; margin-bottom: 0.5vh; }
   .box-cd .c-cd-value span { font-size: 4vw; }
-
   .flip-clock { font-size: 12vw; }
   .flip-colon { font-size: 8vw; }
   .flip-digit { border-radius: 10px; }
-
   .clock-bottom { padding: 5px 15px; flex-shrink: 0; }
   .clock-m-marker img { width: 30px; }
   .clock-m-labels { margin-top: 5px; height: 15px; }
@@ -1208,7 +1147,6 @@ body.theme-fun .clock-bottom {
   .clock-toggle-btn { font-size: 0.75rem; padding: 4px 12px; }
 }
 
-/* ★ 当进入时钟模式时，让普通页面的内容全部隐身 */
 body.in-clock-mode header,
 body.in-clock-mode .counter,
 body.in-clock-mode .milestone,
@@ -1225,7 +1163,6 @@ body.in-clock-mode .photo-wall-section {
   margin-top: 1px;
   margin-bottom: 1px;
 }
-
 body.theme-fun .year-group.collapsed .year-header {
   margin-top: 1px;
   margin-bottom: 1px;
@@ -1239,7 +1176,6 @@ body.theme-fun .year-group.collapsed .year-header {
   position: relative;
   z-index: 2;
 }
-
 .letter-btn {
   background: rgba(217, 140, 140, 0.05);
   border: 0px dashed var(--main-light); 
@@ -1251,11 +1187,9 @@ body.theme-fun .year-group.collapsed .year-header {
   transition: all 0.3s ease;
   margin: 0 10px;
 }
-
 body.theme-fun .letter-btn {
   background: rgba(201, 160, 74, 0.08);
 }
-
 .letter-btn:hover {
   background: var(--card-bg);
   border-style: solid;
@@ -1264,7 +1198,6 @@ body.theme-fun .letter-btn {
   color: var(--main);
   box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
-
 .letter-modal {
   display: none;
   position: fixed;
@@ -1278,12 +1211,10 @@ body.theme-fun .letter-btn {
   opacity: 0;
   transition: opacity 0.4s ease;
 }
-
 .letter-modal.show {
   display: flex;
   opacity: 1;
 }
-
 .letter-paper {
   background: var(--card-bg);
   width: 100%;
@@ -1300,11 +1231,9 @@ body.theme-fun .letter-btn {
   background-position: 0 10px;
   line-height: 32px;
 }
-
 .letter-modal.show .letter-paper {
   transform: translateY(0);
 }
-
 .letter-paper h2 {
   font-family: "Kaiti SC", "KaiTi", "STKaiti", serif;
   color: var(--main);
@@ -1312,14 +1241,12 @@ body.theme-fun .letter-btn {
   margin-bottom: 20px;
   text-align: center;
 }
-
 .letter-paper p {
   color: var(--text);
   font-size: 1rem;
   margin-bottom: 16px;
   text-indent: 2em;
 }
-
 .letter-paper .signature {
   text-align: right;
   margin-top: 30px;
@@ -1328,7 +1255,6 @@ body.theme-fun .letter-btn {
   font-size: 1.1rem;
   text-indent: 0;
 }
-
 .close-letter {
   position: sticky;
   top: -30px;
@@ -1342,11 +1268,9 @@ body.theme-fun .letter-btn {
   transition: color 0.3s;
   z-index: 10;
 }
-
 .close-letter:hover {
   color: var(--main);
 }
-
 body.theme-fun .letter-paper {
   background-image: repeating-linear-gradient(transparent, transparent 31px, rgba(201,160,74,0.1) 31px, rgba(201,160,74,0.1) 32px);
 }
@@ -1359,27 +1283,22 @@ body.theme-fun .letter-paper {
   box-shadow: 0 8px 30px rgba(217, 140, 140, 0.4), inset 0 0 15px rgba(255,255,255,0.3) !important;
   animation: cardPulse 2s infinite alternate;
 }
-
 body.theme-fun .countdown-card.is-today {
   box-shadow: 0 8px 30px rgba(201, 160, 74, 0.4), inset 0 0 15px rgba(201, 160, 74, 0.1) !important;
 }
-
 @keyframes cardPulse {
   0% { transform: translateY(-6px) scale(1); }
   100% { transform: translateY(-6px) scale(1.03); }
 }
-
 .countdown-card.is-today .countdown-title {
   font-size: 0.9rem;
   font-weight: bold;
   line-height: 1.4;
   color: var(--main);
 }
-
 .countdown-card.is-today .countdown-value {
   margin-top: 8px;
 }
-
 #card-anniversary.is-today::before,
 #card-her.is-today::before,
 #card-him.is-today::before {
@@ -1405,29 +1324,23 @@ body.theme-fun #card-him.is-today::before {
     radial-gradient(circle, #c9a04a 2px, transparent 2px),
     radial-gradient(circle, #e0b458 2px, transparent 2px);
 }
-
 @keyframes confettiFall {
   0% { background-position: 0 -50px, 10px -30px, 15px -40px; }
   100% { background-position: 0 100px, 10px 120px, 15px 110px; }
 }
-
 .countdown-card.is-today > * {
   position: relative;
   z-index: 1;
 }
-
-/* ========== 全屏时钟模式下的特殊日子特效 ========== */
 .clock-box.is-today {
   position: relative;
   border-color: var(--main) !important;
   box-shadow: 0 0 20px rgba(217, 140, 140, 0.4) !important;
   overflow: hidden;
 }
-
 body.theme-fun .clock-box.is-today {
   box-shadow: 0 0 20px rgba(201, 160, 74, 0.4) !important;
 }
-
 .clock-box.is-today::before {
   content: "";
   position: absolute;
@@ -1442,13 +1355,11 @@ body.theme-fun .clock-box.is-today {
   opacity: 0.5;
   z-index: 0;
 }
-
 body.theme-fun .clock-box.is-today::before {
   background-image: 
     radial-gradient(circle, #c9a04a 2px, transparent 2px),
     radial-gradient(circle, #e0b458 2px, transparent 2px);
 }
-
 .clock-box.is-today .c-cd-title,
 .clock-box.is-today .c-cd-value {
   position: relative;
@@ -1467,13 +1378,11 @@ body.theme-fun .clock-box.is-today::before {
   90% {transform: translate(-50%, -52%) scale(0.98, 1.02); }
   100% {transform: translate(-50%, -50%) scale(1, 1); }
 }
-
 .milestone-marker.jump, 
 .clock-m-marker.jump {
   animation: jumpAnimation 0.8s cubic-bezier(0.28, 0.84, 0.42, 1) forwards;
   cursor: pointer;
 }
-
 @keyframes bubblePop {
   0% { opacity: 0; transform: translate(-50%, 10px) scale(0.8); }
   50% { opacity: 1; transform: translate(-50%, -15px) scale(1.05); }
@@ -1489,7 +1398,6 @@ body.theme-fun .clock-box.is-today::before {
   -webkit-touch-callout: none !important;
   -webkit-tap-highlight-color: transparent;
 }
-
 img {
   -webkit-user-drag: none !important;
   pointer-events: auto;
@@ -1507,27 +1415,23 @@ img {
   transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s ease;
   transform: translateY(0);
 }
-
 #loading-screen.hidden {
   transform: translateY(-100%);
   opacity: 0;
   pointer-events: none;
 }
-
 .loader-content {
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-
 .loader-icon {
   font-size: 3rem;
   animation: heartbeat 1.2s infinite ease-in-out;
   margin-bottom: 20px;
   filter: drop-shadow(0 4px 10px rgba(217, 140, 140, 0.4));
 }
-
 .loader-text {
   font-family: "Kaiti SC", "KaiTi", "STKaiti", serif;
   font-size: 1.2rem;
@@ -1537,7 +1441,6 @@ img {
   opacity: 0;
   animation: fadeInText 1s 0.3s forwards ease;
 }
-
 .loader-bar-wrap {
   width: 180px;
   height: 3px;
@@ -1545,7 +1448,6 @@ img {
   border-radius: 3px;
   overflow: hidden;
 }
-
 .loader-bar {
   width: 0%;
   height: 100%;
@@ -1553,12 +1455,10 @@ img {
   border-radius: 3px;
   transition: width 0.3s ease;
 }
-
 @keyframes heartbeat {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.15); }
 }
-
 @keyframes fadeInText {
   to { opacity: 1; }
 }
@@ -1576,11 +1476,9 @@ img {
   align-items: stretch;
   margin-bottom: 0; 
 }
-
 .clock-container.layout-minimal .clock-bottom {
   display: none !important;
 }
-
 .clock-container.layout-minimal .center-col {
   grid-area: clock;
   display: flex;
@@ -1588,17 +1486,14 @@ img {
   justify-content: center;
   height: 100%;
 }
-
 .clock-container.layout-minimal .left-col,
 .clock-container.layout-minimal .right-col {
   display: contents;
 }
-
 .clock-container.layout-minimal .left-col .box-days { grid-area: card1; }
 .clock-container.layout-minimal .left-col .box-cd { grid-area: card2; }
 .clock-container.layout-minimal .right-col .box-cd:nth-child(1) { grid-area: card3; }
 .clock-container.layout-minimal .right-col .box-cd:nth-child(2) { grid-area: card4; }
-
 .clock-container.layout-minimal .clock-box:not(.box-time) {
   border-radius: 20px;
   padding: 1vh 0.5vw;
@@ -1613,12 +1508,10 @@ img {
   justify-content: center;
   align-items: center;
 }
-
 body.theme-fun .clock-container.layout-minimal .clock-box:not(.box-time) {
   background: rgba(42, 33, 23, 0.4);
   border: 1px solid rgba(201, 160, 74, 0.2);
 }
-
 .clock-container.layout-minimal .box-cd .c-cd-title {
   font-size: clamp(0.85rem, 1.1vw, 1.05rem);
   margin-bottom: 0.1vh;
@@ -1647,19 +1540,16 @@ body.theme-fun .clock-container.layout-minimal .clock-box:not(.box-time) {
 .clock-container.layout-minimal .box-days .c-unit {
   font-size: 0.8rem;
 }
-
 .clock-container.layout-minimal .clock-topline {
   height: auto;
   padding: 0 3vw 2vh 3vw;
 }
-
 .clock-container.layout-minimal .flip-clock {
   font-size: min(16vw, 30vh) !important; 
 }
 .clock-container.layout-minimal .flip-colon {
   font-size: min(10vw, 19vh) !important; 
 }
-
 @media (orientation: landscape) and (max-height: 500px) {
   .clock-container.layout-minimal .flip-clock {
     font-size: 13vw !important;
@@ -1680,7 +1570,6 @@ body.theme-fun .clock-container.layout-minimal .clock-box:not(.box-time) {
   gap: 1.5vh 1.5vw; 
   height: 100%;
 }
-
 .clock-container.layout-stacked .center-col {
   grid-area: clock;
   width: 100%;
@@ -1690,21 +1579,17 @@ body.theme-fun .clock-container.layout-minimal .clock-box:not(.box-time) {
   justify-content: center;
   overflow: hidden;
 }
-
 .clock-container.layout-stacked .left-col,
 .clock-container.layout-stacked .right-col {
   display: contents; 
 }
-
 .clock-container.layout-stacked .left-col .box-days { grid-area: card1; }
 .clock-container.layout-stacked .left-col .box-cd { grid-area: card2; }
 .clock-container.layout-stacked .right-col .box-cd:nth-child(1) { grid-area: card3; }
 .clock-container.layout-stacked .right-col .box-cd:nth-child(2) { grid-area: card4; }
-
 .clock-container.layout-stacked .clock-bottom {
   display: none !important;
 }
-
 .clock-container.layout-stacked .clock-box:not(.box-time) {
   border-radius: 20px;
   padding: 1vh 1vw;
@@ -1719,12 +1604,10 @@ body.theme-fun .clock-container.layout-minimal .clock-box:not(.box-time) {
   align-items: center;
   height: 100%;
 }
-
 body.theme-fun .clock-container.layout-stacked .clock-box:not(.box-time) {
   background: rgba(42, 33, 23, 0.4);
   border: 1px solid rgba(201, 160, 74, 0.2);
 }
-
 .clock-container.layout-stacked .box-cd .c-cd-title,
 .clock-container.layout-stacked .box-days .c-label {
   font-size: 0.85rem;
@@ -1736,28 +1619,23 @@ body.theme-fun .clock-container.layout-stacked .clock-box:not(.box-time) {
   font-size: 2.5vw; 
   line-height: 1;
 }
-
 .clock-container.layout-stacked .box-cd .c-cd-value {
   margin-top: 0;
   line-height: 1.1;
 }
-
 .clock-container.layout-stacked .flip-clock {
   font-size: min(15vw, 25vh) !important; 
 }
 .clock-container.layout-stacked .flip-colon {
   font-size: min(10vw, 16vh) !important; 
 }
-
 .clock-container.layout-stacked .clock-topline {
   height: auto;
   padding: 0 5vw 2vh 5vw;
 }
-
 .clock-container.layout-stacked .clock-toggle-group {
   margin-top: 1.5vh;
 }
-
 @media (orientation: landscape) and (max-height: 500px) {
   .clock-container.layout-stacked .flip-clock {
     font-size: min(13vw, 30vh) !important;
@@ -1776,19 +1654,16 @@ body.theme-fun .clock-container.layout-stacked .clock-box:not(.box-time) {
   height: 100%;
   margin-bottom: 0;
 }
-
 .clock-container.layout-pure .left-col,
 .clock-container.layout-pure .right-col,
 .clock-container.layout-pure .clock-bottom {
   display: none !important;
 }
-
 .clock-container.layout-pure .center-col {
   flex: 1;
   width: 100%;
   height: 100%;
 }
-
 .clock-container.layout-pure .center-col .clock-box {
   display: flex;
   flex-direction: column;
@@ -1797,14 +1672,12 @@ body.theme-fun .clock-container.layout-stacked .clock-box:not(.box-time) {
   height: 100%;
   padding: 3vh 0;
 }
-
 .clock-container.layout-pure .clock-topline {
   position: static;
   width: 100%;
   padding: 0 8vw;
   height: auto;
 }
-
 .clock-container.layout-pure .flip-clock {
   font-size: min(18vw, 36vh) !important; 
   margin: 0;
@@ -1815,7 +1688,6 @@ body.theme-fun .clock-container.layout-stacked .clock-box:not(.box-time) {
 .clock-container.layout-pure .flip-colon {
   font-size: min(15vw, 24vh) !important; 
 }
-
 .clock-container.layout-pure .clock-toggle-group {
   position: static;
   margin-top: 0;
@@ -1826,7 +1698,6 @@ body.theme-fun .clock-container.layout-stacked .clock-box:not(.box-time) {
   position: relative;
   display: inline-block;
 }
-
 .layout-picker-toggle {
   display: flex;
   align-items: center;
@@ -1841,45 +1712,36 @@ body.theme-fun .clock-container.layout-stacked .clock-box:not(.box-time) {
   transition: all 0.3s ease;
   font-family: inherit;
 }
-
 .layout-picker-toggle:hover {
   background: var(--main);
   color: #fff;
   border-color: var(--main);
 }
-
 body.theme-fun .layout-picker-toggle {
   border-color: #5a4a34;
   color: #b8a898;
 }
-
 body.theme-fun .layout-picker-toggle:hover {
   background: #c9a04a;
   color: #0a0a0f;
   border-color: #c9a04a;
 }
-
 .layout-picker-icon {
   font-size: 1rem;
   line-height: 1;
 }
-
 .layout-picker-label {
   font-size: 0.85rem;
   white-space: nowrap;
 }
-
 .layout-picker-arrow {
   font-size: 0.6rem;
   transition: transform 0.3s ease;
   line-height: 1;
 }
-
 .layout-picker.open .layout-picker-arrow {
   transform: rotate(180deg);
 }
-
-/* 菜单面板：从按钮上方弹出 */
 .layout-picker-menu {
   position: absolute;
   bottom: calc(100% + 10px);
@@ -1900,21 +1762,17 @@ body.theme-fun .layout-picker-toggle:hover {
   transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
   z-index: 100;
 }
-
 .layout-picker.open .layout-picker-menu {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
   transform: translateX(-50%) translateY(0);
 }
-
 body.theme-fun .layout-picker-menu {
   background: #1a1215;
   border-color: #5a4a34;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
 }
-
-/* 菜单项 */
 .layout-option {
   display: flex;
   align-items: center;
@@ -1931,57 +1789,46 @@ body.theme-fun .layout-picker-menu {
   text-align: left;
   font-family: inherit;
 }
-
 .layout-option:hover {
   background: var(--main-light);
   color: var(--text);
 }
-
 body.theme-fun .layout-option {
   color: #e8dcc8;
 }
-
 body.theme-fun .layout-option:hover {
   background: #3a2e24;
   color: #e8dcc8;
 }
-
-/* 当前选中项高亮 */
 .layout-option.active {
   background: var(--main);
   color: #fff;
   font-weight: bold;
 }
-
 body.theme-fun .layout-option.active {
   background: #c9a04a;
   color: #0a0a0f;
 }
-
 .layout-option-icon {
   font-size: 1rem;
   width: 1.2em;
   text-align: center;
   flex-shrink: 0;
 }
-
 .layout-option-label {
   flex: 1;
   white-space: nowrap;
 }
-
 .layout-picker.open .layout-picker-toggle {
   background: var(--main);
   color: #fff;
   border-color: var(--main);
 }
-
 body.theme-fun .layout-picker.open .layout-picker-toggle {
   background: #c9a04a;
   color: #0a0a0f;
   border-color: #c9a04a;
 }
-
 @media (max-width: 700px) {
   .layout-picker-menu {
     min-width: 180px;
@@ -1991,15 +1838,14 @@ body.theme-fun .layout-picker.open .layout-picker-toggle {
   }
 }
 
-/* 当图片放大遮罩层打开时，强制锁定卡片的悬停状态 */
 body.lightbox-open .event .card,
 body.lightbox-open .photo-wall img {
   transform: none !important;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important; /* 恢复默认阴影 */
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important; 
   transition: none !important;
 }
 
-/* ========== 优雅的音乐播放控件 ========== */
+/* ========== 修复并保留完整功能的音乐播放器 ========== */
 
 /* 1. 整体容器定位（固定在右上角） */
 #music-controls {
@@ -2008,38 +1854,42 @@ body.lightbox-open .photo-wall img {
   right: 15px;
   z-index: 9999;
   display: flex;
-  flex-direction: column; /* 让歌单面板能往下排 */
-  align-items: flex-end;  /* 靠右对齐 */
+  flex-direction: column; 
+  align-items: flex-end;  
   transition: all 0.3s ease;
+  transform: scale(0.65);
+  transform-origin: top right;
 }
 
-/* 时钟模式下隐藏 */
 body.in-clock-mode.hide-buttons #music-controls {
   transform: translateX(150px) !important;
   opacity: 0;
 }
 
-/* 2. 按钮条卡片 */
+/* 2. 主控制栏卡片 */
 .music-bar {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 40px;
-  padding: 4px;
+  background: var(--card-bg);
+  border: 1px solid var(--main-light);
+  border-radius: 12px;
+  padding: 6px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.08);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  height: 50px;
+  /* ★ 如果你想给右侧唱针留更多空间，或者整体拉长，可以改这里的 padding-right */
+  padding-right: 4px; 
+  overflow: visible; 
+  position: relative;
 }
 
 body.theme-fun .music-bar {
-  background: rgba(42, 33, 23, 0.85);
-  border: 1px solid rgba(201, 160, 74, 0.3);
+  background: #2a2117;
+  border: 1px solid #5a4a34;
   box-shadow: 0 4px 16px rgba(0,0,0,0.4);
 }
 
-/* 3. 内容展开/收缩控制 */
+/* 3. 展开/收缩控制 */
 .music-expanded-content {
   display: flex;
   align-items: center;
@@ -2049,52 +1899,58 @@ body.theme-fun .music-bar {
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* 未播放时，完全隐藏 */
 #music-controls.is-muted .music-expanded-content {
-  max-width: 0;
-  opacity: 0;
-}
-
-/* 处于 CD 收缩状态时，完全隐藏 */
-#music-controls.state-collapsed .music-expanded-content {
   max-width: 0;
   opacity: 0;
 }
 
 /* 4. 歌名展示 */
 .music-title-wrap {
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
+  width: 70px;
+  min-width: 70px;
+  max-width: 70px;
+  overflow: hidden;
   margin-left: 12px;
   margin-right: 8px;
+  display: flex;
+  align-items: center;
 }
 
 #music-current-title {
+  display: inline-block;
+  white-space: nowrap;
   font-size: 0.75rem;
   color: var(--text-mid);
   font-weight: 500;
   letter-spacing: 0.5px;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  max-width: 100px;
+  transform: translateX(0);
+  text-overflow: clip !important;
+  overflow: visible !important;
+  min-width: max-content;
 }
-
+#music-current-title.scrolling {
+  animation: marqueeScroll 5s linear infinite;
+}
+@keyframes marqueeScroll {
+  0%, 10% { transform: translateX(0); }
+  90%, 100% { transform: translateX(var(--scroll-distance, -100px)); }
+}
 body.theme-fun #music-current-title {
   color: #b8a898;
 }
 
+/* 5. 控制按钮组 */
 .music-extra-btns {
   display: flex;
   align-items: center;
+  gap: 2px;
 }
 
-/* 5. 普通按钮（随机、下一首、歌单） */
-.music-bar button {
+.music-extra-btns button {
   background: transparent;
   border: none;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -2106,106 +1962,157 @@ body.theme-fun #music-current-title {
   padding: 0;
 }
 
-.music-bar button:hover {
+.music-extra-btns button:hover {
   color: var(--main);
   background: rgba(0, 0, 0, 0.05);
   transform: scale(1.1);
 }
 
-body.theme-fun .music-bar button {
+body.theme-fun .music-extra-btns button {
   color: #8a7a68;
 }
-body.theme-fun .music-bar button:hover {
+body.theme-fun .music-extra-btns button:hover {
   color: #c9a04a;
   background: rgba(255, 255, 255, 0.08);
 }
 
-/* 随机按钮激活状态 */
 #music-random-btn.active {
   color: var(--main);
-  background: rgba(217, 140, 140, 0.15);
+  background: rgba(217, 140, 140, 0.15) !important;
 }
 body.theme-fun #music-random-btn.active {
   color: #c9a04a;
-  background: rgba(201, 160, 74, 0.2);
+  background: rgba(201, 160, 74, 0.2) !important;
 }
 
-/* 6. 主按钮（播放/暂停/CD，保证正圆） */
+/* ========== 播放/暂停按钮（唱片机底座与黑胶） ========== */
+
 #music-toggle-btn {
-  width: 36px !important;
-  height: 36px !important;
-  min-width: 36px !important; /* 防止被压缩 */
-  min-height: 36px !important;
-  aspect-ratio: 1 / 1 !important; /* 强制宽高相等 */
-  border-radius: 50% !important;  
-  background: var(--main) !important;
-  color: #fff !important;
-  opacity: 1 !important;
-  box-shadow: 0 2px 8px rgba(217, 140, 140, 0.4);
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  min-height: 38px !important;
+  border-radius: 8px !important;
+  
+  /* ★ 浪漫模式底座：比白色外壳深的紫灰色，形成对比 */
+  background: #e0d4d4 !important; 
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.1) !important;
+  
+  /* ★ 控制黑胶在底座里的左右位置，margin-right 越大，给右侧唱针留的空间越多 */
   margin-left: 4px;
+  margin-right: 6px; 
   padding: 0;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   flex-shrink: 0; 
+  position: relative;
+  transition: all 0.4s ease;
+  overflow: hidden;
 }
 
+/* ★ 万兽之王模式底座：深暗金色，与黑色黑胶区分明显 */
 body.theme-fun #music-toggle-btn {
-  background: #c9a04a !important;
-  color: #0a0a0f !important;
-  box-shadow: 0 2px 8px rgba(201, 160, 74, 0.3);
+  background: #3d3020 !important; 
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.6), 0 1px 3px rgba(201,160,74,0.2) !important;
 }
 
-#music-toggle-btn:hover {
-  transform: scale(1.05) !important;
-  box-shadow: 0 4px 12px rgba(217, 140, 140, 0.6);
-}
-
-/* 处于 CD 旋转状态时，变成暗淡的颜色 */
-#music-controls.state-collapsed #music-toggle-btn {
-  background: rgba(217, 140, 140, 0.2) !important; 
-  color: var(--main) !important;
-  box-shadow: 0 0 0 1px rgba(217, 140, 140, 0.4) !important; /* 用外发光代替边框，不会变形 */
-}
-
-body.theme-fun #music-controls.state-collapsed #music-toggle-btn {
-  background: rgba(201, 160, 74, 0.15) !important; 
-  color: #c9a04a !important;
-  box-shadow: 0 0 0 1px rgba(201, 160, 74, 0.5) !important; 
-}
-
-/* 7. 图标微调 */
-#music-toggle-btn svg {
-  display: block;
-}
-
-#music-toggle-btn .icon-play svg {
-  margin-left: 2px; 
-}
-
-/* ★ CD 转圈动画 */
+/* 隐藏原有图标 */
+#music-toggle-btn .icon-play,
+#music-toggle-btn .icon-pause,
 #music-toggle-btn .icon-cd {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: spinCD 3s linear infinite;
+  display: none !important;
 }
 
-@keyframes spinCD {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+/* ★ 黑胶唱片本体 */
+#music-toggle-btn::before {
+  content: '';
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #111;
+  /* 加入高光反光，转动时能看出动感 */
+  background-image: 
+    linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.4) 50%, transparent 60%),
+    radial-gradient(circle, transparent 30%, rgba(255,255,255,0.1) 32%, transparent 34%),
+    radial-gradient(circle, transparent 50%, rgba(255,255,255,0.1) 52%, transparent 54%),
+    radial-gradient(circle, transparent 70%, rgba(255,255,255,0.1) 72%, transparent 74%);
+  box-shadow: inset 0 0 4px rgba(0,0,0,0.8);
+  z-index: 1;
 }
 
-/* 8. 下拉歌单面板 */
+/* 唱片中心标签（保留主题色） */
+#music-toggle-btn::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--main);
+  z-index: 2;
+  box-shadow: 0 0 2px rgba(0,0,0,0.5);
+}
+
+/* ★ 播放时黑胶旋转，高光跟着转 */
+#music-controls:not(.is-muted) #music-toggle-btn::before,
+#music-controls:not(.is-muted) #music-toggle-btn::after {
+  animation: spinVinyl 3s linear infinite;
+}
+@keyframes spinVinyl {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ========== 唱针设计 ========== */
+
+/* 唱针转轴底座（银色小圆点） */
+.music-bar::before {
+  content: '';
+  position: absolute;
+  /* top 控制上下，right 控制左右（数字越小越靠右，因为右边是边缘） */
+  top: 8px;
+  right: 3px; 
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #fff, #888);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* 唱针金属臂 */
+.music-bar::after {
+  content: '';
+  position: absolute;
+  /* ★ 圆心对齐：top 和 right 比上方的圆圈大约 3~4px */
+  top: 12px;
+  right: 5px; 
+  width: 3px;
+  height: 28px; /* 长度 */
+  background: linear-gradient(to right, #bbb, #fff, #bbb);
+  border-radius: 2px;
+  transform-origin: top center;
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 9;
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+  pointer-events: none;
+}
+
+/* 播放状态：唱针移到唱片上方 */
+#music-controls:not(.is-muted) .music-bar::after {
+  transform: rotate(35deg); 
+}
+
+/* 7. 下拉歌单面板 */
 .music-panel {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--main-light);
+  border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.12);
   width: 180px;
   opacity: 0;
@@ -2223,8 +2130,8 @@ body.theme-fun #music-controls.state-collapsed #music-toggle-btn {
 }
 
 body.theme-fun .music-panel {
-  background: rgba(26, 18, 21, 0.95);
-  border: 1px solid rgba(201, 160, 74, 0.3);
+  background: #2a2117;
+  border-color: #5a4a34;
   box-shadow: 0 8px 32px rgba(0,0,0,0.5);
 }
 
@@ -2236,18 +2143,16 @@ body.theme-fun .music-panel {
   font-weight: bold;
   border-bottom: 1px solid rgba(0,0,0,0.05);
 }
-
 body.theme-fun .music-panel-header {
   border-bottom-color: rgba(255,255,255,0.05);
   color: #c9a04a;
 }
 
 .music-list {
-  max-height: 160px; /* 限制最多显示4首 */
+  max-height: 160px; 
   overflow-y: auto;
   padding: 6px;
 }
-
 .music-list::-webkit-scrollbar { width: 4px; }
 .music-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 4px; }
 
@@ -2272,7 +2177,6 @@ body.theme-fun .music-panel-header {
 .music-item:hover {
   background: rgba(0,0,0,0.05);
 }
-
 body.theme-fun .music-item:hover {
   background: rgba(255, 255, 255, 0.08);
 }
@@ -2282,7 +2186,6 @@ body.theme-fun .music-item:hover {
   color: var(--main);
   font-weight: bold;
 }
-
 body.theme-fun .music-item.active {
   background: rgba(201, 160, 74, 0.2);
   color: #c9a04a;
@@ -2292,101 +2195,54 @@ body.theme-fun .music-item.active {
   display: none;
 }
 
-/* ========== 音乐播放器细节优化 ========== */
-
-/* 1. 上一首图标翻转 180度 */
+/* 上一首图标翻转 */
 #music-prev-btn svg {
   transform: scaleX(-1);
 }
 
-/* 2. 随机按钮（开启时的反差色圆形背景） */
-#music-random-btn {
-  border-radius: 50% !important; /* 保证正圆 */
-  transition: all 0.3s ease;
+/* ========== 最终修正：保持胶囊形，完美收缩 ========== */
+
+/* 确保展开区域有平滑的收缩过渡 */
+.music-expanded-content {
+  transition: max-width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease !important;
+  overflow: hidden; /* 防止内容溢出 */
 }
 
-/* 浪漫模式下的随机激活状态：深粉色背景+白字 */
-#music-random-btn.active {
-  background: var(--main) !important;
-  color: #fff !important;
-  box-shadow: 0 2px 6px rgba(217, 140, 140, 0.4);
+/* ★ 收缩状态 */
+#music-controls.state-collapsed .music-expanded-content {
+  max-width: 0 !important;
+  opacity: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  pointer-events: none;
 }
 
-/* 万兽之王模式下的随机激活状态：金色背景+暗字 */
-body.theme-fun #music-random-btn.active {
-  background: var(--main) !important; /* #c9a04a */
-  color: #0a0a0f !important; 
-  box-shadow: 0 2px 6px rgba(201, 160, 74, 0.4);
+/* ★ 修复变成圆形的问题：保持胶囊形，同时清理多余的 padding */
+#music-controls.state-collapsed .music-bar {
+  /* 原本你的 CSS 里已经写了 padding: 6px; height: 50px; border-radius: 12px; 我们只需要微调 */
+  padding: 6px !important; 
+  padding-right: 8px !important; /* 给右侧唱针留一点空间 */
+  border-radius: 12px !important; /* 恢复你原本的圆角矩形，不要用 50% 或 50px */
+  /* ★ 关键修复：只过渡 padding 和 width，不加其他的，强制锁定右边 */
+  transition: padding 0.4s ease !important; 
+  
+  /* 确保唱针的锚点永远是在最右侧边缘，不会因为内部宽度收缩而乱跑 */
+  position: relative !important;
 }
 
-/* ========== 歌名固定宽度 + 跑马灯滚动 ========== */
-
-/* 1. 固定容器宽度 */
-.music-title-wrap {
-  width: 70px !important;    /* ★ 你想要的固定宽度 */
-  min-width: 70px !important;
-  max-width: 70px !important;
-  overflow: hidden;
-  margin-left: 12px;
-  margin-right: 8px;
-  display: flex;
-  align-items: center;
+/* 清理黑胶周围的边距，让它在收缩时居中 */
+#music-controls.state-collapsed #music-toggle-btn {
+  margin-left: 0 !important;
+  margin-right: 2px !important;
 }
 
-/* 2. 文字基础样式 */
-#music-current-title {
-  display: inline-block;
-  white-space: nowrap;
-  font-size: 0.75rem;
-  color: var(--text-mid);
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  /* 默认不滚动 */
-  transform: translateX(0);
-  text-overflow: clip !important; /* ★ 强制取消省略号 */
-  overflow: visible !important;   /* 让文字能突破容器宽度去滚动 */
-  min-width: max-content;         /* 保证文字本身的宽度不被压缩 */
+/* 修复左边缘漏出东西（小动物/花瓣）的残影问题 */
+#music-controls.state-collapsed {
+  /* 如果最外层有溢出，直接裁切掉 */
+  overflow: visible !important; 
 }
 
-/* 3. 跑马灯动画：完整展示文字后滚动 */
-#music-current-title.scrolling {
-  /* 动画时长和文字长度有关，由 JS 动态注入变量 --scroll-distance */
-  animation: marqueeScroll 5s linear infinite;
-}
-
-@keyframes marqueeScroll {
-  0%, 10% {
-    transform: translateX(0); /* 开头停顿一下 */
-  }
-  90%, 100% {
-    /* 向左滚动到文字的末尾 */
-    transform: translateX(var(--scroll-distance, -100px)); 
-  }
-}
-
-body.theme-fun #music-current-title {
-  color: #b8a898;
-}
-
-/* ========== 整体等比例缩小播放器（卡片 + 面板一起缩） ========== */
-
-/* 1. 直接对整个音乐控制容器进行缩放 */
-#music-controls {
-  top: 10px !important; /* 稍微贴近屏幕边缘 */
-  right: 10px !important;
-  transform: scale(0.65) !important; /* ★ 这里控制整体大小，0.8 就是缩小到80%，你可以改 0.75 或 0.85 */
-  transform-origin: top right !important; /* 以右上角为锚点缩放，保证位置不乱 */
-}
-
-/* 2. 清空掉之前加的局部缩放和面板反向放大，恢复默认 */
-.music-bar {
-  transform: none !important;
-}
-
-.music-panel {
-  transform: translateY(-10px) scale(1) !important; /* 恢复正常的滑出动画 */
-}
-
-#music-controls.is-open .music-panel {
-  transform: translateY(0) scale(1) !important;
+#music-controls.state-collapsed .music-bar {
+  /* 确保内部内容不会跑出边框 */
+  overflow: hidden !important; 
 }
