@@ -1,4 +1,4 @@
-/* ========== 浪漫主题 ========== */
+/* ========= 1. 主题变量 ========= */
 :root {
   --bg-top: #fdf6f0;
   --bg-bottom: #fce8e8;
@@ -12,7 +12,6 @@
   --petal-bg: radial-gradient(circle at 30% 30%, #ffd1dc, #ffb7c5);
 }
 
-/* ========== 万兽之王主题 ========== */
 body.theme-fun {
   --bg-top: #0a0a0f;
   --bg-bottom: #1a1215;
@@ -26,7 +25,23 @@ body.theme-fun {
   --petal-bg: none;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/* ========= 2. 基础重置与全局 ========= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+img {
+  -webkit-user-drag: none !important;
+  pointer-events: auto;
+}
 
 body {
   font-family: "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -35,10 +50,17 @@ body {
   line-height: 1.8;
   overflow-x: hidden;
   transition: background 0.6s ease, color 0.6s ease;
-  scrollbar-gutter: stable; 
+  scrollbar-gutter: stable;
 }
 
-/* ========== 掉落物层 ========== */
+body.lightbox-open .event .card,
+body.lightbox-open .photo-wall img {
+  transform: none !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+  transition: none !important;
+}
+
+/* ========= 3. 掉落物 =========*/
 #sakura {
   position: fixed;
   top: 0;
@@ -49,6 +71,7 @@ body {
   z-index: 1;
   overflow: hidden;
 }
+
 .petal {
   position: absolute;
   top: -30px;
@@ -57,6 +80,7 @@ body {
   opacity: 0.8;
   animation: fall linear infinite;
 }
+
 .petal.img-petal {
   background-color: transparent !important;
   background-size: contain;
@@ -68,14 +92,15 @@ body {
   justify-content: center;
   line-height: 1;
 }
+
 @keyframes fall {
-  0% { transform: translateY(-30px) rotate(0deg) translateX(0); opacity: 0; }
-  10% { opacity: 0.9; }
-  90% { opacity: 0.9; }
+  0%   { transform: translateY(-30px) rotate(0deg) translateX(0); opacity: 0; }
+  10%  { opacity: 0.9; }
+  90%  { opacity: 0.9; }
   100% { transform: translateY(120vh) rotate(720deg) translateX(80px); opacity: 0; }
 }
 
-/* ========== 主题切换按钮 ========== */
+/* ========= 4. 悬浮按钮（主题 / 时钟 / 导航）========= */
 .theme-btn {
   position: fixed;
   top: auto;
@@ -86,38 +111,45 @@ body {
   border-radius: 50%;
   border: none;
   background: var(--card-bg);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   font-size: 18px;
   padding-bottom: 2px;
   cursor: pointer;
-  z-index: 100;
+  z-index: 10000;
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
 }
+
 body.hide-buttons .theme-btn {
   transform: translateX(100px) !important;
 }
+
 .theme-btn:hover {
   transform: scale(1.1);
 }
-.photo-nav-btn {
-  bottom: 120px; /* 拉近间距 */
-}
+
 body.theme-fun .theme-btn {
   background: #1a1a1a;
   border: 1px solid #c9a04a;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 }
+
 body.theme-fun .theme-btn:hover {
   box-shadow: 0 6px 20px rgba(201, 160, 74, 0.5);
 }
 
-/* ========== 顶部标题 ========== */
+.clock-btn {
+  bottom: 70px;
+  font-size: 20px;
+}
+
+/* ========= 5. 顶部标题 ========= */
 header {
   position: relative;
   z-index: 2;
   text-align: center;
   padding: 20px 20px 40px;
 }
+
 header h1 {
   font-family: "Kaiti SC", "KaiTi", "STKaiti", serif;
   font-size: 3.2rem;
@@ -126,18 +158,20 @@ header h1 {
   margin-bottom: 16px;
   transition: color 0.6s ease, text-shadow 0.6s ease, font-family 0.3s ease;
 }
+
 header p {
   color: var(--text-light);
   font-size: 1rem;
   transition: color 0.6s ease;
 }
+
 body.theme-fun header h1 {
   font-weight: 900;
   letter-spacing: 4px;
   text-shadow: 0 0 30px rgba(201, 160, 74, 0.35);
 }
 
-/* ========== 计数器 ========== */
+/* ========= 6. 计数器 ========= */
 .counter {
   position: relative;
   z-index: 2;
@@ -146,12 +180,14 @@ body.theme-fun header h1 {
   padding: 10px 20px;
   max-width: 600px;
 }
+
 .counter .label {
   font-size: 0.8rem;
   color: var(--text-mid);
   letter-spacing: 2px;
   margin-bottom: 12px;
 }
+
 .counter .number {
   font-size: 4rem;
   font-weight: bold;
@@ -160,14 +196,17 @@ body.theme-fun header h1 {
   text-shadow: 0 4px 20px rgba(217, 140, 140, 0.25);
   transition: color 0.6s ease, text-shadow 0.6s ease;
 }
+
 body.theme-fun .counter .number {
   text-shadow: 0 0 30px rgba(201, 160, 74, 0.4);
 }
+
 .counter .unit {
   font-size: 1.2rem;
   color: var(--text-mid);
   margin-left: 8px;
 }
+
 .counter .detail {
   margin-top: 18px;
   font-size: 1.05rem;
@@ -175,6 +214,7 @@ body.theme-fun .counter .number {
   letter-spacing: 1px;
   font-weight: 500;
 }
+
 .counter .detail .num {
   display: inline-block;
   min-width: 1.6em;
@@ -183,20 +223,28 @@ body.theme-fun .counter .number {
   font-weight: bold;
   transition: transform 0.2s ease, color 0.6s ease;
 }
+
 .counter .detail .num.flip {
   animation: flipNum 0.4s ease;
 }
+
 @keyframes flipNum {
   0%   { transform: translateY(-6px) scale(1.15); opacity: 0.4; }
   100% { transform: translateY(0) scale(1); opacity: 1; }
 }
+
 .counter .since {
   margin-top: 14px;
   font-size: 0.85rem;
   color: var(--text-light);
 }
 
-/* ========== 里程碑进度条 ========== */
+@media (max-width: 700px) {
+  .counter .number { font-size: 3rem; }
+  .counter .detail { font-size: 0.9rem; }
+}
+
+/* ========= 7. 里程碑进度条 ========= */
 .milestone {
   position: relative;
   z-index: 2;
@@ -204,6 +252,7 @@ body.theme-fun .counter .number {
   margin: 40px auto 80px;
   padding: 20px 30px;
 }
+
 .milestone-title {
   text-align: center;
   font-size: 1.1rem;
@@ -212,11 +261,13 @@ body.theme-fun .counter .number {
   margin-bottom: 30px;
   font-weight: bold;
 }
+
 .milestone-bar {
   position: relative;
   height: 60px;
   margin-bottom: 10px;
 }
+
 .milestone-line {
   position: absolute;
   top: 50%;
@@ -228,6 +279,7 @@ body.theme-fun .counter .number {
   transform: translateY(-50%);
   opacity: 0.4;
 }
+
 .milestone-fill {
   position: absolute;
   top: 50%;
@@ -240,6 +292,7 @@ body.theme-fun .counter .number {
   transition: width 3.5s ease-out;
   box-shadow: 0 0 12px var(--main);
 }
+
 .milestone-node {
   position: absolute;
   top: 50%;
@@ -251,19 +304,23 @@ body.theme-fun .counter .number {
   transform: translate(-50%, -50%);
   transition: background 0.6s ease, border-color 0.6s ease, box-shadow 0.6s ease;
 }
+
 .milestone-node.passed {
   background: var(--main);
   border-color: var(--main);
   box-shadow: 0 0 10px var(--main);
 }
+
 .milestone-node.pop {
   animation: nodePop 0.6s ease;
 }
+
 @keyframes nodePop {
   0%   { transform: translate(-50%, -50%) scale(1); }
   50%  { transform: translate(-50%, -50%) scale(1.8); }
   100% { transform: translate(-50%, -50%) scale(1); }
 }
+
 .milestone-marker {
   position: absolute;
   top: 50%;
@@ -272,16 +329,19 @@ body.theme-fun .counter .number {
   transition: left 3.5s ease-out;
   z-index: 3;
 }
+
 .milestone-marker img {
   width: 90px;
   height: auto;
   display: block;
   filter: drop-shadow(0 0 6px var(--main));
 }
+
 .milestone-labels {
   position: relative;
   height: 30px;
 }
+
 .milestone-label {
   position: absolute;
   transform: translateX(-50%);
@@ -290,6 +350,7 @@ body.theme-fun .counter .number {
   text-align: center;
   white-space: nowrap;
 }
+
 .milestone-label.passed {
   color: var(--main);
   font-weight: bold;
@@ -302,7 +363,7 @@ body.theme-fun .counter .number {
   .milestone-marker img { width: 45px; }
 }
 
-/* ========== 倒计时区域 ========== */
+/* ========= 8. 倒计时卡片 ========= */
 .countdown-section {
   position: relative;
   z-index: 2;
@@ -314,34 +375,40 @@ body.theme-fun .counter .number {
   max-width: 800px;
   flex-wrap: wrap;
 }
+
 .countdown-card {
   background: var(--card-bg);
   padding: 12px 20px;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   text-align: center;
   min-width: 180px;
   flex: 1;
   max-width: 240px;
   transition: transform 0.3s ease, background 0.6s ease, box-shadow 0.3s ease;
-  border: 1px solid transparent; 
+  border: 1px solid transparent;
 }
+
 body.theme-fun .countdown-card {
   background: #2a2117;
   border: 1px solid #5a4a34;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(201,160,74,0.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(201, 160, 74, 0.08);
 }
+
 .countdown-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
 }
+
 .countdown-title {
   font-size: 0.7rem;
   color: var(--text-mid);
   margin-bottom: 10px;
   letter-spacing: 1px;
 }
+
 .countdown-value { font-size: 1.1rem; color: var(--text); }
+
 .countdown-value span {
   font-size: 2.5rem;
   font-weight: bold;
@@ -349,6 +416,7 @@ body.theme-fun .countdown-card {
   line-height: 1;
   margin-right: 4px;
 }
+
 .countdown-date {
   margin-top: 8px;
   font-size: 0.75rem;
@@ -371,7 +439,111 @@ body.theme-fun .countdown-card {
   .countdown-date { font-size: 0.7rem; }
 }
 
-/* ========== 时间线基础 ========== */
+/* ========= 9. 特殊日子庆祝特效 ========= */
+.countdown-card.is-today {
+  position: relative;
+  transform: translateY(-6px);
+  border-color: var(--main) !important;
+  box-shadow: 0 8px 30px rgba(217, 140, 140, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.3) !important;
+  animation: cardPulse 2s infinite alternate;
+}
+
+body.theme-fun .countdown-card.is-today {
+  box-shadow: 0 8px 30px rgba(201, 160, 74, 0.4), inset 0 0 15px rgba(201, 160, 74, 0.1) !important;
+}
+
+@keyframes cardPulse {
+  0%   { transform: translateY(-6px) scale(1); }
+  100% { transform: translateY(-6px) scale(1.03); }
+}
+
+.countdown-card.is-today .countdown-title {
+  font-size: 0.9rem;
+  font-weight: bold;
+  line-height: 1.4;
+  color: var(--main);
+}
+
+.countdown-card.is-today .countdown-value {
+  margin-top: 8px;
+}
+
+#card-anniversary.is-today::before,
+#card-her.is-today::before,
+#card-him.is-today::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle, #ff9a9e 2px, transparent 2px),
+    radial-gradient(circle, #fecfef 2px, transparent 2px),
+    radial-gradient(circle, #a1c4fd 2px, transparent 2px);
+  background-size: 20px 20px, 30px 30px, 25px 25px;
+  background-position: 0 0, 10px 10px, 15px 5px;
+  animation: confettiFall 4s linear infinite;
+  opacity: 0.5;
+  border-radius: 12px;
+  z-index: 0;
+}
+
+body.theme-fun #card-anniversary.is-today::before,
+body.theme-fun #card-her.is-today::before,
+body.theme-fun #card-him.is-today::before {
+  background-image:
+    radial-gradient(circle, #c9a04a 2px, transparent 2px),
+    radial-gradient(circle, #e0b458 2px, transparent 2px);
+}
+
+@keyframes confettiFall {
+  0%   { background-position: 0 -50px, 10px -30px, 15px -40px; }
+  100% { background-position: 0 100px, 10px 120px, 15px 110px; }
+}
+
+.countdown-card.is-today > * {
+  position: relative;
+  z-index: 1;
+}
+
+.clock-box.is-today {
+  position: relative;
+  border-color: var(--main) !important;
+  box-shadow: 0 0 20px rgba(217, 140, 140, 0.4) !important;
+  overflow: hidden;
+}
+
+body.theme-fun .clock-box.is-today {
+  box-shadow: 0 0 20px rgba(201, 160, 74, 0.4) !important;
+}
+
+.clock-box.is-today::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle, #ff9a9e 2px, transparent 2px),
+    radial-gradient(circle, #fecfef 2px, transparent 2px),
+    radial-gradient(circle, #a1c4fd 2px, transparent 2px);
+  background-size: 20px 20px, 30px 30px, 25px 25px;
+  animation: confettiFall 4s linear infinite;
+  opacity: 0.5;
+  z-index: 0;
+}
+
+body.theme-fun .clock-box.is-today::before {
+  background-image:
+    radial-gradient(circle, #c9a04a 2px, transparent 2px),
+    radial-gradient(circle, #e0b458 2px, transparent 2px);
+}
+
+.clock-box.is-today .c-cd-title,
+.clock-box.is-today .c-cd-value {
+  position: relative;
+  z-index: 1;
+}
+
+/* ========= 10. 时间线 ========= */
 .timeline {
   position: relative;
   z-index: 2;
@@ -379,6 +551,7 @@ body.theme-fun .countdown-card {
   margin: 0 auto;
   padding: 10px 20px 40px;
 }
+
 .timeline::before {
   content: "";
   position: absolute;
@@ -390,8 +563,9 @@ body.theme-fun .countdown-card {
   transform: translateX(-50%);
   transition: background 0.6s ease;
 }
+
 body.theme-fun .timeline::before {
-  background: linear-gradient(180deg, #3a2e24 0%, rgba(201,160,74,0.4) 50%, #3a2e24 100%);
+  background: linear-gradient(180deg, #3a2e24 0%, rgba(201, 160, 74, 0.4) 50%, #3a2e24 100%);
 }
 
 .event {
@@ -402,12 +576,15 @@ body.theme-fun .timeline::before {
   transform: translateY(40px);
   transition: all 0.8s ease;
 }
+
 .event.show { opacity: 1; transform: translateY(0); }
+
 .event.fade-out {
   opacity: 0;
   transform: translateY(-20px);
   transition: all 0.6s ease;
 }
+
 .event.left { left: 0; text-align: right; }
 .event.right { left: 50%; text-align: left; }
 
@@ -423,6 +600,7 @@ body.theme-fun .timeline::before {
   box-shadow: 0 0 0 2px var(--main-light);
   transition: background 0.6s ease, box-shadow 0.6s ease;
 }
+
 .event.left::after { right: -8px; }
 .event.right::after { left: -8px; }
 
@@ -434,6 +612,7 @@ body.theme-fun .event::after {
   width: 40px;
   height: 40px;
 }
+
 body.theme-fun .event.left::after { right: -20px; }
 body.theme-fun .event.right::after { left: -20px; }
 
@@ -445,37 +624,44 @@ body.theme-fun .event.right::after { left: -20px; }
   margin-bottom: 8px;
   transition: color 0.6s ease;
 }
+
 .event .card {
   background: var(--card-bg);
   padding: 20px 24px;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   display: inline-block;
   text-align: left;
   max-width: 100%;
   transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.6s ease, border-color 0.3s ease;
   border: 1px solid transparent;
 }
+
 .event .card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
 }
+
 body.theme-fun .event .card {
   background: #2a2117;
   border: 1px solid #5a4a34;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(201,160,74,0.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(201, 160, 74, 0.08);
 }
+
 body.theme-fun .event .card:hover {
   border-color: #c9a04a;
-  box-shadow: 0 10px 32px rgba(201,160,74,0.25), inset 0 1px 0 rgba(201,160,74,0.3);
+  box-shadow: 0 10px 32px rgba(201, 160, 74, 0.25), inset 0 1px 0 rgba(201, 160, 74, 0.3);
 }
+
 .event .card h3 {
   font-size: 1.1rem;
   color: var(--text);
   margin-bottom: 8px;
   transition: color 0.6s ease;
 }
+
 .event .card p { font-size: 0.95rem; color: var(--text-mid); }
+
 .event .card img {
   width: 100%;
   border-radius: 8px;
@@ -484,10 +670,16 @@ body.theme-fun .event .card:hover {
   cursor: pointer;
 }
 
+.timeline > .event:last-child {
+  margin-top: 40px;
+}
+
 @media (max-width: 700px) {
   .timeline { padding-left: 0; padding-right: 0; }
   .timeline::before { left: 18px; transform: none; }
-  .event, .event.left, .event.right {
+  .event,
+  .event.left,
+  .event.right {
     width: 100% !important;
     left: 0 !important;
     text-align: left !important;
@@ -495,7 +687,9 @@ body.theme-fun .event .card:hover {
     padding-right: 10px !important;
     margin-left: 0 !important;
   }
-  .event::after, .event.left::after, .event.right::after {
+  .event::after,
+  .event.left::after,
+  .event.right::after {
     left: 18px !important;
     right: auto !important;
     transform: none !important;
@@ -503,8 +697,6 @@ body.theme-fun .event .card:hover {
   }
   .event .card { display: block; text-align: left; }
   .event .date { text-align: left; }
-  .counter .number { font-size: 3rem; }
-  .counter .detail { font-size: 0.9rem; }
   body.theme-fun .event::after,
   body.theme-fun .event.left::after,
   body.theme-fun .event.right::after {
@@ -513,12 +705,13 @@ body.theme-fun .event .card:hover {
   }
 }
 
-/* ========== 年份折叠面板样式 ========== */
+/* ========= 11. 年份折叠面板 ========= */
 .year-group {
   position: relative;
   z-index: 2;
   margin-bottom: 10px;
 }
+
 .year-header {
   display: flex;
   justify-content: center;
@@ -528,41 +721,50 @@ body.theme-fun .event .card:hover {
   font-weight: bold;
   color: var(--main);
   letter-spacing: 1px;
-  background: #fce8e8; 
+  background: #fce8e8;
   padding: 6px 20px;
   border-radius: 30px;
   border: 1px solid var(--main-light);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   width: fit-content;
   margin: 10px auto 20px;
   cursor: pointer;
   transition: all 0.3s ease;
   user-select: none;
   position: relative;
-  z-index: 5; 
+  z-index: 5;
 }
+
 .year-header:hover {
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
+
 .year-group.collapsed .year-header {
-  background: var(--card-bg); 
+  background: var(--card-bg);
   border-color: var(--main-light);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
   color: var(--text-mid);
+  margin-top: 1px;
+  margin-bottom: 1px;
 }
+
 body.theme-fun .year-header {
-  background: #3a2e24; 
+  background: #3a2e24;
   border-color: #5a4a34;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
   color: var(--main);
 }
+
 body.theme-fun .year-group.collapsed .year-header {
-  background: #1a1215; 
+  background: #1a1215;
   border-color: #2a2117;
   box-shadow: none;
   color: #5a4a34;
+  margin-top: 1px;
+  margin-bottom: 1px;
 }
+
 .year-header .arrow {
   display: inline-block;
   width: 0;
@@ -570,33 +772,33 @@ body.theme-fun .year-group.collapsed .year-header {
   margin-left: 8px;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-top: 6px solid var(--main); 
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), border-top-color 0.3s ease; 
-  transform-origin: 50% 30%; 
+  border-top: 6px solid var(--main);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), border-top-color 0.3s ease;
+  transform-origin: 50% 30%;
 }
+
 .year-group.collapsed .year-header .arrow {
   border-top-color: var(--text-light);
   transform: rotate(180deg);
 }
+
 .year-content {
   overflow: hidden;
-  min-height: 1px; 
+  min-height: 1px;
   transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease, margin-bottom 0.6s ease;
   opacity: 1;
 }
+
 .year-group.collapsed .year-content {
   max-height: 0 !important;
   opacity: 0;
   margin-bottom: 0;
 }
-.timeline > .event:last-child {
-  margin-top: 40px;
-}
 
 @media (max-width: 700px) {
   .year-header {
     border-radius: 0 30px 30px 0;
-    margin: 10px 0 20px 10px; 
+    margin: 10px 0 20px 10px;
     padding: 6px 20px 6px 16px;
     justify-content: flex-start;
     z-index: 5;
@@ -606,7 +808,7 @@ body.theme-fun .year-group.collapsed .year-header {
   }
 }
 
-/* ========== 结尾语 ========== */
+/* ========= 12. 结尾语 ========= */
 .ending {
   position: relative;
   z-index: 2;
@@ -623,24 +825,26 @@ body.theme-fun .year-group.collapsed .year-header {
   width: 100%;
 }
 
-/* ========== 图片放大遮罩 ========== */
+/* ========= 13. 图片放大遮罩（Lightbox）========= */
 .lightbox {
   display: flex;
   visibility: hidden;
   opacity: 0;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0, 0, 0, 0.85);
   z-index: 10005;
   justify-content: center;
   align-items: center;
   padding: 20px;
   transition: opacity 0.1s ease, visibility 0.1s ease;
 }
+
 .lightbox.show {
   visibility: visible;
   opacity: 1;
 }
+
 .flip-wrapper {
   position: relative;
   display: inline-flex;
@@ -653,25 +857,30 @@ body.theme-fun .year-group.collapsed .year-header {
   transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
   will-change: transform;
 }
+
 .flip-wrapper.fade-out {
   opacity: 0 !important;
 }
+
 .flip-face {
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
+
 .flip-front {
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 .flip-front img {
   max-width: 90vw;
   max-height: 90vh;
   border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   display: block;
 }
+
 .flip-back {
   position: absolute;
   top: 0;
@@ -683,15 +892,16 @@ body.theme-fun .year-group.collapsed .year-header {
   justify-content: center;
   align-items: center;
 }
+
 .text-paper {
   background-color: #ffffff;
   color: #333333;
   width: 100%;
   height: 100%;
-  min-width: 280px; 
-  min-height: 200px; 
+  min-width: 280px;
+  min-height: 200px;
   border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -704,7 +914,7 @@ body.theme-fun .year-group.collapsed .year-header {
   word-break: break-word;
 }
 
-/* ========== 秘密配文标记 ========== */
+/* 秘密配文标记 */
 .secret-marker {
   position: absolute;
   bottom: 12px;
@@ -712,18 +922,20 @@ body.theme-fun .year-group.collapsed .year-header {
   font-size: 14px;
   opacity: 0;
   transition: opacity 0.4s ease;
-  pointer-events: none; 
+  pointer-events: none;
   z-index: 10;
   text-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
 }
+
 .secret-marker.show {
   opacity: 0.9;
 }
+
 body.theme-fun .secret-marker {
-  filter: sepia(1) saturate(5) hue-rotate(5deg); 
+  filter: sepia(1) saturate(5) hue-rotate(5deg);
 }
 
-/* ========== 照片墙 ========== */
+/* ========= 14. 照片墙 ========= */
 .photo-wall-section {
   position: relative;
   z-index: 2;
@@ -731,6 +943,7 @@ body.theme-fun .secret-marker {
   margin: 60px auto 20px;
   padding: 0 20px;
 }
+
 .photo-wall-title {
   text-align: center;
   font-size: 1.2rem;
@@ -739,11 +952,13 @@ body.theme-fun .secret-marker {
   margin-bottom: 30px;
   font-weight: bold;
 }
+
 .photo-wall {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 15px;
 }
+
 .photo-wall img {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -751,18 +966,21 @@ body.theme-fun .secret-marker {
   border-radius: 10px;
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
+
 .photo-wall img:hover {
   transform: scale(1.05);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   z-index: 3;
   position: relative;
 }
+
 body.theme-fun .photo-wall img {
   border: 1px solid #5a4a34;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
 }
+
 @media (max-width: 700px) {
   .photo-wall {
     grid-template-columns: repeat(2, 1fr);
@@ -770,20 +988,7 @@ body.theme-fun .photo-wall img {
   }
 }
 
-/* ========== 时钟按钮 ========== */
-.clock-btn {
-  bottom: 70px; /* 拉近间距 */
-  font-size: 20px;
-  z-index: 10000 !important;
-}
-.theme-btn {
-  z-index: 10000 !important;
-}
-body.in-clock-mode .photo-nav-btn {
-  display: none !important;
-}
-
-/* ========== 时钟模式遮罩层 ========== */
+/* ========= 15. 时钟模式 - 基础结构 ========= */
 .clock-overlay {
   position: fixed;
   top: 0;
@@ -799,10 +1004,12 @@ body.in-clock-mode .photo-nav-btn {
   transition: opacity 0.5s ease;
   overflow: hidden;
 }
+
 .clock-overlay.show {
   display: flex;
   opacity: 1;
 }
+
 .rotate-hint {
   display: none;
   flex-direction: column;
@@ -812,15 +1019,18 @@ body.in-clock-mode .photo-nav-btn {
   text-align: center;
   color: var(--text);
 }
+
 .rotate-icon {
   font-size: 4rem;
   animation: rotatePhone 2s ease-in-out infinite;
   margin-bottom: 20px;
 }
+
 @keyframes rotatePhone {
   0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(90deg); }
+  50%      { transform: rotate(90deg); }
 }
+
 .clock-container {
   display: none;
   flex-direction: column;
@@ -829,26 +1039,30 @@ body.in-clock-mode .photo-nav-btn {
   padding: 2vh 2vw;
   box-sizing: border-box;
 }
+
 .clock-top {
   flex: 9;
   display: flex;
   gap: 2vw;
   margin-bottom: 2vh;
 }
+
 .clock-column {
   display: flex;
   flex-direction: column;
   gap: 2vh;
 }
-.left-col { flex: 1.5; }   
-.center-col { flex: 7; } 
-.right-col { flex: 1.5; }  
+
+.left-col   { flex: 1.5; }
+.center-col { flex: 7; }
+.right-col  { flex: 1.5; }
+
 .clock-box {
   background: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.03);
-  border: 1px solid rgba(255,255,255,0.6);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 20px;
   display: flex;
   flex-direction: column;
@@ -857,19 +1071,35 @@ body.in-clock-mode .photo-nav-btn {
   transition: background 0.6s ease, border-color 0.6s ease, box-shadow 0.6s ease;
   overflow: hidden;
 }
+
 .left-col .clock-box,
 .right-col .clock-box {
   flex: 1;
 }
+
 .center-col .clock-box {
   flex: 1;
-  border: none; 
-  background: transparent; 
+  border: none;
+  background: transparent;
   box-shadow: none;
   position: relative;
   justify-content: space-between;
   padding: 4vh 0;
 }
+
+body.theme-fun .clock-box {
+  background: rgba(42, 33, 23, 0.4);
+  border: 1px solid rgba(201, 160, 74, 0.2);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+body.theme-fun .center-col .clock-box {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* 时钟顶行（AM/PM + 日期） */
 .clock-topline {
   width: 100%;
   height: 8vh;
@@ -883,11 +1113,13 @@ body.in-clock-mode .photo-nav-btn {
   color: var(--main);
   letter-spacing: 2px;
 }
+
 .clock-ampm {
   opacity: 0;
   transition: opacity 0.3s;
   text-align: left;
 }
+
 .clock-date {
   text-align: right;
   font-size: 2vw;
@@ -895,26 +1127,28 @@ body.in-clock-mode .photo-nav-btn {
   color: var(--main);
   letter-spacing: 2px;
 }
-body.theme-fun .clock-topline {
-  color: #c9a04a;
-}
+
+body.theme-fun .clock-topline,
 body.theme-fun .clock-ampm,
 body.theme-fun .clock-date {
   color: #c9a04a;
 }
+
+/* 时钟切换按钮 */
 .clock-toggle-group {
   display: flex;
   gap: 1vw;
   justify-content: center;
   align-items: center;
 }
+
 .clock-toggle-btn {
   background: transparent;
   border: 1px solid var(--main-light);
   color: var(--text-mid);
   padding: 6px 16px;
-  width: 110px;      
-  height: 32px;      
+  width: 110px;
+  height: 32px;
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -924,53 +1158,52 @@ body.theme-fun .clock-date {
   transition: all 0.3s ease;
   font-family: inherit;
 }
+
 .clock-toggle-btn:hover {
   background: var(--main);
   color: #fff;
   border-color: var(--main);
 }
+
 body.theme-fun .clock-toggle-btn {
   border-color: #5a4a34;
   color: #b8a898;
 }
+
 body.theme-fun .clock-toggle-btn:hover {
   background: #c9a04a;
   color: #0a0a0f;
   border-color: #c9a04a;
 }
-body.theme-fun .clock-box {
-  background: rgba(42, 33, 23, 0.4);
-  border: 1px solid rgba(201, 160, 74, 0.2);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-}
-body.theme-fun .center-col .clock-box {
-  background: transparent; 
-  border: none; 
-  box-shadow: none; 
-}
+
+/* 天数 / 倒计时小卡 */
 .box-days .c-label {
   font-size: 1rem;
   color: var(--text-mid);
   margin-bottom: 1vh;
   text-align: center;
 }
+
 .box-days .c-value {
   display: flex;
   flex-direction: column;
   align-items: center;
   line-height: 1;
 }
+
 .box-days .c-value #clock-days {
-  font-size: 3vw; 
+  font-size: 3vw;
   font-weight: bold;
   color: var(--main);
-  margin-bottom: 4px; 
+  margin-bottom: 4px;
 }
-.box-days .c-unit { 
-  font-size: 1rem; 
+
+.box-days .c-unit {
+  font-size: 1rem;
   color: var(--text-mid);
-  font-weight: normal; 
+  font-weight: normal;
 }
+
 .box-cd .c-cd-title {
   font-size: 1rem;
   color: var(--text-mid);
@@ -978,6 +1211,7 @@ body.theme-fun .center-col .clock-box {
   text-align: center;
   line-height: 1.2;
 }
+
 .box-cd .c-cd-value {
   font-size: 1.2rem;
   color: var(--text-mid);
@@ -985,11 +1219,14 @@ body.theme-fun .center-col .clock-box {
   text-align: center;
   margin-top: 2px;
 }
+
 .box-cd .c-cd-value span {
   font-size: 3vw;
   font-weight: bold;
   color: var(--main);
 }
+
+/* 翻转时钟 */
 .flip-clock {
   display: flex;
   align-items: center;
@@ -997,8 +1234,9 @@ body.theme-fun .center-col .clock-box {
   font-size: min(11vw, 20vh);
   font-weight: bold;
   color: var(--main);
-  font-family: "Courier New", Courier, monospace; 
+  font-family: "Courier New", Courier, monospace;
 }
+
 .flip-digit {
   position: relative;
   display: inline-flex;
@@ -1006,24 +1244,28 @@ body.theme-fun .center-col .clock-box {
   align-items: center;
   background: var(--bg-bottom);
   border-radius: 16px;
-  padding: 0; 
-  width: 0.65em; 
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  padding: 0;
+  width: 0.65em;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   transition: transform 0.15s ease, opacity 0.15s ease;
 }
+
 body.theme-fun .flip-digit {
   background: rgba(201, 160, 74, 0.1);
   border: 1px solid rgba(201, 160, 74, 0.3);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 0 15px rgba(201, 160, 74, 0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(201, 160, 74, 0.15);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
+
 .flip-colon {
   display: flex;
   align-items: center;
-  font-size: min(7vw, 13vh); 
+  font-size: min(7vw, 13vh);
   transform: translateY(-5%);
 }
+
+/* 时钟底部里程碑 */
 .clock-bottom {
   flex: 1.2;
   display: flex;
@@ -1033,14 +1275,17 @@ body.theme-fun .flip-digit {
   align-items: center;
   border: 1px solid var(--main-light);
 }
+
 body.theme-fun .clock-bottom {
   background: #2a2117;
   border-color: #5a4a34;
 }
+
 .clock-milestone {
   width: 100%;
   position: relative;
 }
+
 .clock-m-bar {
   position: relative;
   height: 6px;
@@ -1049,6 +1294,7 @@ body.theme-fun .clock-bottom {
   width: 90%;
   margin: 0 auto;
 }
+
 .clock-m-fill {
   position: absolute;
   left: 0;
@@ -1060,34 +1306,40 @@ body.theme-fun .clock-bottom {
   box-shadow: 0 0 10px var(--main);
   transition: width 1s ease-out;
 }
+
 .clock-m-marker {
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
   transition: left 1s ease-out;
 }
+
 .clock-m-marker img {
   width: 40px;
   height: auto;
   filter: drop-shadow(0 0 5px var(--main));
 }
+
 .clock-m-labels {
   position: relative;
   width: 90%;
   margin: 10px auto 0;
   height: 20px;
 }
+
 .clock-m-label {
   position: absolute;
   transform: translateX(-50%);
   font-size: 0.75rem;
   color: var(--text-light);
-  white-space: nowrap; 
+  white-space: nowrap;
 }
+
 .clock-m-label.passed {
   color: var(--main);
   font-weight: bold;
 }
+
 .clock-m-node {
   position: absolute;
   top: 50%;
@@ -1099,25 +1351,27 @@ body.theme-fun .clock-bottom {
   transform: translate(-50%, -50%);
   z-index: 2;
 }
+
 .clock-m-node.passed {
   background: var(--main);
   border-color: var(--main);
   box-shadow: 0 0 10px var(--main);
 }
 
-/* ================= 响应式 ================= */
+/* 时钟响应式 */
 @media (orientation: portrait) and (max-width: 700px) {
   .rotate-hint { display: flex; }
   .clock-container { display: none; }
 }
+
 @media (orientation: landscape), (min-width: 701px) {
   .rotate-hint { display: none; }
-  .clock-container { 
-    display: flex; 
+  .clock-container {
+    display: flex;
     width: 100vw;
-    height: 100vh; 
-    height: 100dvh; 
-    overflow: hidden; 
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
   }
 }
 
@@ -1142,11 +1396,12 @@ body.theme-fun .clock-bottom {
   .clock-m-label { font-size: 0.65rem; white-space: nowrap; }
   .clock-m-node { width: 10px; height: 10px; }
   .center-col .clock-box { padding: 2vh 0; }
-  .clock-topline { font-size: 3vw; height: 3vh; padding: 0 1vw; padding-top: 5vh;}
+  .clock-topline { font-size: 3vw; height: 3vh; padding: 0 1vw; padding-top: 5vh; }
   .clock-date { font-size: 3vw; }
   .clock-toggle-btn { font-size: 0.75rem; padding: 4px 12px; }
 }
 
+/* 时钟模式隐藏页面主体内容 */
 body.in-clock-mode header,
 body.in-clock-mode .counter,
 body.in-clock-mode .milestone,
@@ -1159,326 +1414,24 @@ body.in-clock-mode .photo-wall-section {
   transition: opacity 0.3s ease;
 }
 
-.year-group.collapsed .year-header {
-  margin-top: 1px;
-  margin-bottom: 1px;
-}
-body.theme-fun .year-group.collapsed .year-header {
-  margin-top: 1px;
-  margin-bottom: 1px;
-}
-
-/* ========== 彩蛋：信件 ========== */
-.letter-buttons {
-  text-align: center;
-  margin-top: 10px;    
-  margin-bottom: 10px; 
-  position: relative;
-  z-index: 2;
-}
-.letter-btn {
-  background: rgba(217, 140, 140, 0.05);
-  border: 0px dashed var(--main-light); 
-  color: var(--text-mid);
-  padding: 10px 36px;  
-  border-radius: 25px; 
-  cursor: pointer;
-  font-size: 1.05rem;  
-  transition: all 0.3s ease;
-  margin: 0 10px;
-}
-body.theme-fun .letter-btn {
-  background: rgba(201, 160, 74, 0.08);
-}
-.letter-btn:hover {
-  background: var(--card-bg);
-  border-style: solid;
-  border-width: 0px; 
-  border-color: var(--main);
-  color: var(--main);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-}
-.letter-modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
-  z-index: 999;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-}
-.letter-modal.show {
-  display: flex;
-  opacity: 1;
-}
-.letter-paper {
-  background: var(--card-bg);
-  width: 100%;
-  max-width: 500px;
-  max-height: 80vh;
-  overflow-y: auto;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-  position: relative;
-  transform: translateY(20px);
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  background-image: repeating-linear-gradient(transparent, transparent 31px, var(--main-light) 31px, var(--main-light) 32px);
-  background-position: 0 10px;
-  line-height: 32px;
-}
-.letter-modal.show .letter-paper {
-  transform: translateY(0);
-}
-.letter-paper h2 {
-  font-family: "Kaiti SC", "KaiTi", "STKaiti", serif;
-  color: var(--main);
-  font-size: 1.6rem;
-  margin-bottom: 20px;
-  text-align: center;
-}
-.letter-paper p {
-  color: var(--text);
-  font-size: 1rem;
-  margin-bottom: 16px;
-  text-indent: 2em;
-}
-.letter-paper .signature {
-  text-align: right;
-  margin-top: 30px;
-  color: var(--text-mid);
-  font-family: "Kaiti SC", "KaiTi", "STKaiti", serif;
-  font-size: 1.1rem;
-  text-indent: 0;
-}
-.close-letter {
-  position: sticky;
-  top: -30px;
-  float: right;
-  margin-top: -30px;
-  margin-right: -20px; 
-  font-size: 1.8rem;
-  color: var(--text-light);
-  cursor: pointer;
-  line-height: 1;
-  transition: color 0.3s;
-  z-index: 10;
-}
-.close-letter:hover {
-  color: var(--main);
-}
-body.theme-fun .letter-paper {
-  background-image: repeating-linear-gradient(transparent, transparent 31px, rgba(201,160,74,0.1) 31px, rgba(201,160,74,0.1) 32px);
-}
-
-/* ========== 12. 特殊日子的庆祝特效 ========== */
-.countdown-card.is-today {
-  position: relative;
-  transform: translateY(-6px);
-  border-color: var(--main) !important;
-  box-shadow: 0 8px 30px rgba(217, 140, 140, 0.4), inset 0 0 15px rgba(255,255,255,0.3) !important;
-  animation: cardPulse 2s infinite alternate;
-}
-body.theme-fun .countdown-card.is-today {
-  box-shadow: 0 8px 30px rgba(201, 160, 74, 0.4), inset 0 0 15px rgba(201, 160, 74, 0.1) !important;
-}
-@keyframes cardPulse {
-  0% { transform: translateY(-6px) scale(1); }
-  100% { transform: translateY(-6px) scale(1.03); }
-}
-.countdown-card.is-today .countdown-title {
-  font-size: 0.9rem;
-  font-weight: bold;
-  line-height: 1.4;
-  color: var(--main);
-}
-.countdown-card.is-today .countdown-value {
-  margin-top: 8px;
-}
-#card-anniversary.is-today::before,
-#card-her.is-today::before,
-#card-him.is-today::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image: 
-    radial-gradient(circle, #ff9a9e 2px, transparent 2px),
-    radial-gradient(circle, #fecfef 2px, transparent 2px),
-    radial-gradient(circle, #a1c4fd 2px, transparent 2px);
-  background-size: 20px 20px, 30px 30px, 25px 25px;
-  background-position: 0 0, 10px 10px, 15px 5px;
-  animation: confettiFall 4s linear infinite;
-  opacity: 0.5;
-  border-radius: 12px;
-  z-index: 0;
-}
-body.theme-fun #card-anniversary.is-today::before,
-body.theme-fun #card-her.is-today::before,
-body.theme-fun #card-him.is-today::before {
-  background-image: 
-    radial-gradient(circle, #c9a04a 2px, transparent 2px),
-    radial-gradient(circle, #e0b458 2px, transparent 2px);
-}
-@keyframes confettiFall {
-  0% { background-position: 0 -50px, 10px -30px, 15px -40px; }
-  100% { background-position: 0 100px, 10px 120px, 15px 110px; }
-}
-.countdown-card.is-today > * {
-  position: relative;
-  z-index: 1;
-}
-.clock-box.is-today {
-  position: relative;
-  border-color: var(--main) !important;
-  box-shadow: 0 0 20px rgba(217, 140, 140, 0.4) !important;
-  overflow: hidden;
-}
-body.theme-fun .clock-box.is-today {
-  box-shadow: 0 0 20px rgba(201, 160, 74, 0.4) !important;
-}
-.clock-box.is-today::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image: 
-    radial-gradient(circle, #ff9a9e 2px, transparent 2px),
-    radial-gradient(circle, #fecfef 2px, transparent 2px),
-    radial-gradient(circle, #a1c4fd 2px, transparent 2px);
-  background-size: 20px 20px, 30px 30px, 25px 25px;
-  animation: confettiFall 4s linear infinite;
-  opacity: 0.5;
-  z-index: 0;
-}
-body.theme-fun .clock-box.is-today::before {
-  background-image: 
-    radial-gradient(circle, #c9a04a 2px, transparent 2px),
-    radial-gradient(circle, #e0b458 2px, transparent 2px);
-}
-.clock-box.is-today .c-cd-title,
-.clock-box.is-today .c-cd-value {
-  position: relative;
-  z-index: 1;
-}
-
-/* ========== 小人跳跃动画 ========== */
-@keyframes jumpAnimation {
-  0% {transform: translate(-50%, -50%) scale(1, 1); }
-  12% {transform: translate(-50%, -40%) scale(1.08, 0.85); }
-  30% {transform: translate(-50%, -65%) scale(0.92, 1.15); }
-  45% {transform: translate(-50%, -95%) scale(1, 1); }
-  50% {transform: translate(-50%, -100%) scale(1, 1); }
-  65% {transform: translate(-50%, -65%) scale(0.95, 1.1); }
-  80% {transform: translate(-50%, -45%) scale(1.1, 0.85); }
-  90% {transform: translate(-50%, -52%) scale(0.98, 1.02); }
-  100% {transform: translate(-50%, -50%) scale(1, 1); }
-}
-.milestone-marker.jump, 
-.clock-m-marker.jump {
-  animation: jumpAnimation 0.8s cubic-bezier(0.28, 0.84, 0.42, 1) forwards;
-  cursor: pointer;
-}
-@keyframes bubblePop {
-  0% { opacity: 0; transform: translate(-50%, 10px) scale(0.8); }
-  50% { opacity: 1; transform: translate(-50%, -15px) scale(1.05); }
-  100% { opacity: 0; transform: translate(-50%, -30px) scale(1); }
-}
-
-/* ========== 终极防选中、防长按菜单 ========== */
-* {
-  -webkit-user-select: none !important;
-  -moz-user-select: none !important;
-  -ms-user-select: none !important;
-  user-select: none !important;
-  -webkit-touch-callout: none !important;
-  -webkit-tap-highlight-color: transparent;
-}
-img {
-  -webkit-user-drag: none !important;
-  pointer-events: auto;
-}
-
-/* ========== 加载遮罩层 ========== */
-#loading-screen {
-  position: fixed;
-  inset: 0;
-  background: var(--bg-top);
-  z-index: 99999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s ease;
-  transform: translateY(0);
-}
-#loading-screen.hidden {
-  transform: translateY(-100%);
-  opacity: 0;
-  pointer-events: none;
-}
-.loader-content {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.loader-icon {
-  font-size: 3rem;
-  animation: heartbeat 1.2s infinite ease-in-out;
-  margin-bottom: 20px;
-  filter: drop-shadow(0 4px 10px rgba(217, 140, 140, 0.4));
-}
-.loader-text {
-  font-family: "Kaiti SC", "KaiTi", "STKaiti", serif;
-  font-size: 1.2rem;
-  color: var(--text-mid);
-  letter-spacing: 2px;
-  margin-bottom: 25px;
-  opacity: 0;
-  animation: fadeInText 1s 0.3s forwards ease;
-}
-.loader-bar-wrap {
-  width: 180px;
-  height: 3px;
-  background: var(--main-light);
-  border-radius: 3px;
-  overflow: hidden;
-}
-.loader-bar {
-  width: 0%;
-  height: 100%;
-  background: var(--main);
-  border-radius: 3px;
-  transition: width 0.3s ease;
-}
-@keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-}
-@keyframes fadeInText {
-  to { opacity: 1; }
-}
-
-/* ========== 极简时钟布局 ========== */
+/* ========= 16. 时钟布局 - 极简分屏 ========= */
 .clock-container.layout-minimal .clock-top {
   display: grid;
-  grid-template-columns: 4.2fr 1fr; 
-  grid-template-areas: 
+  grid-template-columns: 4.2fr 1fr;
+  grid-template-areas:
     "clock card1"
     "clock card2"
     "clock card3"
     "clock card4";
   gap: 2vh 2vw;
   align-items: stretch;
-  margin-bottom: 0; 
+  margin-bottom: 0;
 }
+
 .clock-container.layout-minimal .clock-bottom {
   display: none !important;
 }
+
 .clock-container.layout-minimal .center-col {
   grid-area: clock;
   display: flex;
@@ -1486,90 +1439,102 @@ img {
   justify-content: center;
   height: 100%;
 }
+
 .clock-container.layout-minimal .left-col,
 .clock-container.layout-minimal .right-col {
   display: contents;
 }
+
 .clock-container.layout-minimal .left-col .box-days { grid-area: card1; }
 .clock-container.layout-minimal .left-col .box-cd { grid-area: card2; }
 .clock-container.layout-minimal .right-col .box-cd:nth-child(1) { grid-area: card3; }
 .clock-container.layout-minimal .right-col .box-cd:nth-child(2) { grid-area: card4; }
+
 .clock-container.layout-minimal .clock-box:not(.box-time) {
   border-radius: 20px;
   padding: 1vh 0.5vw;
   background: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.03);
-  border: 1px solid rgba(255,255,255,0.6);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
+
 body.theme-fun .clock-container.layout-minimal .clock-box:not(.box-time) {
   background: rgba(42, 33, 23, 0.4);
   border: 1px solid rgba(201, 160, 74, 0.2);
 }
+
 .clock-container.layout-minimal .box-cd .c-cd-title {
   font-size: clamp(0.85rem, 1.1vw, 1.05rem);
   margin-bottom: 0.1vh;
   text-align: center;
   line-height: 1.2;
 }
+
 .clock-container.layout-minimal .box-cd .c-cd-value,
 .clock-container.layout-minimal .box-days .c-value {
   margin-top: 0.5 !important;
   line-height: 1.1 !important;
 }
+
 .clock-container.layout-minimal .box-cd .c-cd-value {
   font-size: clamp(1.2rem, 1.6vw, 1.5rem);
   text-align: center;
 }
+
 .clock-container.layout-minimal .box-cd .c-cd-value span {
-  font-size: clamp(2.2vw, 3.2vw, 3.6vw); 
+  font-size: clamp(2.2vw, 3.2vw, 3.6vw);
 }
+
 .clock-container.layout-minimal .box-days .c-label {
   font-size: 0.8rem;
   margin-bottom: 0.5vh;
 }
+
 .clock-container.layout-minimal .box-days .c-value #clock-days {
-  font-size: clamp(1.5rem, 2.2vw, 2.2rem)
+  font-size: clamp(1.5rem, 2.2vw, 2.2rem);
 }
+
 .clock-container.layout-minimal .box-days .c-unit {
   font-size: 0.8rem;
 }
+
 .clock-container.layout-minimal .clock-topline {
   height: auto;
   padding: 0 3vw 2vh 3vw;
 }
+
 .clock-container.layout-minimal .flip-clock {
-  font-size: min(16vw, 30vh) !important; 
-}
-.clock-container.layout-minimal .flip-colon {
-  font-size: min(10vw, 19vh) !important; 
-}
-@media (orientation: landscape) and (max-height: 500px) {
-  .clock-container.layout-minimal .flip-clock {
-    font-size: 13vw !important;
-  }
-  .clock-container.layout-minimal .flip-colon {
-    font-size: 12vw !important;
-  }
+  font-size: min(16vw, 30vh) !important;
 }
 
-/* ========== 第三种布局：上时钟 + 下卡片 ========== */
+.clock-container.layout-minimal .flip-colon {
+  font-size: min(10vw, 19vh) !important;
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .clock-container.layout-minimal .flip-clock { font-size: 13vw !important; }
+  .clock-container.layout-minimal .flip-colon { font-size: 12vw !important; }
+}
+
+/* ========= 17. 时钟布局 - 上下结构 ========= */
 .clock-container.layout-stacked .clock-top {
   display: grid;
-  grid-template-rows: 4.5fr 1fr; 
-  grid-template-columns: 1fr 1fr 1fr 1fr; 
-  grid-template-areas: 
+  grid-template-rows: 4.5fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-areas:
     "clock clock clock clock"
     "card1 card2 card3 card4";
-  gap: 1.5vh 1.5vw; 
+  gap: 1.5vh 1.5vw;
   height: 100%;
 }
+
 .clock-container.layout-stacked .center-col {
   grid-area: clock;
   width: 100%;
@@ -1579,63 +1544,76 @@ body.theme-fun .clock-container.layout-minimal .clock-box:not(.box-time) {
   justify-content: center;
   overflow: hidden;
 }
+
 .clock-container.layout-stacked .left-col,
 .clock-container.layout-stacked .right-col {
-  display: contents; 
+  display: contents;
 }
+
 .clock-container.layout-stacked .left-col .box-days { grid-area: card1; }
 .clock-container.layout-stacked .left-col .box-cd { grid-area: card2; }
 .clock-container.layout-stacked .right-col .box-cd:nth-child(1) { grid-area: card3; }
 .clock-container.layout-stacked .right-col .box-cd:nth-child(2) { grid-area: card4; }
+
 .clock-container.layout-stacked .clock-bottom {
   display: none !important;
 }
+
 .clock-container.layout-stacked .clock-box:not(.box-time) {
   border-radius: 20px;
   padding: 1vh 1vw;
   background: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.03);
-  border: 1px solid rgba(255,255,255,0.6);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100%;
 }
+
 body.theme-fun .clock-container.layout-stacked .clock-box:not(.box-time) {
   background: rgba(42, 33, 23, 0.4);
   border: 1px solid rgba(201, 160, 74, 0.2);
 }
+
 .clock-container.layout-stacked .box-cd .c-cd-title,
 .clock-container.layout-stacked .box-days .c-label {
   font-size: 0.85rem;
   margin-bottom: 0.2vh;
   text-align: center;
 }
+
 .clock-container.layout-stacked .box-cd .c-cd-value span,
 .clock-container.layout-stacked .box-days .c-value #clock-days {
-  font-size: 2.5vw; 
+  font-size: 2.5vw;
   line-height: 1;
 }
+
 .clock-container.layout-stacked .box-cd .c-cd-value {
   margin-top: 0;
   line-height: 1.1;
 }
+
 .clock-container.layout-stacked .flip-clock {
-  font-size: min(15vw, 25vh) !important; 
+  font-size: min(15vw, 25vh) !important;
 }
+
 .clock-container.layout-stacked .flip-colon {
-  font-size: min(10vw, 16vh) !important; 
+  font-size: min(10vw, 16vh) !important;
 }
+
 .clock-container.layout-stacked .clock-topline {
   height: auto;
   padding: 0 5vw 2vh 5vw;
 }
+
 .clock-container.layout-stacked .clock-toggle-group {
   margin-top: 1.5vh;
 }
+
 @media (orientation: landscape) and (max-height: 500px) {
   .clock-container.layout-stacked .flip-clock {
     font-size: min(13vw, 30vh) !important;
@@ -1646,7 +1624,7 @@ body.theme-fun .clock-container.layout-stacked .clock-box:not(.box-time) {
   .clock-container.layout-stacked .box-days .c-value #clock-days { font-size: 2.5vw; }
 }
 
-/* ========== 第四种布局：纯粹时钟 ========== */
+/* ========= 18. 时钟布局 - 纯粹时钟 ========= */
 .clock-container.layout-pure .clock-top {
   display: flex;
   justify-content: center;
@@ -1654,50 +1632,58 @@ body.theme-fun .clock-container.layout-stacked .clock-box:not(.box-time) {
   height: 100%;
   margin-bottom: 0;
 }
+
 .clock-container.layout-pure .left-col,
 .clock-container.layout-pure .right-col,
 .clock-container.layout-pure .clock-bottom {
   display: none !important;
 }
+
 .clock-container.layout-pure .center-col {
   flex: 1;
   width: 100%;
   height: 100%;
 }
+
 .clock-container.layout-pure .center-col .clock-box {
   display: flex;
   flex-direction: column;
-  justify-content: space-between; 
+  justify-content: space-between;
   align-items: center;
   height: 100%;
   padding: 3vh 0;
 }
+
 .clock-container.layout-pure .clock-topline {
   position: static;
   width: 100%;
   padding: 0 8vw;
   height: auto;
 }
+
 .clock-container.layout-pure .flip-clock {
-  font-size: min(18vw, 36vh) !important; 
+  font-size: min(18vw, 36vh) !important;
   margin: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 .clock-container.layout-pure .flip-colon {
-  font-size: min(15vw, 24vh) !important; 
+  font-size: min(15vw, 24vh) !important;
 }
+
 .clock-container.layout-pure .clock-toggle-group {
   position: static;
   margin-top: 0;
 }
 
-/* ========== 布局选择器（上拉菜单） ========== */
+/* ========= 19. 布局选择器 ========= */
 .layout-picker {
   position: relative;
   display: inline-block;
 }
+
 .layout-picker-toggle {
   display: flex;
   align-items: center;
@@ -1712,36 +1698,32 @@ body.theme-fun .clock-container.layout-stacked .clock-box:not(.box-time) {
   transition: all 0.3s ease;
   font-family: inherit;
 }
+
 .layout-picker-toggle:hover {
   background: var(--main);
   color: #fff;
   border-color: var(--main);
 }
+
 body.theme-fun .layout-picker-toggle {
   border-color: #5a4a34;
   color: #b8a898;
 }
+
 body.theme-fun .layout-picker-toggle:hover {
   background: #c9a04a;
   color: #0a0a0f;
   border-color: #c9a04a;
 }
-.layout-picker-icon {
-  font-size: 1rem;
-  line-height: 1;
-}
-.layout-picker-label {
-  font-size: 0.85rem;
-  white-space: nowrap;
-}
-.layout-picker-arrow {
-  font-size: 0.6rem;
-  transition: transform 0.3s ease;
-  line-height: 1;
-}
+
+.layout-picker-icon { font-size: 1rem; line-height: 1; }
+.layout-picker-label { font-size: 0.85rem; white-space: nowrap; }
+.layout-picker-arrow { font-size: 0.6rem; transition: transform 0.3s ease; line-height: 1; }
+
 .layout-picker.open .layout-picker-arrow {
   transform: rotate(180deg);
 }
+
 .layout-picker-menu {
   position: absolute;
   bottom: calc(100% + 10px);
@@ -1762,17 +1744,20 @@ body.theme-fun .layout-picker-toggle:hover {
   transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
   z-index: 100;
 }
+
 .layout-picker.open .layout-picker-menu {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
   transform: translateX(-50%) translateY(0);
 }
+
 body.theme-fun .layout-picker-menu {
   background: #1a1215;
   border-color: #5a4a34;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
 }
+
 .layout-option {
   display: flex;
   align-items: center;
@@ -1789,73 +1774,281 @@ body.theme-fun .layout-picker-menu {
   text-align: left;
   font-family: inherit;
 }
+
 .layout-option:hover {
   background: var(--main-light);
   color: var(--text);
 }
-body.theme-fun .layout-option {
-  color: #e8dcc8;
-}
-body.theme-fun .layout-option:hover {
-  background: #3a2e24;
-  color: #e8dcc8;
-}
+
+body.theme-fun .layout-option { color: #e8dcc8; }
+body.theme-fun .layout-option:hover { background: #3a2e24; color: #e8dcc8; }
+
 .layout-option.active {
   background: var(--main);
   color: #fff;
   font-weight: bold;
 }
+
 body.theme-fun .layout-option.active {
   background: #c9a04a;
   color: #0a0a0f;
 }
+
 .layout-option-icon {
   font-size: 1rem;
   width: 1.2em;
   text-align: center;
   flex-shrink: 0;
 }
+
 .layout-option-label {
   flex: 1;
   white-space: nowrap;
 }
+
 .layout-picker.open .layout-picker-toggle {
   background: var(--main);
   color: #fff;
   border-color: var(--main);
 }
+
 body.theme-fun .layout-picker.open .layout-picker-toggle {
   background: #c9a04a;
   color: #0a0a0f;
   border-color: #c9a04a;
 }
+
 @media (max-width: 700px) {
-  .layout-picker-menu {
-    min-width: 180px;
-  }
-  .layout-picker-label {
-    font-size: 0.78rem;
-  }
+  .layout-picker-menu { min-width: 180px; }
+  .layout-picker-label { font-size: 0.78rem; }
 }
 
-body.lightbox-open .event .card,
-body.lightbox-open .photo-wall img {
-  transform: none !important;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important; 
-  transition: none !important;
+/* ========= 20. 信件 ========= */
+.letter-buttons {
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 2;
 }
 
-/* ========== 修复并保留完整功能的音乐播放器 ========== */
+.letter-btn {
+  background: rgba(217, 140, 140, 0.05);
+  border: 0px dashed var(--main-light);
+  color: var(--text-mid);
+  padding: 10px 36px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 1.05rem;
+  transition: all 0.3s ease;
+  margin: 0 10px;
+}
 
-/* 1. 整体容器定位（固定在右上角） */
+body.theme-fun .letter-btn {
+  background: rgba(201, 160, 74, 0.08);
+}
+
+.letter-btn:hover {
+  background: var(--card-bg);
+  border-style: solid;
+  border-width: 0px;
+  border-color: var(--main);
+  color: var(--main);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.letter-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.letter-modal.show {
+  display: flex;
+  opacity: 1;
+}
+
+.letter-paper {
+  background: var(--card-bg);
+  width: 100%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  position: relative;
+  transform: translateY(20px);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  background-image: repeating-linear-gradient(transparent, transparent 31px, var(--main-light) 31px, var(--main-light) 32px);
+  background-position: 0 10px;
+  line-height: 32px;
+}
+
+.letter-modal.show .letter-paper {
+  transform: translateY(0);
+}
+
+.letter-paper h2 {
+  font-family: "Kaiti SC", "KaiTi", "STKaiti", serif;
+  color: var(--main);
+  font-size: 1.6rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.letter-paper p {
+  color: var(--text);
+  font-size: 1rem;
+  margin-bottom: 16px;
+  text-indent: 2em;
+}
+
+.letter-paper .signature {
+  text-align: right;
+  margin-top: 30px;
+  color: var(--text-mid);
+  font-family: "Kaiti SC", "KaiTi", "STKaiti", serif;
+  font-size: 1.1rem;
+  text-indent: 0;
+}
+
+.close-letter {
+  position: sticky;
+  top: -30px;
+  float: right;
+  margin-top: -30px;
+  margin-right: -20px;
+  font-size: 1.8rem;
+  color: var(--text-light);
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.3s;
+  z-index: 10;
+}
+
+.close-letter:hover {
+  color: var(--main);
+}
+
+body.theme-fun .letter-paper {
+  background-image: repeating-linear-gradient(transparent, transparent 31px, rgba(201, 160, 74, 0.1) 31px, rgba(201, 160, 74, 0.1) 32px);
+}
+
+/* ========= 21. 小人跳跃动画 ========= */
+@keyframes jumpAnimation {
+  0%   { transform: translate(-50%, -50%) scale(1, 1); }
+  12%  { transform: translate(-50%, -40%) scale(1.08, 0.85); }
+  30%  { transform: translate(-50%, -65%) scale(0.92, 1.15); }
+  45%  { transform: translate(-50%, -95%) scale(1, 1); }
+  50%  { transform: translate(-50%, -100%) scale(1, 1); }
+  65%  { transform: translate(-50%, -65%) scale(0.95, 1.1); }
+  80%  { transform: translate(-50%, -45%) scale(1.1, 0.85); }
+  90%  { transform: translate(-50%, -52%) scale(0.98, 1.02); }
+  100% { transform: translate(-50%, -50%) scale(1, 1); }
+}
+
+.milestone-marker.jump,
+.clock-m-marker.jump {
+  animation: jumpAnimation 0.8s cubic-bezier(0.28, 0.84, 0.42, 1) forwards;
+  cursor: pointer;
+}
+
+@keyframes bubblePop {
+  0%   { opacity: 0; transform: translate(-50%, 10px) scale(0.8); }
+  50%  { opacity: 1; transform: translate(-50%, -15px) scale(1.05); }
+  100% { opacity: 0; transform: translate(-50%, -30px) scale(1); }
+}
+
+/* ========= 22. 加载遮罩层 ========= */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-top);
+  z-index: 99999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s ease;
+  transform: translateY(0);
+}
+
+#loading-screen.hidden {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loader-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.loader-icon {
+  font-size: 3rem;
+  animation: heartbeat 1.2s infinite ease-in-out;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 4px 10px rgba(217, 140, 140, 0.4));
+}
+
+.loader-text {
+  font-family: "Kaiti SC", "KaiTi", "STKaiti", serif;
+  font-size: 1.2rem;
+  color: var(--text-mid);
+  letter-spacing: 2px;
+  margin-bottom: 25px;
+  opacity: 0;
+  animation: fadeInText 1s 0.3s forwards ease;
+}
+
+.loader-bar-wrap {
+  width: 180px;
+  height: 3px;
+  background: var(--main-light);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.loader-bar {
+  width: 0%;
+  height: 100%;
+  background: var(--main);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.15); }
+}
+
+@keyframes fadeInText {
+  to { opacity: 1; }
+}
+
+/* ========= 23. 音乐播放器 ========= */
+#bgm {
+  display: none;
+}
+
 #music-controls {
   position: fixed;
   top: 15px;
   right: 15px;
   z-index: 9999;
   display: flex;
-  flex-direction: column; 
-  align-items: flex-end;  
+  flex-direction: column;
+  align-items: flex-end;
   transition: all 0.3s ease;
   transform: scale(0.65);
   transform-origin: top right;
@@ -1866,7 +2059,6 @@ body.in-clock-mode.hide-buttons #music-controls {
   opacity: 0;
 }
 
-/* 2. 主控制栏卡片 */
 .music-bar {
   display: flex;
   align-items: center;
@@ -1874,29 +2066,27 @@ body.in-clock-mode.hide-buttons #music-controls {
   border: 1px solid var(--main-light);
   border-radius: 12px;
   padding: 6px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  padding-right: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   height: 50px;
-  /* ★ 如果你想给右侧唱针留更多空间，或者整体拉长，可以改这里的 padding-right */
-  padding-right: 4px; 
-  overflow: visible; 
+  overflow: visible;
   position: relative;
 }
 
 body.theme-fun .music-bar {
   background: #2a2117;
   border: 1px solid #5a4a34;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
-/* 3. 展开/收缩控制 */
 .music-expanded-content {
   display: flex;
   align-items: center;
   max-width: 250px;
   opacity: 1;
   overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: max-width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease !important;
 }
 
 #music-controls.is-muted .music-expanded-content {
@@ -1904,7 +2094,6 @@ body.theme-fun .music-bar {
   opacity: 0;
 }
 
-/* 4. 歌名展示 */
 .music-title-wrap {
   width: 70px;
   min-width: 70px;
@@ -1928,18 +2117,20 @@ body.theme-fun .music-bar {
   overflow: visible !important;
   min-width: max-content;
 }
+
 #music-current-title.scrolling {
   animation: marqueeScroll 5s linear infinite;
 }
+
 @keyframes marqueeScroll {
-  0%, 10% { transform: translateX(0); }
+  0%, 10%   { transform: translateX(0); }
   90%, 100% { transform: translateX(var(--scroll-distance, -100px)); }
 }
+
 body.theme-fun #music-current-title {
   color: #b8a898;
 }
 
-/* 5. 控制按钮组 */
 .music-extra-btns {
   display: flex;
   align-items: center;
@@ -1968,53 +2159,49 @@ body.theme-fun #music-current-title {
   transform: scale(1.1);
 }
 
-body.theme-fun .music-extra-btns button {
-  color: #8a7a68;
-}
-body.theme-fun .music-extra-btns button:hover {
-  color: #c9a04a;
-  background: rgba(255, 255, 255, 0.08);
-}
+body.theme-fun .music-extra-btns button { color: #8a7a68; }
+body.theme-fun .music-extra-btns button:hover { color: #c9a04a; background: rgba(255, 255, 255, 0.08); }
 
 #music-random-btn.active {
   color: var(--main);
   background: rgba(217, 140, 140, 0.15) !important;
 }
+
 body.theme-fun #music-random-btn.active {
   color: #c9a04a;
   background: rgba(201, 160, 74, 0.2) !important;
 }
 
-/* ========== 播放/暂停按钮（唱片机底座与黑胶） ========== */
+#music-prev-btn svg {
+  transform: scaleX(-1);
+}
 
+/* 主播放按钮（黑胶） */
 #music-toggle-btn {
   width: 38px !important;
   height: 38px !important;
   min-width: 38px !important;
   min-height: 38px !important;
   border-radius: 8px !important;
-  
-  /* ★ 控制黑胶在底座里的左右位置，margin-right 越大，给右侧唱针留的空间越多 */
+  box-shadow: none !important;
   margin-left: 4px;
-  margin-right: 6px; 
+  margin-right: 6px;
   padding: 0;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  flex-shrink: 0; 
+  flex-shrink: 0;
   position: relative;
   transition: all 0.4s ease;
   overflow: hidden;
 }
 
-/* 隐藏原有图标 */
 #music-toggle-btn .icon-play,
 #music-toggle-btn .icon-pause,
 #music-toggle-btn .icon-cd {
   display: none !important;
 }
 
-/* ★ 黑胶唱片本体 */
 #music-toggle-btn::before {
   content: '';
   position: absolute;
@@ -2022,17 +2209,15 @@ body.theme-fun #music-random-btn.active {
   height: 32px;
   border-radius: 50%;
   background: #111;
-  /* 加入高光反光，转动时能看出动感 */
-  background-image: 
-    linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.4) 50%, transparent 60%),
-    radial-gradient(circle, transparent 30%, rgba(255,255,255,0.1) 32%, transparent 34%),
-    radial-gradient(circle, transparent 50%, rgba(255,255,255,0.1) 52%, transparent 54%),
-    radial-gradient(circle, transparent 70%, rgba(255,255,255,0.1) 72%, transparent 74%);
-  box-shadow: inset 0 0 4px rgba(0,0,0,0.8);
+  background-image:
+    linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.4) 50%, transparent 60%),
+    radial-gradient(circle, transparent 30%, rgba(255, 255, 255, 0.1) 32%, transparent 34%),
+    radial-gradient(circle, transparent 50%, rgba(255, 255, 255, 0.1) 52%, transparent 54%),
+    radial-gradient(circle, transparent 70%, rgba(255, 255, 255, 0.1) 72%, transparent 74%);
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.8);
   z-index: 1;
 }
 
-/* 唱片中心标签（保留主题色） */
 #music-toggle-btn::after {
   content: '';
   position: absolute;
@@ -2041,61 +2226,65 @@ body.theme-fun #music-random-btn.active {
   border-radius: 50%;
   background: var(--main);
   z-index: 2;
-  box-shadow: 0 0 2px rgba(0,0,0,0.5);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
 }
 
-/* ★ 播放时黑胶旋转，高光跟着转 */
+body.theme-fun #music-toggle-btn {
+  background: #3d3020 !important;
+  box-shadow: none !important;
+}
+
 #music-controls:not(.is-muted) #music-toggle-btn::before,
 #music-controls:not(.is-muted) #music-toggle-btn::after {
   animation: spinVinyl 3s linear infinite;
 }
+
 @keyframes spinVinyl {
-  0% { transform: rotate(0deg); }
+  0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/* ========== 唱针设计 ========== */
+#music-toggle-btn:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
 
-/* 唱针转轴底座（银色小圆点） */
+/* 唱针 */
 .music-bar::before {
   content: '';
   position: absolute;
-  /* top 控制上下，right 控制左右（数字越小越靠右，因为右边是边缘） */
   top: 8px;
-  right: 3px; 
+  right: 3px;
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: radial-gradient(circle at 30% 30%, #fff, #888);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   z-index: 10;
   pointer-events: none;
 }
 
-/* 唱针金属臂 */
 .music-bar::after {
   content: '';
   position: absolute;
-  /* ★ 圆心对齐：top 和 right 比上方的圆圈大约 3~4px */
   top: 12px;
-  right: 5px; 
+  right: 5px;
   width: 3px;
-  height: 28px; /* 长度 */
+  height: 28px;
   background: linear-gradient(to right, #bbb, #fff, #bbb);
   border-radius: 2px;
   transform-origin: top center;
   transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   z-index: 9;
-  box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
   pointer-events: none;
 }
 
-/* 播放状态：唱针移到唱片上方 */
 #music-controls:not(.is-muted) .music-bar::after {
-  transform: rotate(35deg); 
+  transform: rotate(35deg);
 }
 
-/* 7. 下拉歌单面板 */
+/* 歌单面板 */
 .music-panel {
   position: absolute;
   top: calc(100% + 10px);
@@ -2103,7 +2292,7 @@ body.theme-fun #music-random-btn.active {
   background: var(--card-bg);
   border: 1px solid var(--main-light);
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   width: 180px;
   opacity: 0;
   visibility: hidden;
@@ -2122,7 +2311,7 @@ body.theme-fun #music-random-btn.active {
 body.theme-fun .music-panel {
   background: #2a2117;
   border-color: #5a4a34;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 .music-panel-header {
@@ -2131,20 +2320,22 @@ body.theme-fun .music-panel {
   padding: 12px 16px 8px;
   letter-spacing: 1px;
   font-weight: bold;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
+
 body.theme-fun .music-panel-header {
-  border-bottom-color: rgba(255,255,255,0.05);
+  border-bottom-color: rgba(255, 255, 255, 0.05);
   color: #c9a04a;
 }
 
 .music-list {
-  max-height: 160px; 
+  max-height: 160px;
   overflow-y: auto;
   padding: 6px;
 }
+
 .music-list::-webkit-scrollbar { width: 4px; }
-.music-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 4px; }
+.music-list::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.1); border-radius: 4px; }
 
 .music-item {
   display: block;
@@ -2164,41 +2355,21 @@ body.theme-fun .music-panel-header {
   margin-bottom: 2px;
 }
 
-.music-item:hover {
-  background: rgba(0,0,0,0.05);
-}
-body.theme-fun .music-item:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
+.music-item:hover { background: rgba(0, 0, 0, 0.05); }
+body.theme-fun .music-item:hover { background: rgba(255, 255, 255, 0.08); }
 
 .music-item.active {
   background: var(--main-light);
   color: var(--main);
   font-weight: bold;
 }
+
 body.theme-fun .music-item.active {
   background: rgba(201, 160, 74, 0.2);
   color: #c9a04a;
 }
 
-#bgm {
-  display: none;
-}
-
-/* 上一首图标翻转 */
-#music-prev-btn svg {
-  transform: scaleX(-1);
-}
-
-/* ========== 最终修正：保持胶囊形，完美收缩 ========== */
-
-/* 确保展开区域有平滑的收缩过渡 */
-.music-expanded-content {
-  transition: max-width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease !important;
-  overflow: hidden; /* 防止内容溢出 */
-}
-
-/* ★ 收缩状态 */
+/* 收缩状态 */
 #music-controls.state-collapsed .music-expanded-content {
   max-width: 0 !important;
   opacity: 0 !important;
@@ -2207,32 +2378,119 @@ body.theme-fun .music-item.active {
   pointer-events: none;
 }
 
-/* ★ 修复变成圆形的问题：保持胶囊形，同时清理多余的 padding */
 #music-controls.state-collapsed .music-bar {
-  /* 原本你的 CSS 里已经写了 padding: 6px; height: 50px; border-radius: 12px; 我们只需要微调 */
-  padding: 6px !important; 
-  padding-right: 8px !important; /* 给右侧唱针留一点空间 */
-  border-radius: 12px !important; /* 恢复你原本的圆角矩形，不要用 50% 或 50px */
-  /* ★ 关键修复：只过渡 padding 和 width，不加其他的，强制锁定右边 */
-  transition: padding 0.4s ease !important; 
-  
-  /* 确保唱针的锚点永远是在最右侧边缘，不会因为内部宽度收缩而乱跑 */
+  padding: 6px !important;
+  padding-right: 8px !important;
+  border-radius: 12px !important;
+  transition: padding 0.4s ease !important;
   position: relative !important;
+  overflow: hidden !important;
 }
 
-/* 清理黑胶周围的边距，让它在收缩时居中 */
 #music-controls.state-collapsed #music-toggle-btn {
   margin-left: 0 !important;
   margin-right: 2px !important;
 }
 
-/* 修复左边缘漏出东西（小动物/花瓣）的残影问题 */
 #music-controls.state-collapsed {
-  /* 如果最外层有溢出，直接裁切掉 */
-  overflow: visible !important; 
+  overflow: visible !important;
 }
 
-#music-controls.state-collapsed .music-bar {
-  /* 确保内部内容不会跑出边框 */
-  overflow: hidden !important; 
+/* ========= 24. 节点导航菜单 ========= */
+.jump-nav {
+  position: fixed;
+  bottom: 120px;
+  right: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.jump-nav-btn {
+  position: relative !important;
+  top: auto !important;
+  bottom: auto !important;
+  right: auto !important;
+}
+
+.jump-nav-menu {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  min-width: 92px;
+  max-height: 60vh;
+  overflow-y: auto;
+  background: var(--card-bg);
+  border: 1px solid var(--main-light);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  padding: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+}
+
+.jump-nav.open .jump-nav-menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+body.theme-fun .jump-nav-menu {
+  background: #1a1215;
+  border-color: #5a4a34;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+
+.jump-nav-item {
+  display: block;
+  width: 100%;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.78rem;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease;
+  font-family: inherit;
+}
+
+.jump-nav-item:hover {
+  background: var(--main-light);
+  color: var(--text);
+}
+
+body.theme-fun .jump-nav-item { color: #e8dcc8; }
+body.theme-fun .jump-nav-item:hover { background: #3a2e24; color: #e8dcc8; }
+
+.jump-nav-item.current {
+  background: var(--main);
+  color: #fff;
+  font-weight: bold;
+}
+
+body.theme-fun .jump-nav-item.current {
+  background: #c9a04a;
+  color: #0a0a0f;
+}
+
+/* 时钟模式下隐藏导航 */
+body.in-clock-mode .jump-nav {
+  display: none !important;
+}
+
+body.in-clock-mode.hide-buttons .jump-nav {
+  transform: translateX(120px);
+  opacity: 0;
+  transition: transform 0.4s ease, opacity 0.4s ease;
 }
