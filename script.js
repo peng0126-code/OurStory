@@ -1017,40 +1017,155 @@ if (photoWall) {
   });
 }
 
-/* ========== 9. 照片墙导航按钮 ========== */
-const photoNavBtn = document.getElementById("photo-nav-btn");
+/* ========== 9. 节点导航菜单（顶部 / 年份 / 最近 / 照片墙） ========== */
+const jumpNav = document.getElementById("jump-nav");
+const jumpNavBtn = document.getElementById("jump-nav-btn");
+const jumpNavMenu = document.getElementById("jump-nav-menu");
 const photoSection = document.querySelector(".photo-wall-section");
-const photoTitle = document.querySelector(".photo-wall-title");
+const endingEl = document.querySelector(".ending");
 
-function checkPhotoSectionPosition() {
-  if (!photoSection || !photoNavBtn) return;
+// 收集年份节点（按 DOM 顺序，即自动按年份升序）
+const yearGroups = document.querySelectorAll(".year-group");
 
-  const rect = photoTitle.getBoundingClientRect();
+const jumpTargets = [];
 
-  if (rect.top < window.innerHeight * 0.4) {
-    photoNavBtn.textContent = "⬆️";
-    photoNavBtn.title = "回到顶部";
-  } else {
-    photoNavBtn.textContent = "📸";
-    photoNavBtn.title = "前往照片墙";
-  }
+// 1. 顶部
+jumpTargets.push({
+  label: "顶部",
+  getEl: () => document.querySelector("header")
+});
+
+// 2. 各年份（自动根据实际存在的 year-group 生成，有 2027 就自动多一项）
+yearGroups.forEach(group => {
+  const yearText = group.querySelector(".year-header span")?.textContent?.trim();
+  if (!yearText) return;
+  jumpTargets.push({
+    label: yearText,
+    getEl: () => group,
+    isYear: true
+  });
+});
+
+// 3. 最近（结尾 / 未完待续处）
+if (endingEl) {
+  jumpTargets.push({
+    label: "最近",
+    getEl: () => {
+      const allEvents = document.querySelectorAll(".timeline .event");
+      const lastEvent = allEvents[allEvents.length - 1];
+      return lastEvent || endingEl; // 兜底：没有 event 时回到结尾
+    },
+    isYear: true // 复用“先展开折叠年份”的逻辑
+  });
 }
 
-window.addEventListener("scroll", checkPhotoSectionPosition);
+// 4. 照片墙
+if (photoSection) {
+  jumpTargets.push({
+    label: "照片墙",
+    getEl: () => photoSection
+  });
+}
 
-if (photoNavBtn && photoSection) {
-  photoNavBtn.addEventListener("click", () => {
-    const rect = photoTitle.getBoundingClientRect();
+// 渲染菜单
+function renderJumpMenu() {
+  if (!jumpNavMenu) return;
+  jumpNavMenu.innerHTML = "";
 
-    if (rect.top < window.innerHeight * 0.4) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+  jumpTargets.forEach((target, index) => {
+    const btn = document.createElement("button");
+    btn.className = "jump-nav-item";
+    btn.type = "button";
+    btn.textContent = target.label;
+    btn.dataset.index = index;
+
+    btn.addEventListener("click", () => {
+      const el = target.getEl();
+      if (!el) return;
+
+      // 如果目标是折叠的年份，先展开
+      if (target.isYear) {
+        const group = el;
+        if (group.classList.contains("collapsed")) {
+          group.querySelector(".year-header")?.click();
+        }
+      }
+
+      // 平滑滚动到目标
+      const rect = el.getBoundingClientRect();
+      const targetTop = window.scrollY + rect.top - 20;
+
+      window.scrollTo({
+        top: Math.max(0, targetTop),
+        behavior: "smooth"
+      });
+
+      closeJumpMenu();
+    });
+
+    jumpNavMenu.appendChild(btn);
+  });
+}
+
+renderJumpMenu();
+
+function openJumpMenu() {
+  jumpNav?.classList.add("open");
+  updateCurrentJumpItem();
+}
+
+function closeJumpMenu() {
+  jumpNav?.classList.remove("open");
+}
+
+if (jumpNavBtn) {
+  jumpNavBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (jumpNav.classList.contains("open")) {
+      closeJumpMenu();
     } else {
-      window.scrollTo({ top: photoSection.offsetTop - 5, behavior: "smooth" });
+      openJumpMenu();
+    }
+  });
+}
+
+// 点击外部关闭
+document.addEventListener("click", (e) => {
+  if (jumpNav && jumpNav.classList.contains("open") && !jumpNav.contains(e.target)) {
+    closeJumpMenu();
+  }
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeJumpMenu();
+});
+
+// 高亮当前所在区块
+function updateCurrentJumpItem() {
+  if (!jumpNavMenu) return;
+
+  const scrollPos = window.scrollY + window.innerHeight * 0.35;
+  let activeIndex = 0;
+
+  jumpTargets.forEach((target, index) => {
+    const el = target.getEl();
+    if (!el) return;
+    const top = window.scrollY + el.getBoundingClientRect().top;
+    if (scrollPos >= top) {
+      activeIndex = index;
     }
   });
 
-  checkPhotoSectionPosition();
+  jumpNavMenu.querySelectorAll(".jump-nav-item").forEach(btn => {
+    btn.classList.toggle("current", Number(btn.dataset.index) === activeIndex);
+  });
 }
+
+window.addEventListener("scroll", () => {
+  if (jumpNav && jumpNav.classList.contains("open")) {
+    updateCurrentJumpItem();
+  }
+});
 
 /* ========== 10. 时钟模式逻辑（锁定 UTC+8） ========== */
 const clockBtn = document.getElementById("clock-btn");
