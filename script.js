@@ -1459,9 +1459,7 @@ if (sessionStorage.getItem("hasVisited")) {
   });
 }
 
-/* =========================================================
-   25. 老虎机（网页底部）—— 阶梯急刹 + 满屏彩带 + 6张浪漫图
-   ========================================================= */
+/* ========== 25. 老虎机（网页底部）========== */
 (function initSlotMachine() {
   const machine = document.getElementById("slot-machine");
   if (!machine) return;
@@ -1511,14 +1509,7 @@ if (sessionStorage.getItem("hasVisited")) {
   const REPEAT = 20;
   const ICON_COUNT = 30;
 
-  /* =========================================================
-     ★ 性能优化版 applyCylinder
-     - DOM 数量、顺序、索引、translateY 距离全部保持原样
-     - 离窗口超过 windowSize * 0.75 的 item 只写一次样式后标记 released
-     - 后续帧直接 continue 跳过，不再做 asin / 写 transform / opacity
-     - 重新进入可视范围时清除标记，恢复逐帧渲染
-     - 动画路径、圆柱透视、急刹效果完全不变
-     ========================================================= */
+
   function applyCylinder(reel, itemSize, windowSize, currentY) {
     const items = reel.children;
     const R = 200;
