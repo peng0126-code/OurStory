@@ -1459,7 +1459,9 @@ if (sessionStorage.getItem("hasVisited")) {
   });
 }
 
-/* ========== 25. 老虎机（网页底部）========== */
+/* =========================================================
+   25. 老虎机（网页底部）—— 虚拟化滚轮版 (完美 0.5:1:0.5 布局)
+   ========================================================= */
 (function initSlotMachine() {
   const machine = document.getElementById("slot-machine");
   if (!machine) return;
@@ -1479,7 +1481,6 @@ if (sessionStorage.getItem("hasVisited")) {
   function getItemSize() { return window.matchMedia("(max-width: 700px)").matches ? ITEM_SIZE_MOBILE : ITEM_SIZE; }
   function getWindowSize() { return window.matchMedia("(max-width: 700px)").matches ? WINDOW_SIZE_MOBILE : WINDOW_SIZE; }
 
-  // 暗黑/搞笑模式（5张）
   const FUN_SLOT_IMAGES = [
     "images/machine/joker/bathjoker.png",
     "images/machine/joker/whitejoker.png",
@@ -1488,7 +1489,6 @@ if (sessionStorage.getItem("hasVisited")) {
     "images/machine/joker/pinkjoker.png"
   ];
 
-  // ★ 浪漫模式（6 张图）
   const ROMANTIC_IMAGES = [
     "images/machine/romantic/desaru.png",
     "images/machine/romantic/genting.png",
@@ -1498,46 +1498,76 @@ if (sessionStorage.getItem("hasVisited")) {
     "images/machine/romantic/xiaod.png"
   ];
 
-  function buildItemHTML(index) {
-    if (document.body.classList.contains("theme-fun")) {
-      return `<div class="slot-item"><img src="${FUN_SLOT_IMAGES[index % 5]}" alt=""></div>`;
-    } else {
-      return `<div class="slot-item"><img src="${ROMANTIC_IMAGES[index % 6]}" alt=""></div>`;
+  function getImageList() {
+    return document.body.classList.contains("theme-fun") ? FUN_SLOT_IMAGES : ROMANTIC_IMAGES;
+  }
+  function getTypeCount() {
+    return document.body.classList.contains("theme-fun") ? 5 : 6;
+  }
+
+  // 虚拟化参数：池子扩大到 6 个节点，确保上下半个视角都有图片
+  const POOL_SIZE = 6; 
+  const R = 200;
+  
+  const reelStates = reelEls.map(reel => {
+    const pool = [];
+    for (let i = 0; i < POOL_SIZE; i++) {
+      const item = document.createElement("div");
+      item.className = "slot-item";
+      const img = document.createElement("img");
+      img.alt = "";
+      item.appendChild(img);
+      reel.appendChild(item);
+      pool.push({ el: item, img, virtualIndex: -1, lastSrc: "" });
+    }
+    return { reel, pool };
+  });
+
+  function mod(n, m) { return ((n % m) + m) % m; }
+
+  function setItemImage(node, typeCount) {
+    const list = getImageList();
+    const src = list[mod(node.virtualIndex, typeCount)];
+    if (node.lastSrc !== src) {
+      node.img.src = src;
+      node.lastSrc = src;
     }
   }
 
-  const REPEAT = 20;
-  const ICON_COUNT = 30;
+  /* 
+   * 核心渲染：按像素绝对定位，确保完美的 0.5 : 1 : 0.5 视觉
+   */
+  function renderReel(state, currentY, itemSize, windowSize) {
+    const { pool } = state;
+    const typeCount = getTypeCount();
+    const windowCenter = windowSize / 2;
 
+    // 核心：计算当前哪个索引位于正中间（对应图片的中心点）
+    const centerVirtual = (windowCenter - itemSize / 2 - currentY) / itemSize;
+    const baseIndex = Math.round(centerVirtual);
 
-  function applyCylinder(reel, itemSize, windowSize, currentY) {
-    const items = reel.children;
-    const R = 200;
-    const RELEASE_RANGE = windowSize * 0.75;
+    for (let i = 0; i < POOL_SIZE; i++) {
+      const node = pool[i];
+      const vIndex = baseIndex + (i - 2); // 池子分布为：上2个，中间1个，下2个，再多1个缓冲
+      
+      if (node.virtualIndex !== vIndex) {
+        node.virtualIndex = vIndex;
+        setItemImage(node, typeCount);
+      }
 
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      const itemCenterY = i * itemSize + itemSize / 2 + currentY;
-      const dy = itemCenterY - windowSize / 2;
+      // 计算这个节点距离窗口正中心的像素偏移量
+      const itemCenterY = vIndex * itemSize + itemSize / 2 + currentY;
+      const dy = itemCenterY - windowCenter;
 
-      // ★ 已释放且仍在远处 → 直接跳过，不碰任何样式
-      if (Math.abs(dy) > RELEASE_RANGE) {
-        if (item.dataset.released !== "1") {
-          const theta = Math.asin(Math.max(-1, Math.min(1, dy / R)));
-          const yTranslate = Math.sin(theta) * R - dy;
-          const rotateX = -theta * (180 / Math.PI);
-          item.style.transform = `translateY(${yTranslate}px) translateZ(-100px) rotateX(${rotateX}deg) scaleY(0.1)`;
-          item.style.opacity = "0";
-          item.dataset.released = "1";
-        }
+      // 如果偏移超出可视范围（上下各 1.5 个身位），直接隐藏
+      if (Math.abs(dy) > itemSize * 1.5) {
+        node.el.style.display = "none";
         continue;
       }
 
-      // ★ 重新进入可视范围 → 清除释放标记
-      if (item.dataset.released === "1") {
-        delete item.dataset.released;
-      }
+      node.el.style.display = "block";
 
+      // --- 视觉 3D 效果计算（保留圆柱透视感） ---
       const theta = Math.asin(Math.max(-1, Math.min(1, dy / R)));
       const yTranslate = Math.sin(theta) * R - dy;
       const zTranslate = Math.cos(theta) * R - R;
@@ -1545,29 +1575,24 @@ if (sessionStorage.getItem("hasVisited")) {
       const scaleY = Math.max(0.25, Math.cos(theta));
       const opacity = Math.max(0.4, 1 - Math.abs(theta) * 1.0);
 
-      item.style.transform = `translateY(${yTranslate}px) translateZ(${zTranslate}px) rotateX(${rotateX}deg) scaleY(${scaleY})`;
-      item.style.opacity = opacity;
+      node.el.style.transform = `translateY(${yTranslate}px) translateZ(${zTranslate}px) rotateX(${rotateX}deg) scaleY(${scaleY})`;
+      node.el.style.opacity = opacity;
     }
   }
 
   function fillReels() {
-    reelEls.forEach(reel => {
-      let html = "";
-      for (let r = 0; r < REPEAT; r++) {
-        for (let i = 0; i < ICON_COUNT; i++) {
-          html += buildItemHTML(i);
-        }
-      }
-      reel.innerHTML = html;
-
-      const itemSize = getItemSize();
-      const windowSize = getWindowSize();
+    const itemSize = getItemSize();
+    const windowSize = getWindowSize();
+    reelEls.forEach((reel, idx) => {
+      const state = reelStates[idx];
+      // 随机取一个索引位于窗口正中间
       const randomCenterIndex = Math.floor(Math.random() * 200) + 50;
       const initY = (windowSize / 2) - (randomCenterIndex * itemSize + itemSize / 2);
-
+      
+      // 容器本身不动，全靠子节点绝对定位
       reel.style.transition = "none";
-      reel.style.transform = `translateY(${initY}px)`;
-      applyCylinder(reel, itemSize, windowSize, initY);
+      reel.style.transform = "translateY(0px)"; 
+      renderReel(state, initY, itemSize, windowSize);
     });
   }
 
@@ -1578,36 +1603,23 @@ if (sessionStorage.getItem("hasVisited")) {
 
   let isSpinning = false;
 
-  // 满屏彩带效果
   function shootConfetti() {
     const isFun = document.body.classList.contains("theme-fun");
     const colors = isFun
       ? ["#c9a04a", "#e0b458", "#ffe08a", "#ffffff", "#8a7a68"]
       : ["#d98c8c", "#e8c4c4", "#ff9a9e", "#fecfef", "#ffd1dc", "#a1c4fd"];
-
     const shapes = ["square", "rect", "circle"];
-
     for (let i = 0; i < 100; i++) {
       setTimeout(() => {
         const confetti = document.createElement("div");
         confetti.classList.add("confetti");
-
-        const shape = shapes[Math.floor(Math.random() * shapes.length)];
-        confetti.classList.add(shape);
-
+        confetti.classList.add(shapes[Math.floor(Math.random() * shapes.length)]);
         confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
         confetti.style.left = Math.random() * 100 + "vw";
-
-        const tx = (Math.random() - 0.5) * 400 + "px";
-        const ty = -(Math.random() * 800 + 400) + "px";
-        const rot = (Math.random() * 1440 - 720) + "deg";
-
-        confetti.style.setProperty("--tx", tx);
-        confetti.style.setProperty("--ty", ty);
-        confetti.style.setProperty("--rot", rot);
-
+        confetti.style.setProperty("--tx", (Math.random() - 0.5) * 400 + "px");
+        confetti.style.setProperty("--ty", -(Math.random() * 800 + 400) + "px");
+        confetti.style.setProperty("--rot", (Math.random() * 1440 - 720) + "deg");
         confetti.style.animationDuration = (Math.random() * 1 + 2) + "s";
-
         document.body.appendChild(confetti);
         setTimeout(() => confetti.remove(), 3000);
       }, i * 20);
@@ -1626,56 +1638,49 @@ if (sessionStorage.getItem("hasVisited")) {
     const windowSize = getWindowSize();
 
     let isWin = Math.random() < 0.1;
-
-    const currentTypeCount = document.body.classList.contains("theme-fun") ? 5 : 6;
-    let winIndex = Math.floor(Math.random() * currentTypeCount);
+    const typeCount = getTypeCount();
+    let winIndex = Math.floor(Math.random() * typeCount);
 
     let results = [];
     let finished = 0;
-
     const globalStartTime = performance.now();
 
     reelEls.forEach((reel, idx) => {
+      const state = reelStates[idx];
+
       let stopIndex;
       if (isWin) {
         stopIndex = winIndex;
       } else {
         do {
-          stopIndex = Math.floor(Math.random() * currentTypeCount);
+          stopIndex = Math.floor(Math.random() * typeCount);
         } while (stopIndex === winIndex);
         if (results.length === 2 && results[0] === results[1] && stopIndex === results[0]) {
-          stopIndex = (stopIndex + 1) % currentTypeCount;
+          stopIndex = (stopIndex + 1) % typeCount;
         }
       }
       results.push(stopIndex);
 
       const duration = 1200 + idx * 1000;
       const baseLoops = 8 + idx * 2;
-      const totalItems = baseLoops * ICON_COUNT + stopIndex;
+      // 30 是原来的 ICON_COUNT，保持总圈数一致
+      const totalItems = baseLoops * 30 + stopIndex;  
 
       const targetY = (windowSize / 2) - (totalItems * itemSize + itemSize / 2);
       const startY = (windowSize / 2) - (itemSize * 1 + itemSize / 2);
 
-      reel.style.transition = "none";
-      reel.style.transform = `translateY(${startY}px)`;
-      applyCylinder(reel, itemSize, windowSize, startY);
-      void reel.offsetWidth;
+      renderReel(state, startY, itemSize, windowSize);
 
       function step(now) {
         const elapsed = now - globalStartTime;
-
         if (elapsed < duration) {
           const t = elapsed / duration;
-          const eased = 1 - Math.pow(1 - t, 3);
+          const eased = 1 - Math.pow(1 - t, 3); // 原版急刹缓动
           const y = startY + (targetY - startY) * eased;
-          reel.style.transform = `translateY(${y}px)`;
-          applyCylinder(reel, itemSize, windowSize, y);
+          renderReel(state, y, itemSize, windowSize);
           requestAnimationFrame(step);
         } else {
-          reel.style.transition = "none";
-          reel.style.transform = `translateY(${targetY}px)`;
-          applyCylinder(reel, itemSize, windowSize, targetY);
-
+          renderReel(state, targetY, itemSize, windowSize);
           finished++;
           if (finished === reelEls.length) {
             isSpinning = false;
