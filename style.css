@@ -2494,3 +2494,377 @@ body.in-clock-mode.hide-buttons .jump-nav {
   opacity: 0;
   transition: transform 0.4s ease, opacity 0.4s ease;
 }
+
+/* ========= 25. 老虎机（网页底部，加宽版）========= */
+.slot-section {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px 20px;
+}
+
+.slot-machine {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  cursor: pointer;
+  user-select: none;
+  perspective: 1000px;
+}
+
+/* ---------- 机身 ---------- */
+.slot-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background: var(--card-bg);
+  border: 2px solid var(--main-light);
+  border-radius: 24px;
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.12),
+    inset 0 2px 0 rgba(255, 255, 255, 0.8);
+  transition: background 0.6s ease, border-color 0.6s ease, box-shadow 0.3s ease;
+}
+
+.slot-machine:hover .slot-body {
+  box-shadow:
+    0 16px 42px rgba(0, 0, 0, 0.16),
+    inset 0 2px 0 rgba(255, 255, 255, 0.8);
+}
+
+body.theme-fun .slot-body {
+  background: #2a2117;
+  border-color: #5a4a34;
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.6),
+    inset 0 2px 0 rgba(201, 160, 74, 0.15);
+}
+
+/* ---------- 顶部招牌 ---------- */
+.slot-marquee {
+  width: 100%;
+  height: 36px;
+  margin-bottom: 18px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--main) 0%, var(--main-light) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 14px;
+  box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+body.theme-fun .slot-marquee {
+  background: linear-gradient(180deg, #c9a04a 0%, #7a5c2a 100%);
+}
+
+.slot-marquee-light {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px #fff, 0 0 12px rgba(255, 255, 255, 0.8);
+  animation: marqueeBlink 1.2s infinite ease-in-out;
+}
+.slot-marquee-light:nth-child(2) { animation-delay: 0.2s; }
+.slot-marquee-light:nth-child(3) { animation-delay: 0.4s; }
+.slot-marquee-light:nth-child(4) { animation-delay: 0.6s; }
+.slot-marquee-light:nth-child(5) { animation-delay: 0.8s; }
+
+body.theme-fun .slot-marquee-light {
+  background: #ffe08a;
+  box-shadow: 0 0 6px #ffe08a, 0 0 12px rgba(255, 224, 138, 0.8);
+}
+
+@keyframes marqueeBlink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.25; }
+}
+
+/* ---------- 三个滚轮横排 ---------- */
+.slot-reels {
+  display: flex;
+  flex-direction: row;
+  gap: 14px;
+}
+
+/* 窗口：加宽到 120px，高度 240px */
+.slot-window {
+  width: 120px;
+  height: 240px;
+  overflow: hidden; 
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.06);
+  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.1), inset 0 -4px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--main-light);
+  position: relative;
+  perspective: 800px; 
+  perspective-origin: 50% 50%;
+}
+
+/* 每一个格子 */
+.slot-item {
+  width: 100%;
+  height: 120px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  box-sizing: border-box;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  transform-origin: 50% 50%;
+  transition: none;
+  will-change: transform, opacity;
+  position: relative;
+}
+
+/* 上下渐隐遮罩 */
+.slot-window::before, .slot-window::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  height: 12%; 
+  pointer-events: none;
+  z-index: 2;
+}
+.slot-window::before {
+  top: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.25), transparent);
+}
+.slot-window::after {
+  bottom: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.25), transparent);
+}
+
+body.theme-fun .slot-window::before {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.45), transparent);
+}
+body.theme-fun .slot-window::after {
+  background: linear-gradient(to top, rgba(0,0,0,0.45), transparent);
+}
+
+.slot-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+/* ---------- 浪漫模式纯 CSS 图形 ---------- */
+.slot-shape {
+  width: 100%;
+  height: 100%;
+  display: block;
+  position: relative;
+}
+
+.slot-shape.petal-shape {
+  border-radius: 50% 0 50% 50%;
+  background: radial-gradient(circle at 30% 30%, #ffd1dc, #ffb7c5);
+  box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.6);
+  transform: rotate(45deg) scale(0.85);
+}
+
+.slot-shape.leaf-shape {
+  border-radius: 0 50% 0 50%;
+  background: linear-gradient(135deg, #8fbf6a 0%, #5c9a3f 100%);
+  box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.35);
+  transform: rotate(-15deg) scale(0.9);
+}
+.slot-shape.leaf-shape::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 8%;
+  width: 1.5px;
+  height: 84%;
+  background: rgba(255, 255, 255, 0.55);
+  transform: translateX(-50%) rotate(45deg);
+  transform-origin: top center;
+  border-radius: 2px;
+}
+
+.slot-shape.flower-shape {
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 18%, #e2555f 0 24%, transparent 25%),
+    radial-gradient(circle at 82% 42%, #e2555f 0 24%, transparent 25%),
+    radial-gradient(circle at 68% 82%, #e2555f 0 24%, transparent 25%),
+    radial-gradient(circle at 32% 82%, #e2555f 0 24%, transparent 25%),
+    radial-gradient(circle at 18% 42%, #e2555f 0 24%, transparent 25%);
+  transform: scale(0.92);
+  filter: drop-shadow(0 1px 1px rgba(180, 40, 50, 0.35));
+}
+.slot-shape.flower-shape::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 32%;
+  height: 32%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffe9a8, #f2c14e);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 3px rgba(242, 193, 78, 0.6);
+}
+
+.slot-shape.star-shape {
+  background: linear-gradient(180deg, #ffd77a, #f2a63b);
+  clip-path: polygon(
+    50% 0%, 61% 35%, 98% 35%, 68% 57%,
+    79% 91%, 50% 70%, 21% 91%, 32% 57%,
+    2% 35%, 39% 35%
+  );
+  transform: scale(0.82);
+  filter: drop-shadow(0 1px 1px rgba(200, 130, 20, 0.35));
+}
+
+.slot-shape.heart-shape {
+  background: linear-gradient(160deg, #ff9db0 0%, #e2555f 60%, #c73a48 100%);
+  clip-path: polygon(
+    50% 100%, 8% 55%, 0% 38%, 0% 22%, 8% 8%, 
+    22% 0%, 38% 4%, 50% 18%, 62% 4%, 78% 0%, 
+    92% 8%, 100% 22%, 100% 38%, 92% 55%
+  );
+  transform: scale(0.95);
+  filter: drop-shadow(0 1px 1.5px rgba(200, 60, 80, 0.35));
+}
+
+/* ---------- 拉杆 ---------- */
+.slot-lever {
+  position: relative;
+  width: 32px;
+  height: 120px;
+  flex-shrink: 0;
+  margin-left: 4px; /* 稍微靠近机身一点 */
+  margin-bottom: 40px; 
+  transform-style: preserve-3d;
+}
+
+/* ★ 新增：连接机身和拉杆的金属方块 */
+.slot-lever-base {
+  position: absolute;
+  left: -8px; /* 延伸到机身内部 */
+  top: 120%;
+  transform: translateY(-50%) rotate(180deg);
+  width: 35px;
+  height: 90px;
+  background: linear-gradient(180deg, #e8e8e8 0%, #b9b9b9 50%, #9a9a9a 100%);
+  border-radius: 6px 0 0 6px;
+  box-shadow: inset 1px 1px 3px rgba(255, 255, 255, 0.8), 2px 2px 6px rgba(0, 0, 0, 0.15);
+  z-index: 0;
+}
+
+body.theme-fun .slot-lever-base {
+  background: linear-gradient(180deg, #c9a04a 0%, #7a5c2a 50%, #5a401a 100%);
+  box-shadow: inset 1px 1px 3px rgba(255, 224, 138, 0.3), 2px 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.slot-lever-arm {
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  width: 10px;
+  height: 100px;
+  transform: translateX(-50%);
+  background: linear-gradient(to right, #b9b9b9 0%, #ffffff 35%, #e8e8e8 55%, #9a9a9a 100%);
+  border-radius: 5px 5px 2px 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transform-origin: bottom center;
+  transition: top 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 1;
+}
+body.theme-fun .slot-lever-arm {
+  background: linear-gradient(to right, #7a5c2a 0%, #e0b458 35%, #c9a04a 55%, #6a4a1e 100%);
+}
+.slot-lever-knob {
+  position: absolute;
+  left: 50%;
+  top: -5px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(circle at 35% 30%, #ff9a9e, #d9534f);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3), inset -2px -2px 6px rgba(0, 0, 0, 0.15);
+  transition: top 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 2;
+}
+body.theme-fun .slot-lever-knob {
+  background: radial-gradient(circle at 35% 30%, #ffe08a, #c9a04a);
+}
+
+/* 拉动时的状态 */
+.slot-machine.pulling .slot-lever-arm {
+  top: 40px;
+  width: 14px;
+  height: 80px;
+}
+.slot-machine.pulling .slot-lever-knob {
+  top: 30px;
+  width: 34px;
+  height: 34px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.35), inset -3px -3px 8px rgba(0, 0, 0, 0.18);
+}
+
+.slot-machine.jackpot .slot-body {
+  animation: slotJackpot 0.6s ease;
+}
+@keyframes slotJackpot {
+  0%, 100% { transform: translateY(0); }
+  25%      { transform: translateY(-4px) rotate(-1deg); }
+  50%      { transform: translateY(-6px) rotate(1deg); }
+  75%      { transform: translateY(-3px) rotate(-0.5deg); }
+}
+
+/* 手机端调整 */
+@media (max-width: 700px) {
+  .slot-section { padding: 30px 16px 12px; }
+  .slot-body { padding: 14px; border-radius: 20px; }
+  .slot-marquee { height: 28px; margin-bottom: 12px; }
+  .slot-marquee-light { width: 6px; height: 6px; }
+  .slot-reels { gap: 10px; }
+  .slot-window { width: 86px; height: 172px; perspective: 400px; }
+  .slot-item { width: 86px; height: 86px; padding: 2px 6px; }
+  .slot-lever { width: 24px; height: 100px; margin-left: 8px; margin-bottom: 30px; }
+  .slot-lever-arm { height: 74px; width: 8px; }
+  .slot-lever-knob { width: 24px; height: 24px; top: -10px; }
+  .slot-machine.pulling .slot-lever-arm { width: 12px; height: 62px; }
+  .slot-machine.pulling .slot-lever-knob { top: 15px; width: 30px; height: 30px; }
+}
+
+/* ========= 26. 老虎机中奖满屏彩带 ========= */
+.confetti {
+  position: fixed;
+  bottom: -20px; /* 从底部出现 */
+  width: 10px;
+  height: 10px;
+  z-index: 99999; /* 保证在最上层，甚至盖过按钮和遮罩 */
+  pointer-events: none; /* 不阻挡鼠标点击 */
+  animation: confettiShoot 3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* 定义各种形状的彩带 */
+.confetti.square { width: 10px; height: 10px; }
+.confetti.rect { width: 6px; height: 14px; }
+.confetti.circle { border-radius: 50%; width: 8px; height: 8px; }
+
+/* 向上的抛物线动画 */
+@keyframes confettiShoot {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    /* 向上飞起最高点 */
+    transform: translate3d(var(--tx), var(--ty), 0) rotate(var(--rot));
+    opacity: 0;
+  }
+}
