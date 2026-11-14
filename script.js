@@ -1,5 +1,4 @@
 /* ========== 0. 锁定马来西亚时间（UTC+8） ========== */
-// 返回一个"假装是本地时间"的 Date，字段值等于 UTC+8 的当前时间
 function getMalaysiaNow() {
   const now = new Date();
   const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
@@ -7,7 +6,6 @@ function getMalaysiaNow() {
 }
 
 /* ========== 1. 天数 + 年月日时分秒 ========== */
-// 显式 +08:00，锁定为马来西亚时间的绝对时刻
 const startDate = new Date("2023-01-05T00:00:00+08:00");
 
 function updateNum(id, value) {
@@ -23,7 +21,6 @@ function updateNum(id, value) {
 
 function updateCounter() {
   const now = getMalaysiaNow();
-
   const diffMs = now - startDate;
   const totalDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
   const daysEl = document.getElementById("days");
@@ -56,7 +53,6 @@ function updateCounter() {
 
 function animateNumber(el, target, duration = 3.5) {
   const startTime = performance.now();
-
   function step(now) {
     const progress = Math.min((now - startTime) / duration, 1);
     const value = Math.floor(target * progress);
@@ -68,7 +64,6 @@ function animateNumber(el, target, duration = 3.5) {
 
 const nowInit = getMalaysiaNow();
 const realDays = Math.floor((nowInit - startDate) / (1000 * 60 * 60 * 24));
-
 const daysEl = document.getElementById("days");
 if (daysEl) daysEl.textContent = "0";
 
@@ -89,11 +84,8 @@ const sakuraContainer = document.getElementById("sakura");
 const PETAL_COUNT = 25;
 const PETAL_INTERVAL = 1500;
 const MAX_PETALS = 25;
-
 const USE_IMAGE = false;
-
 const FUN_EMOJIS = ["🦊", "🦁", "⛓️‍💥", "👑", "🗡️"];
-
 const FUN_IMAGES = [
   "images/joker/bathjoker.png",
   "images/joker/whitejoker.png",
@@ -103,24 +95,14 @@ const FUN_IMAGES = [
 
 function createPetal(instant) {
   if (sakuraContainer.children.length >= MAX_PETALS) return;
-
   const isFun = document.body.classList.contains("theme-fun");
-
   const petal = document.createElement("div");
   petal.className = "petal";
-
   const size = Math.random() * 12 + 8;
 
   if (isFun) {
     petal.classList.add("img-petal");
-
-    let pick;
-    if (USE_IMAGE) {
-      pick = FUN_IMAGES[Math.floor(Math.random() * FUN_IMAGES.length)];
-    } else {
-      pick = FUN_EMOJIS[Math.floor(Math.random() * FUN_EMOJIS.length)];
-    }
-
+    let pick = USE_IMAGE ? FUN_IMAGES[Math.floor(Math.random() * FUN_IMAGES.length)] : FUN_EMOJIS[Math.floor(Math.random() * FUN_EMOJIS.length)];
     if (USE_IMAGE) {
       petal.style.width = (size + 30) + "px";
       petal.style.height = (size + 30) + "px";
@@ -137,36 +119,21 @@ function createPetal(instant) {
   }
 
   petal.style.left = Math.random() * 100 + "vw";
-
   const duration = Math.random() * 8 + 8;
   petal.style.animationDuration = duration + "s";
-
-  if (instant) {
-    petal.style.animationDelay = (-Math.random() * duration) + "s";
-  } else {
-    petal.style.animationDelay = Math.random() * 2 + "s";
-  }
-
+  petal.style.animationDelay = instant ? (-Math.random() * duration) + "s" : Math.random() * 2 + "s";
   petal.style.opacity = Math.random() * 0.5 + 0.4;
-
-  petal.addEventListener("animationend", () => {
-    petal.remove();
-  });
-
+  petal.addEventListener("animationend", () => petal.remove());
   sakuraContainer.appendChild(petal);
 }
 
 function fillPetals() {
   sakuraContainer.innerHTML = "";
-  for (let i = 0; i < PETAL_COUNT; i++) {
-    createPetal(true);
-  }
+  for (let i = 0; i < PETAL_COUNT; i++) createPetal(true);
 }
-
 fillPetals();
 
 let petalTimer = setInterval(() => createPetal(false), PETAL_INTERVAL);
-
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     clearInterval(petalTimer);
@@ -184,41 +151,33 @@ const rawEvents = document.querySelectorAll(".event");
 if (timelineContainer && rawEvents.length > 0) {
   const yearsData = {};
   let nowEvent = null;
-
   rawEvents.forEach(event => {
     const dateText = event.querySelector(".date").textContent.trim();
     if (dateText === "现在") {
       nowEvent = event;
       return;
     }
-
     const year = dateText.substring(0, 4);
     if (!yearsData[year]) yearsData[year] = [];
     yearsData[year].push(event);
   });
 
   timelineContainer.innerHTML = "";
-
   Object.keys(yearsData).forEach(year => {
     const groupWrapper = document.createElement("div");
     groupWrapper.className = "year-group";
-
     const header = document.createElement("div");
     header.className = "year-header";
     header.innerHTML = `<span>${year}</span> <span class="arrow"></span>`;
-
     const content = document.createElement("div");
     content.className = "year-content";
 
     yearsData[year].forEach(event => content.appendChild(event));
-
     groupWrapper.appendChild(header);
     groupWrapper.appendChild(content);
     timelineContainer.appendChild(groupWrapper);
 
-    setTimeout(() => {
-      content.style.maxHeight = content.scrollHeight + "px";
-    }, 100);
+    setTimeout(() => { content.style.maxHeight = content.scrollHeight + "px"; }, 100);
 
     content.querySelectorAll('img').forEach(img => {
       img.addEventListener('load', () => {
@@ -232,16 +191,11 @@ if (timelineContainer && rawEvents.length > 0) {
       if (groupWrapper.classList.contains("collapsed")) {
         groupWrapper.classList.remove("collapsed");
         content.style.maxHeight = content.scrollHeight + "px";
-
         setTimeout(() => {
-          if (!groupWrapper.classList.contains("collapsed")) {
-            content.style.maxHeight = "none";
-          }
+          if (!groupWrapper.classList.contains("collapsed")) content.style.maxHeight = "none";
         }, 600);
-
       } else {
         content.style.maxHeight = content.scrollHeight + "px";
-
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
             groupWrapper.classList.add("collapsed");
@@ -251,17 +205,13 @@ if (timelineContainer && rawEvents.length > 0) {
       }
     });
   });
-
-  if (nowEvent) {
-    timelineContainer.appendChild(nowEvent);
-  }
+  if (nowEvent) timelineContainer.appendChild(nowEvent);
 }
 
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     const el = entry.target;
     if (el.closest(".year-group.collapsed")) return;
-
     if (entry.isIntersecting) {
       el.classList.add("show");
       el.classList.remove("fade-out");
@@ -270,14 +220,10 @@ const observer = new IntersectionObserver((entries) => {
       el.classList.add("fade-out");
     }
   });
-}, {
-  threshold: 0,
-  rootMargin: "-50px 0px -50px 0px"
-});
-
+}, { threshold: 0, rootMargin: "-50px 0px -50px 0px" });
 document.querySelectorAll(".event").forEach(event => observer.observe(event));
 
-/* ========== 5. 图片点击放大（支持左右滑动翻转看字） ========== */
+/* ========== 5. 图片点击放大 ========== */
 const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightbox-img");
 const flipWrapper = document.getElementById("flip-wrapper");
@@ -292,18 +238,11 @@ let savedSourceEventStyles = null;
 
 function freezeTimelineSource(sourceImg) {
   restoreTimelineSource();
-
   const event = sourceImg && sourceImg.closest(".event");
   if (!event) return;
-
   const computedTransform = getComputedStyle(event).transform;
-
   currentSourceEvent = event;
-  savedSourceEventStyles = {
-    transition: event.style.transition,
-    transform: event.style.transform
-  };
-
+  savedSourceEventStyles = { transition: event.style.transition, transform: event.style.transform };
   event.style.transition = "none";
   event.style.transform = computedTransform === "none" ? "none" : computedTransform;
   void event.offsetWidth;
@@ -311,10 +250,8 @@ function freezeTimelineSource(sourceImg) {
 
 function restoreTimelineSource() {
   if (!currentSourceEvent || !savedSourceEventStyles) return;
-
   currentSourceEvent.style.transition = savedSourceEventStyles.transition;
   currentSourceEvent.style.transform = savedSourceEventStyles.transform;
-
   currentSourceEvent = null;
   savedSourceEventStyles = null;
 }
@@ -331,9 +268,7 @@ const photoSecrets = {
   "photo2.jpg": "冷天吃火锅，完美！"
 };
 
-function preventScroll(e) {
-  if (e.cancelable) e.preventDefault();
-}
+function preventScroll(e) { if (e.cancelable) e.preventDefault(); }
 
 function resetLightboxVisual() {
   flipWrapper.style.transition = "none";
@@ -341,14 +276,12 @@ function resetLightboxVisual() {
   flipWrapper.style.opacity = "1";
   flipWrapper.style.width = "";
   flipWrapper.style.height = "";
-
   lightboxImg.style.transition = "none";
   lightboxImg.style.transform = "none";
   lightboxImg.style.clipPath = "none";
   lightboxImg.style.opacity = "1";
   lightboxImg.style.width = "";
   lightboxImg.style.height = "";
-
   const backTextEl = document.querySelector('.text-paper');
   if (backTextEl) {
     backTextEl.style.transition = "none";
@@ -359,17 +292,12 @@ function resetLightboxVisual() {
 
 function openLightbox(src, sourceImg) {
   currentSourceImg = sourceImg;
-
   freezeTimelineSource(sourceImg);
-
   savedRect = sourceImg.getBoundingClientRect();
-
   resetLightboxVisual();
-
   lightboxImg.src = src;
 
   const imgName = src.split('/').pop();
-
   const existingMarker = flipWrapper.querySelector('.secret-marker');
   if (existingMarker) existingMarker.remove();
 
@@ -380,9 +308,7 @@ function openLightbox(src, sourceImg) {
     marker.textContent = '✨';
     document.querySelector('.flip-front').appendChild(marker);
     setTimeout(() => {
-      if (lightbox.classList.contains("show")) {
-        marker.classList.add("show");
-      }
+      if (lightbox.classList.contains("show")) marker.classList.add("show");
     }, 450);
   } else {
     backText.textContent = "";
@@ -396,7 +322,6 @@ function openLightbox(src, sourceImg) {
   }
 
   lightbox.classList.add("show");
-
   window.addEventListener('wheel', preventScroll, { passive: false });
   window.addEventListener('touchmove', preventScroll, { passive: false });
 
@@ -404,24 +329,19 @@ function openLightbox(src, sourceImg) {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       if (!lightbox.classList.contains("show")) return;
-
       const rect = startRect;
       const imgCenterX = rect.left + rect.width / 2;
       const imgCenterY = rect.top + rect.height / 2;
-
       const lbRect = lightboxImg.getBoundingClientRect();
       const lightboxCenterX = lbRect.left + lbRect.width / 2;
       const lightboxCenterY = lbRect.top + lbRect.height / 2;
       const translateX = imgCenterX - lightboxCenterX;
       const translateY = imgCenterY - lightboxCenterY;
-
       const currentWidth = lbRect.width || 300;
       const currentHeight = lbRect.height || 300;
-
       const scaleX = rect.width / currentWidth;
       const scaleY = rect.height / currentHeight;
       const targetScale = Math.max(scaleX, scaleY) || 0.1;
-
       const finalW = currentWidth * targetScale;
       const finalH = currentHeight * targetScale;
       const insetX = Math.max(0, (finalW - rect.width) / 2);
@@ -444,7 +364,6 @@ function openLightbox(src, sourceImg) {
 
 function closeLightbox() {
   isAnimating = false;
-
   const existingMarker = flipWrapper.querySelector('.secret-marker');
   if (existingMarker) {
     existingMarker.style.transition = "opacity 0.2s ease";
@@ -459,48 +378,32 @@ function closeLightbox() {
     flipWrapper.style.opacity = "0";
     setTimeout(() => {
       lightbox.classList.remove("show");
-      setTimeout(() => {
-        resetLightboxVisual();
-      }, 100);
+      setTimeout(() => resetLightboxVisual(), 100);
     }, 250);
     return;
   }
 
   const doFlyBack = (wasFlipped) => {
-    const rect = currentSourceImg
-      ? currentSourceImg.getBoundingClientRect()
-      : savedRect;
-
+    const rect = currentSourceImg ? currentSourceImg.getBoundingClientRect() : savedRect;
     const imgCenterX = rect.left + rect.width / 2;
     const imgCenterY = rect.top + rect.height / 2;
-
     const imgNaturalW = lightboxImg.naturalWidth;
     const imgNaturalH = lightboxImg.naturalHeight;
-
     const targetRatio = rect.width / rect.height;
     const imgRatio = imgNaturalW / imgNaturalH;
-
     const lbRect = lightboxImg.getBoundingClientRect();
     const lbWidth = lbRect.width || lightboxImg.clientWidth || 300;
     const lbHeight = lbRect.height || lightboxImg.clientHeight || 300;
-
     const lightboxCenterX = lbRect.left + lbRect.width / 2;
     const lightboxCenterY = lbRect.top + lbRect.height / 2;
     const translateX = imgCenterX - lightboxCenterX;
     let translateY = imgCenterY - lightboxCenterY;
 
-    const isMobileTimeline =
-      currentSourceImg &&
-      currentSourceEvent &&
-      window.matchMedia("(max-width: 700px)").matches;
-
-    if (isMobileTimeline && !wasFlipped) {
-      translateY += 3;
-    }
+    const isMobileTimeline = currentSourceImg && currentSourceEvent && window.matchMedia("(max-width: 700px)").matches;
+    if (isMobileTimeline && !wasFlipped) translateY += 3;
 
     let clipInsetX = 0;
     let clipInsetY = 0;
-
     if (imgRatio > targetRatio) {
       clipInsetX = (lbWidth * (1 - targetRatio / imgRatio)) / 2;
     } else {
@@ -516,37 +419,24 @@ function closeLightbox() {
     lightboxImg.style.clipPath = `inset(${clipInsetY}px ${clipInsetX}px)`;
 
     setTimeout(() => {
-      const isMobileTimelineNow =
-        currentSourceImg &&
-        currentSourceEvent &&
-        window.matchMedia("(max-width: 700px)").matches;
-
+      const isMobileTimelineNow = currentSourceImg && currentSourceEvent && window.matchMedia("(max-width: 700px)").matches;
       if (isMobileTimelineNow) {
         currentSourceImg.style.opacity = "0";
-
         restoreTimelineSource();
-
         void currentSourceImg.offsetWidth;
       }
-
       lightbox.style.transition = "none";
       lightbox.classList.remove("show");
       void lightbox.offsetWidth;
-
       if (currentSourceImg) {
         currentSourceImg.style.opacity = "1";
-        if (!isMobileTimelineNow) {
-          restoreTimelineSource();
-        }
+        if (!isMobileTimelineNow) restoreTimelineSource();
       }
-
       setTimeout(() => {
         currentSourceImg = null;
         isFlipped = false;
         savedRect = null;
-
         resetLightboxVisual();
-
         lightbox.style.transition = "opacity 0.1s ease, visibility 0.1s ease";
       }, 10);
     }, 420);
@@ -556,16 +446,13 @@ function closeLightbox() {
     const wasFlipped = true;
     isFlipped = false;
     isAnimating = true;
-
     const backTextEl = document.querySelector('.text-paper');
     if (backTextEl) {
       backTextEl.style.transition = "opacity 0.2s ease";
       backTextEl.style.opacity = "0";
     }
-
     flipWrapper.style.transition = "transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)";
     flipWrapper.style.transform = "rotateY(0deg)";
-
     setTimeout(() => {
       isAnimating = false;
       doFlyBack(wasFlipped);
@@ -579,68 +466,45 @@ function closeLightbox() {
 }
 
 /* ================= 手势翻转 & 点击判定逻辑 ================= */
-let pointerStartX = 0;
-let pointerStartY = 0;
-let pointerStartTime = 0;
-let isPointerDown = false;
-
+let pointerStartX = 0, pointerStartY = 0, pointerStartTime = 0, isPointerDown = false;
 lightbox.addEventListener('pointerdown', (e) => {
   isPointerDown = true;
-  pointerStartX = e.clientX;
-  pointerStartY = e.clientY;
+  pointerStartX = e.clientX; pointerStartY = e.clientY;
   pointerStartTime = new Date().getTime();
 });
 
 lightbox.addEventListener('pointerup', (e) => {
   if (!isPointerDown) return;
   isPointerDown = false;
-
   const deltaX = e.clientX - pointerStartX;
   const deltaY = e.clientY - pointerStartY;
   const timeDiff = new Date().getTime() - pointerStartTime;
   const distance = Math.hypot(deltaX, deltaY);
-
   if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY) && timeDiff < 500) {
     triggerFlip(deltaX < 0 ? 1 : -1);
-  }
-  else if (distance < 10) {
-    if (e.target.id === "lightbox") {
-      closeLightbox();
-    }
+  } else if (distance < 10) {
+    if (e.target.id === "lightbox") closeLightbox();
   }
 });
 
 lightbox.addEventListener('contextmenu', e => e.preventDefault());
 
-let touchStartX = 0;
-let touchStartY = 0;
-let touchStartTime = 0;
-
-let mouseStartX = 0;
-let mouseStartTime = 0;
-let isMouseDown = false;
+let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
+let mouseStartX = 0, mouseStartTime = 0, isMouseDown = false;
 
 function triggerFlip(direction) {
   if (isAnimating) return;
-
   const imgName = lightboxImg.src.split('/').pop();
   if (!photoSecrets[imgName]) return;
-
-  if (isFlipped) {
-    direction = -direction;
-  }
-
+  if (isFlipped) direction = -direction;
   isAnimating = true;
-
   if (direction === 1) {
     flipWrapper.style.transform = isFlipped ? "rotateY(0deg)" : "rotateY(180deg)";
   } else {
     flipWrapper.style.transform = isFlipped ? "rotateY(0deg)" : "rotateY(-180deg)";
   }
-
   flipWrapper.style.transition = "transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)";
   isFlipped = !isFlipped;
-
   setTimeout(() => {
     isAnimating = false;
     if (isFlipped) {
@@ -652,18 +516,15 @@ function triggerFlip(direction) {
 
 lightbox.addEventListener('touchstart', (e) => {
   if (e.touches.length !== 1) return;
-  touchStartX = e.touches[0].clientX;
-  touchStartY = e.touches[0].clientY;
+  touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY;
   touchStartTime = new Date().getTime();
 }, { passive: true });
 
 lightbox.addEventListener('touchend', (e) => {
   if (e.changedTouches.length !== 1) return;
-
   const deltaX = e.changedTouches[0].clientX - touchStartX;
   const deltaY = e.changedTouches[0].clientY - touchStartY;
   const timeDiff = new Date().getTime() - touchStartTime;
-
   if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY) && timeDiff < 500) {
     triggerFlip(deltaX < 0 ? 1 : -1);
   }
@@ -678,10 +539,8 @@ lightbox.addEventListener('mousedown', (e) => {
 lightbox.addEventListener('mouseup', (e) => {
   if (!isMouseDown) return;
   isMouseDown = false;
-
   const deltaX = e.clientX - mouseStartX;
   const timeDiff = new Date().getTime() - mouseStartTime;
-
   if (Math.abs(deltaX) > 50 && timeDiff < 500) {
     triggerFlip(deltaX < 0 ? 1 : -1);
   }
@@ -703,9 +562,7 @@ themeBtn.addEventListener("click", () => {
   document.body.classList.toggle("theme-fun");
   const isFun = document.body.classList.contains("theme-fun");
   themeBtn.textContent = isFun ? "👑" : "🌸";
-
   localStorage.setItem("theme", isFun ? "fun" : "romantic");
-
   fillPetals();
 });
 
@@ -715,77 +572,61 @@ const milestoneFill = document.getElementById("milestone-fill");
 const milestoneMarker = document.getElementById("milestone-marker");
 const milestoneLabels = document.getElementById("milestone-labels");
 const milestoneBar = document.querySelector(".milestone-bar");
-
 const NODE_COUNT = 11;
 const nodes = [];
 
 for (let i = 0; i < NODE_COUNT; i++) {
   const day = Math.round((TOTAL_DAYS / (NODE_COUNT - 1)) * i);
   const percent = (day / TOTAL_DAYS) * 100;
-
   const node = document.createElement("div");
   node.className = "milestone-node";
   node.style.left = percent + "%";
   node.dataset.day = day;
   milestoneBar.appendChild(node);
   nodes.push(node);
-
   const label = document.createElement("div");
   label.className = "milestone-label";
   label.style.left = percent + "%";
   label.dataset.day = day;
-  if (i === 0) {
-    label.textContent = "相遇";
-  } else {
-    label.textContent = (day / 365).toFixed(0) + "年";
-  }
+  label.textContent = i === 0 ? "相遇" : (day / 365).toFixed(0) + "年";
   milestoneLabels.appendChild(label);
 }
 
 function getCurrentDays() {
   const now = getMalaysiaNow();
-  const diff = now - startDate;
-  return Math.floor(diff / (1000 * 60 * 60 * 24));
+  return Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
 }
 
 function updateMilestone() {
   const days = getCurrentDays();
   const percent = Math.min((days / TOTAL_DAYS) * 100, 100);
-
   requestAnimationFrame(() => {
     milestoneFill.style.width = percent + "%";
     milestoneMarker.style.left = percent + "%";
   });
-
   const labelEls = milestoneLabels.querySelectorAll(".milestone-label");
   const startTime = performance.now();
   const DURATION = 2500;
-
   function step(now) {
     const progress = Math.min((now - startTime) / DURATION, 1);
     const currentDay = days * progress;
-
     nodes.forEach((node, i) => {
-      const nodeDay = parseInt(node.dataset.day);
-
-      if (nodeDay <= currentDay) {
+      if (parseInt(node.dataset.day) <= currentDay) {
         if (!node.classList.contains("passed")) {
           node.classList.add("passed");
           if (labelEls[i]) labelEls[i].classList.add("passed");
         }
       }
     });
-
     if (progress < 1) requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
 }
 
-/* ========== 倒计时逻辑（锁定 UTC+8） ========== */
+/* ========== 倒计时逻辑 ========== */
 const START_YEAR = 2023;
 const HER_BIRTH_YEAR = 2005;
 const HIS_BIRTH_YEAR = 2001;
-
 const HER_BIRTHDAY = { month: 5, day: 3 };
 const HIS_BIRTHDAY = { month: 0, day: 26 };
 const ANNIVERSARY = { month: 0, day: 5 };
@@ -793,23 +634,15 @@ const ANNIVERSARY = { month: 0, day: 5 };
 function getDaysUntil(targetMonth, targetDay) {
   const now = getMalaysiaNow();
   now.setHours(0, 0, 0, 0);
-
   let target = new Date(now.getFullYear(), targetMonth, targetDay);
-
-  if (target < now) {
-    target = new Date(now.getFullYear() + 1, targetMonth, targetDay);
-  }
-
-  const diffTime = target - now;
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  if (target < now) target = new Date(now.getFullYear() + 1, targetMonth, targetDay);
+  return Math.ceil((target - now) / (1000 * 60 * 60 * 24));
 }
 
 function renderCountdownValue(cardEl, isToday, days, todayEmoji) {
   if (!cardEl) return;
-
   const valueEl = cardEl.querySelector(".countdown-value");
   if (!valueEl) return;
-
   if (isToday) {
     if (!valueEl.querySelector(".cd-today-emoji")) {
       valueEl.innerHTML = `<span class="cd-today-emoji" style="font-size:1.5rem;letter-spacing:2px;color:var(--main);font-weight:bold;">${todayEmoji}</span>`;
@@ -831,18 +664,15 @@ function updateCountdowns() {
   const now = getMalaysiaNow();
   now.setHours(0, 0, 0, 0);
   const currentYear = now.getFullYear();
-
   const cardAnn = document.getElementById("card-anniversary");
   const cardHer = document.getElementById("card-her");
   const cardHim = document.getElementById("card-him");
-
   const titleAnniversary = document.getElementById("title-anniversary");
   const titleHer = document.getElementById("title-her");
   const titleHim = document.getElementById("title-him");
 
   let nextAnnYear = currentYear;
-  let annDateThisYear = new Date(currentYear, ANNIVERSARY.month, ANNIVERSARY.day);
-  if (now > annDateThisYear) nextAnnYear = currentYear + 1;
+  if (now > new Date(currentYear, ANNIVERSARY.month, ANNIVERSARY.day)) nextAnnYear = currentYear + 1;
   const anniversaryCount = nextAnnYear - START_YEAR;
   const isTodayAnn = (now.getMonth() === ANNIVERSARY.month && now.getDate() === ANNIVERSARY.day);
 
@@ -859,8 +689,7 @@ function updateCountdowns() {
   }
 
   let nextHerYear = currentYear;
-  let herDateThisYear = new Date(currentYear, HER_BIRTHDAY.month, HER_BIRTHDAY.day);
-  if (now > herDateThisYear) nextHerYear = currentYear + 1;
+  if (now > new Date(currentYear, HER_BIRTHDAY.month, HER_BIRTHDAY.day)) nextHerYear = currentYear + 1;
   const herAge = nextHerYear - HER_BIRTH_YEAR;
   const isTodayHer = (now.getMonth() === HER_BIRTHDAY.month && now.getDate() === HER_BIRTHDAY.day);
 
@@ -877,8 +706,7 @@ function updateCountdowns() {
   }
 
   let nextHimYear = currentYear;
-  let himDateThisYear = new Date(currentYear, HIS_BIRTHDAY.month, HIS_BIRTHDAY.day);
-  if (now > himDateThisYear) nextHimYear = currentYear + 1;
+  if (now > new Date(currentYear, HIS_BIRTHDAY.month, HIS_BIRTHDAY.day)) nextHimYear = currentYear + 1;
   const hisAge = nextHimYear - HIS_BIRTH_YEAR;
   const isTodayHim = (now.getMonth() === HIS_BIRTHDAY.month && now.getDate() === HIS_BIRTHDAY.day);
 
@@ -895,9 +723,8 @@ function updateCountdowns() {
   }
 }
 
-/* ========== 统一的每秒 tick（计数器 + 倒计时） ========== */
+/* ========== 统一的每秒 tick ========== */
 let globalTickTimer = null;
-
 function startGlobalTick() {
   if (globalTickTimer) return;
   globalTickTimer = setInterval(() => {
@@ -905,16 +732,13 @@ function startGlobalTick() {
     updateCountdowns();
   }, 1000);
 }
-
 function stopGlobalTick() {
   if (globalTickTimer) {
     clearInterval(globalTickTimer);
     globalTickTimer = null;
   }
 }
-
 updateCountdowns();
-
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     stopGlobalTick();
@@ -924,22 +748,16 @@ document.addEventListener("visibilitychange", () => {
     startGlobalTick();
   }
 });
-
 window.addEventListener("focus", () => {
   updateCounter();
   updateCountdowns();
 });
 
-/* ========== 里程碑启动 & 统一 tick 启动（在 load 后） ========== */
 window.addEventListener("load", () => {
   milestoneFill.style.width = "0%";
   milestoneMarker.style.left = "0%";
   setTimeout(updateMilestone, 500);
-
-  setTimeout(() => {
-    animateNumber(daysEl, realDays, 3500);
-  }, 500);
-
+  setTimeout(() => { animateNumber(daysEl, realDays, 3500); }, 500);
   setTimeout(() => {
     updateCounter();
     updateCountdowns();
@@ -953,53 +771,31 @@ const clockMarker = document.getElementById("clock-m-marker");
 
 function jumpAndSpeak(markerEl, event) {
   if (!markerEl) return;
-
   markerEl.classList.remove("jump");
   void markerEl.offsetWidth;
   markerEl.classList.add("jump");
-
   const randomWord = loveWords[Math.floor(Math.random() * loveWords.length)];
-
   const bubble = document.createElement("div");
   bubble.textContent = randomWord;
   bubble.style.cssText = `
-    position: absolute;
-    top: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--main);
-    color: white;
-    padding: 4px 10px;
-    border-radius: 10px;
-    font-size: 12px;
-    white-space: nowrap;
-    pointer-events: none;
-    animation: bubblePop 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    z-index: 99;
+    position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
+    background: var(--main); color: white; padding: 4px 10px; border-radius: 10px;
+    font-size: 12px; white-space: nowrap; pointer-events: none;
+    animation: bubblePop 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; z-index: 99;
   `;
-
   markerEl.appendChild(bubble);
-
   setTimeout(() => bubble.remove(), 1000);
 }
 
 if (normalMarker) normalMarker.addEventListener("click", () => jumpAndSpeak(normalMarker));
 if (clockMarker) clockMarker.addEventListener("click", () => jumpAndSpeak(clockMarker));
 
-/* ========== 8. 照片墙自动生成 ========== */
+/* ========== 8. 照片墙 ========== */
 const wallPhotos = [
-  "images/photowall/photo12.jpg",
-  "images/photowall/photo11.jpg",
-  "images/photowall/photo10.jpg",
-  "images/photowall/photo9.jpg",
-  "images/photowall/photo8.jpg",
-  "images/photowall/photo7.jpg",
-  "images/photowall/photo6.jpg",
-  "images/photowall/photo5.jpg",
-  "images/photowall/photo4.jpg",
-  "images/photowall/photo3.jpg",
-  "images/photowall/photo2.jpg",
-  "images/photowall/photo1.jpg"
+  "images/photowall/photo12.jpg", "images/photowall/photo11.jpg", "images/photowall/photo10.jpg",
+  "images/photowall/photo9.jpg", "images/photowall/photo8.jpg", "images/photowall/photo7.jpg",
+  "images/photowall/photo6.jpg", "images/photowall/photo5.jpg", "images/photowall/photo4.jpg",
+  "images/photowall/photo3.jpg", "images/photowall/photo2.jpg", "images/photowall/photo1.jpg"
 ];
 
 const photoWall = document.getElementById("photo-wall");
@@ -1008,166 +804,98 @@ if (photoWall) {
     const img = document.createElement("img");
     img.src = src;
     img.alt = "我们的照片";
-
-    img.addEventListener("click", () => {
-      openLightbox(img.src, img);
-    });
-
+    img.addEventListener("click", () => openLightbox(img.src, img));
     photoWall.appendChild(img);
   });
 }
 
-/* ========== 9. 节点导航菜单（顶部 / 年份 / 最近 / 照片墙） ========== */
+/* ========== 9. 节点导航 ========== */
 const jumpNav = document.getElementById("jump-nav");
 const jumpNavBtn = document.getElementById("jump-nav-btn");
 const jumpNavMenu = document.getElementById("jump-nav-menu");
 const photoSection = document.querySelector(".photo-wall-section");
 const endingEl = document.querySelector(".ending");
-
-// 收集年份节点（按 DOM 顺序，即自动按年份升序）
 const yearGroups = document.querySelectorAll(".year-group");
-
 const jumpTargets = [];
 
-// 1. 顶部
-jumpTargets.push({
-  label: "顶部",
-  getEl: () => document.querySelector("header")
-});
-
-// 2. 各年份（自动根据实际存在的 year-group 生成，有 2027 就自动多一项）
+jumpTargets.push({ label: "顶部", getEl: () => document.querySelector("header") });
 yearGroups.forEach(group => {
   const yearText = group.querySelector(".year-header span")?.textContent?.trim();
-  if (!yearText) return;
-  jumpTargets.push({
-    label: yearText,
-    getEl: () => group,
-    isYear: true
-  });
+  if (yearText) jumpTargets.push({ label: yearText, getEl: () => group, isYear: true });
 });
-
-// 3. 最近（结尾 / 未完待续处）
 if (endingEl) {
   jumpTargets.push({
-    label: "最近",
+    label: "最近", isYear: true,
     getEl: () => {
       const allEvents = document.querySelectorAll(".timeline .event");
-      const lastEvent = allEvents[allEvents.length - 1];
-      return lastEvent || endingEl; // 兜底：没有 event 时回到结尾
-    },
-    isYear: true // 复用“先展开折叠年份”的逻辑
+      return allEvents[allEvents.length - 1] || endingEl;
+    }
   });
 }
+if (photoSection) jumpTargets.push({ label: "照片墙", getEl: () => photoSection });
 
-// 4. 照片墙
-if (photoSection) {
-  jumpTargets.push({
-    label: "照片墙",
-    getEl: () => photoSection
-  });
-}
+const slotSection = document.querySelector(".slot-section");
+if (slotSection) jumpTargets.push({ label: "游戏机", getEl: () => slotSection });
 
-// 渲染菜单
 function renderJumpMenu() {
   if (!jumpNavMenu) return;
   jumpNavMenu.innerHTML = "";
-
   jumpTargets.forEach((target, index) => {
     const btn = document.createElement("button");
     btn.className = "jump-nav-item";
     btn.type = "button";
     btn.textContent = target.label;
     btn.dataset.index = index;
-
     btn.addEventListener("click", () => {
       const el = target.getEl();
       if (!el) return;
-
-      // 如果目标是折叠的年份，先展开
       if (target.isYear) {
         const group = el;
-        if (group.classList.contains("collapsed")) {
-          group.querySelector(".year-header")?.click();
-        }
+        if (group.classList.contains("collapsed")) group.querySelector(".year-header")?.click();
       }
-
-      // 平滑滚动到目标
-      const rect = el.getBoundingClientRect();
-      const targetTop = window.scrollY + rect.top - 20;
-
-      window.scrollTo({
-        top: Math.max(0, targetTop),
-        behavior: "smooth"
-      });
-
+      const targetTop = window.scrollY + el.getBoundingClientRect().top - 20;
+      window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
       closeJumpMenu();
     });
-
     jumpNavMenu.appendChild(btn);
   });
 }
-
 renderJumpMenu();
 
-function openJumpMenu() {
-  jumpNav?.classList.add("open");
-  updateCurrentJumpItem();
-}
-
-function closeJumpMenu() {
-  jumpNav?.classList.remove("open");
-}
+function openJumpMenu() { jumpNav?.classList.add("open"); updateCurrentJumpItem(); }
+function closeJumpMenu() { jumpNav?.classList.remove("open"); }
 
 if (jumpNavBtn) {
   jumpNavBtn.addEventListener("click", (e) => {
     e.stopPropagation();
-    if (jumpNav.classList.contains("open")) {
-      closeJumpMenu();
-    } else {
-      openJumpMenu();
-    }
+    jumpNav.classList.contains("open") ? closeJumpMenu() : openJumpMenu();
   });
 }
 
-// 点击外部关闭
 document.addEventListener("click", (e) => {
-  if (jumpNav && jumpNav.classList.contains("open") && !jumpNav.contains(e.target)) {
-    closeJumpMenu();
-  }
+  if (jumpNav && jumpNav.classList.contains("open") && !jumpNav.contains(e.target)) closeJumpMenu();
 });
-
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeJumpMenu();
 });
 
-// 高亮当前所在区块
 function updateCurrentJumpItem() {
   if (!jumpNavMenu) return;
-
   const scrollPos = window.scrollY + window.innerHeight * 0.35;
   let activeIndex = 0;
-
   jumpTargets.forEach((target, index) => {
     const el = target.getEl();
-    if (!el) return;
-    const top = window.scrollY + el.getBoundingClientRect().top;
-    if (scrollPos >= top) {
-      activeIndex = index;
-    }
+    if (el && scrollPos >= window.scrollY + el.getBoundingClientRect().top) activeIndex = index;
   });
-
   jumpNavMenu.querySelectorAll(".jump-nav-item").forEach(btn => {
     btn.classList.toggle("current", Number(btn.dataset.index) === activeIndex);
   });
 }
-
 window.addEventListener("scroll", () => {
-  if (jumpNav && jumpNav.classList.contains("open")) {
-    updateCurrentJumpItem();
-  }
+  if (jumpNav && jumpNav.classList.contains("open")) updateCurrentJumpItem();
 });
 
-/* ========== 10. 时钟模式逻辑（锁定 UTC+8） ========== */
+/* ========== 10. 时钟模式 ========== */
 const clockBtn = document.getElementById("clock-btn");
 const clockOverlay = document.getElementById("clock-overlay");
 const closeClockMobile = document.getElementById("close-clock-mobile");
@@ -1176,21 +904,11 @@ const ampmDisplay = document.getElementById("clock-ampm");
 const dateDisplay = document.getElementById("clock-date");
 const dateToggleBtn = document.getElementById("clock-date-toggle-btn");
 
-let is12HourFormat = false;
+let is12HourFormat = localStorage.getItem("clockFormat") === "12";
+if (is12HourFormat && toggleBtn) toggleBtn.textContent = "12小时制";
 
-if (localStorage.getItem("clockFormat") === "12") {
-  is12HourFormat = true;
-  if(toggleBtn) toggleBtn.textContent = "12小时制";
-}
-
-let dateFormatIndex = 0;
-if (localStorage.getItem("clockDateFormat") === "1") dateFormatIndex = 1;
-if (localStorage.getItem("clockDateFormat") === "2") dateFormatIndex = 2;
-if (localStorage.getItem("clockDateFormat") === "3") dateFormatIndex = 3;
-
-if (dateToggleBtn) {
-  dateToggleBtn.textContent = "日期格式";
-}
+let dateFormatIndex = parseInt(localStorage.getItem("clockDateFormat") || "0");
+if (dateToggleBtn) dateToggleBtn.textContent = "日期格式";
 
 if (toggleBtn) {
   toggleBtn.addEventListener("click", () => {
@@ -1213,14 +931,11 @@ function initFlipClock() {
   const flipClock = document.getElementById("flip-clock");
   if (!flipClock) return;
   flipClock.innerHTML = `
-    <div class="flip-digit" id="clock-h1">0</div>
-    <div class="flip-digit" id="clock-h2">0</div>
+    <div class="flip-digit" id="clock-h1">0</div><div class="flip-digit" id="clock-h2">0</div>
     <div class="flip-colon">:</div>
-    <div class="flip-digit" id="clock-m1">0</div>
-    <div class="flip-digit" id="clock-m2">0</div>
+    <div class="flip-digit" id="clock-m1">0</div><div class="flip-digit" id="clock-m2">0</div>
     <div class="flip-colon">:</div>
-    <div class="flip-digit" id="clock-s1">0</div>
-    <div class="flip-digit" id="clock-s2">0</div>
+    <div class="flip-digit" id="clock-s1">0</div><div class="flip-digit" id="clock-s2">0</div>
   `;
 }
 initFlipClock();
@@ -1228,10 +943,8 @@ initFlipClock();
 function flipDigit(id, newValue) {
   const el = document.getElementById(id);
   if (!el || el.textContent === String(newValue)) return;
-
   el.style.opacity = "0.3";
   el.style.transform = "scaleY(0.8)";
-
   setTimeout(() => {
     el.textContent = newValue;
     el.style.opacity = "1";
@@ -1243,25 +956,15 @@ function formatDate(now) {
   const yyyy = now.getFullYear();
   const mm = String(now.getMonth() + 1).padStart(2, "0");
   const dd = String(now.getDate()).padStart(2, "0");
-
-  if (dateFormatIndex === 0) {
-    return `${yyyy}-${mm}-${dd}`;
-  }
-  if (dateFormatIndex === 1) {
-    return `${dd}/${mm}/${yyyy}`;
-  }
-  if (dateFormatIndex === 2) {
-    return `${mm}/${dd}/${yyyy}`;
-  }
-
+  if (dateFormatIndex === 0) return `${yyyy}-${mm}-${dd}`;
+  if (dateFormatIndex === 1) return `${dd}/${mm}/${yyyy}`;
+  if (dateFormatIndex === 2) return `${mm}/${dd}/${yyyy}`;
   const monthsEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const monthEn = monthsEn[now.getMonth()];
-  return `${now.getDate()} ${monthEn} ${yyyy}`;
+  return `${now.getDate()} ${monthsEn[now.getMonth()]} ${yyyy}`;
 }
 
 function setCdCard(boxEl, titleEl, cdValueContainerEl, isToday, titleHtml, normalTitle, days, todayEmoji) {
   if (!boxEl || !titleEl || !cdValueContainerEl) return;
-
   if (isToday) {
     boxEl.classList.add("is-today");
     titleEl.innerHTML = titleHtml;
@@ -1271,52 +974,34 @@ function setCdCard(boxEl, titleEl, cdValueContainerEl, isToday, titleHtml, norma
   } else {
     boxEl.classList.remove("is-today");
     titleEl.innerHTML = normalTitle;
-
-    const newHtml = `<span>${days}</span> 天`;
     if (cdValueContainerEl.innerHTML.indexOf("天") === -1 || cdValueContainerEl.querySelector("span")?.textContent !== String(days)) {
-      cdValueContainerEl.innerHTML = newHtml;
+      cdValueContainerEl.innerHTML = `<span>${days}</span> 天`;
     }
   }
 }
 
 function updateClock() {
   if (!clockOverlay.classList.contains("show")) return;
-
   const now = getMalaysiaNow();
-
   let hours = now.getHours();
   let ampm = "";
-
   if (is12HourFormat) {
     ampm = hours >= 12 ? "PM" : "AM";
     hours = hours % 12;
     hours = hours ? hours : 12;
-    if(ampmDisplay) {
-      ampmDisplay.textContent = ampm;
-      ampmDisplay.style.opacity = "1";
-    }
+    if(ampmDisplay) { ampmDisplay.textContent = ampm; ampmDisplay.style.opacity = "1"; }
   } else {
-    if(ampmDisplay) {
-      ampmDisplay.textContent = "";
-      ampmDisplay.style.opacity = "0";
-    }
+    if(ampmDisplay) { ampmDisplay.textContent = ""; ampmDisplay.style.opacity = "0"; }
   }
-
-  if (dateDisplay) {
-    dateDisplay.textContent = formatDate(now);
-  }
+  if (dateDisplay) dateDisplay.textContent = formatDate(now);
 
   const hh = String(hours).padStart(2, '0');
   const mm = String(now.getMinutes()).padStart(2, '0');
   const ss = String(now.getSeconds()).padStart(2, '0');
 
-  flipDigit("clock-h1", hh[0]);
-  flipDigit("clock-h2", hh[1]);
-  flipDigit("clock-m1", mm[0]);
-  flipDigit("clock-m2", mm[1]);
-  flipDigit("clock-m2", mm[1]);
-  flipDigit("clock-s1", ss[0]);
-  flipDigit("clock-s2", ss[1]);
+  flipDigit("clock-h1", hh[0]); flipDigit("clock-h2", hh[1]);
+  flipDigit("clock-m1", mm[0]); flipDigit("clock-m2", mm[1]);
+  flipDigit("clock-s1", ss[0]); flipDigit("clock-s2", ss[1]);
 
   const days = getCurrentDays();
   const clockDaysEl = document.getElementById("clock-days");
@@ -1325,7 +1010,6 @@ function updateClock() {
   const today = getMalaysiaNow();
   today.setHours(0, 0, 0, 0);
   const currentYear = today.getFullYear();
-
   const isTodayAnn = (today.getMonth() === ANNIVERSARY.month && today.getDate() === ANNIVERSARY.day);
   const isTodayHer = (today.getMonth() === HER_BIRTHDAY.month && today.getDate() === HER_BIRTHDAY.day);
   const isTodayHim = (today.getMonth() === HIS_BIRTHDAY.month && today.getDate() === HIS_BIRTHDAY.day);
@@ -1337,59 +1021,29 @@ function updateClock() {
   let nextAnnYear = currentYear;
   if (today > new Date(currentYear, ANNIVERSARY.month, ANNIVERSARY.day)) nextAnnYear = currentYear + 1;
   const anniversaryCount = nextAnnYear - START_YEAR;
-
   const clockTitleAnn = document.getElementById("clock-title-ann");
-  const clockCdAnnContainer = clockTitleAnn ? clockTitleAnn.nextElementSibling : null;
-
-  setCdCard(
-    clockBoxAnn,
-    clockTitleAnn,
-    clockCdAnnContainer,
-    isTodayAnn,
+  setCdCard(clockBoxAnn, clockTitleAnn, clockTitleAnn ? clockTitleAnn.nextElementSibling : null, isTodayAnn,
     `第 ${anniversaryCount} 周年<br>纪念日快乐`,
     anniversaryCount === 1 ? "距离 1 周年<br>纪念日" : `距离 ${anniversaryCount} 周年<br>纪念日`,
-    getDaysUntil(ANNIVERSARY.month, ANNIVERSARY.day),
-    "❤️❤️"
-  );
+    getDaysUntil(ANNIVERSARY.month, ANNIVERSARY.day), "❤️❤️");
 
   let nextHerYear = currentYear;
   if (today > new Date(currentYear, HER_BIRTHDAY.month, HER_BIRTHDAY.day)) nextHerYear = currentYear + 1;
   const herAge = nextHerYear - HER_BIRTH_YEAR;
-
   const clockTitleHer = document.getElementById("clock-title-her");
-  const clockCdHerContainer = clockTitleHer ? clockTitleHer.nextElementSibling : null;
-
-  setCdCard(
-    clockBoxHer,
-    clockTitleHer,
-    clockCdHerContainer,
-    isTodayHer,
-    `Cindy<br>${herAge}岁生日快乐`,
-    `距离Cindy<br>${herAge}岁生日`,
-    getDaysUntil(HER_BIRTHDAY.month, HER_BIRTHDAY.day),
-    "🎉🎂"
-  );
+  setCdCard(clockBoxHer, clockTitleHer, clockTitleHer ? clockTitleHer.nextElementSibling : null, isTodayHer,
+    `Cindy<br>${herAge}岁生日快乐`, `距离Cindy<br>${herAge}岁生日`,
+    getDaysUntil(HER_BIRTHDAY.month, HER_BIRTHDAY.day), "🎉🎂");
 
   let nextHimYear = currentYear;
   if (today > new Date(currentYear, HIS_BIRTHDAY.month, HIS_BIRTHDAY.day)) nextHimYear = currentYear + 1;
   const hisAge = nextHimYear - HIS_BIRTH_YEAR;
-
   const clockTitleHim = document.getElementById("clock-title-him");
-  const clockCdHimContainer = clockTitleHim ? clockTitleHim.nextElementSibling : null;
+  setCdCard(clockBoxHim, clockTitleHim, clockTitleHim ? clockTitleHim.nextElementSibling : null, isTodayHim,
+    `Kai Peng<br>${hisAge}岁生日快乐`, `距离Kai Peng<br>${hisAge}岁生日`,
+    getDaysUntil(HIS_BIRTHDAY.month, HIS_BIRTHDAY.day), "🎉🎂");
 
-  setCdCard(
-    clockBoxHim,
-    clockTitleHim,
-    clockCdHimContainer,
-    isTodayHim,
-    `Kai Peng<br>${hisAge}岁生日快乐`,
-    `距离Kai Peng<br>${hisAge}岁生日`,
-    getDaysUntil(HIS_BIRTHDAY.month, HIS_BIRTHDAY.day),
-    "🎉🎂"
-  );
-
-  const totalDays = 3650;
-  const percent = Math.min((days / totalDays) * 100, 100);
+  const percent = Math.min((days / 3650) * 100, 100);
   const fillEl = document.getElementById("clock-m-fill");
   const markerEl = document.getElementById("clock-m-marker");
   if (fillEl) fillEl.style.width = percent + "%";
@@ -1399,11 +1053,9 @@ function updateClock() {
   const labelsContainer = document.getElementById("clock-m-labels");
 
   if (barContainer && labelsContainer && labelsContainer.children.length === 0) {
-    const NODE_COUNT_CLOCK = 11;
-    for (let i = 0; i < NODE_COUNT_CLOCK; i++) {
-      const day = Math.round((totalDays / (NODE_COUNT_CLOCK - 1)) * i);
-      const p = (day / totalDays) * 100;
-
+    for (let i = 0; i < 11; i++) {
+      const day = Math.round((3650 / 10) * i);
+      const p = (day / 3650) * 100;
       const node = document.createElement("div");
       node.className = "clock-m-node";
       node.style.left = p + "%";
@@ -1417,18 +1069,14 @@ function updateClock() {
       labelsContainer.appendChild(lbl);
     }
   }
-
   if (barContainer && labelsContainer) {
     const allNodes = barContainer.querySelectorAll(".clock-m-node");
     const allLabels = labelsContainer.querySelectorAll(".clock-m-label");
-
     allNodes.forEach((node, i) => {
       if (parseInt(node.dataset.day) <= days) {
-        node.classList.add("passed");
-        if (allLabels[i]) allLabels[i].classList.add("passed");
+        node.classList.add("passed"); if (allLabels[i]) allLabels[i].classList.add("passed");
       } else {
-        node.classList.remove("passed");
-        if (allLabels[i]) allLabels[i].classList.remove("passed");
+        node.classList.remove("passed"); if (allLabels[i]) allLabels[i].classList.remove("passed");
       }
     });
   }
@@ -1439,28 +1087,16 @@ let hideButtonsTimer = null;
 
 function clockTick() {
   if (!clockOverlay.classList.contains("show")) return;
-
   updateClock();
-
-  const now = getMalaysiaNow();
-  const delay = 1000 - now.getMilliseconds();
-
-  clockTimeout = setTimeout(clockTick, delay);
+  clockTimeout = setTimeout(clockTick, 1000 - getMalaysiaNow().getMilliseconds());
 }
 
 function resetHideTimer() {
   if (!document.body.classList.contains("in-clock-mode")) return;
-
   document.body.classList.remove("hide-buttons");
-
-  if (hideButtonsTimer) {
-    clearTimeout(hideButtonsTimer);
-  }
-
+  if (hideButtonsTimer) clearTimeout(hideButtonsTimer);
   hideButtonsTimer = setTimeout(() => {
-    if (document.body.classList.contains("in-clock-mode")) {
-      document.body.classList.add("hide-buttons");
-    }
+    if (document.body.classList.contains("in-clock-mode")) document.body.classList.add("hide-buttons");
   }, 3000);
 }
 
@@ -1470,135 +1106,65 @@ function toggleClock(enter) {
     document.body.classList.add("in-clock-mode");
     document.body.style.overflow = "hidden";
     document.documentElement.style.overflow = "hidden";
-
     clockBtn.innerHTML = "❌";
     clockBtn.title = "退出时钟模式";
-
-    if (document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen().catch(() => {});
-    }
-
-    if (clockTimeout) {
-      clearTimeout(clockTimeout);
-      clockTimeout = null;
-    }
-    clockTick();
-    resetHideTimer();
+    if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+    if (clockTimeout) { clearTimeout(clockTimeout); clockTimeout = null; }
+    clockTick(); resetHideTimer();
   } else {
     clockOverlay.classList.remove("show");
     document.body.classList.remove("in-clock-mode");
     document.body.classList.remove("hide-buttons");
     document.body.style.overflow = "";
     document.documentElement.style.overflow = "";
-
     clockBtn.innerHTML = "⏰";
     clockBtn.title = "进入时钟模式";
-
-    if (document.fullscreenElement && document.exitFullscreen) {
-      document.exitFullscreen().catch(() => {});
-    }
-
-    if (clockTimeout) {
-      clearTimeout(clockTimeout);
-      clockTimeout = null;
-    }
-    if (hideButtonsTimer) {
-      clearTimeout(hideButtonsTimer);
-      hideButtonsTimer = null;
-    }
+    if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+    if (clockTimeout) { clearTimeout(clockTimeout); clockTimeout = null; }
+    if (hideButtonsTimer) { clearTimeout(hideButtonsTimer); hideButtonsTimer = null; }
   }
 }
 
 clockBtn.addEventListener("click", () => {
-  const isShowing = clockOverlay.classList.contains("show");
-  toggleClock(!isShowing);
+  toggleClock(!clockOverlay.classList.contains("show"));
   if (typeof closeLayoutMenu === "function") closeLayoutMenu();
 });
-
-if (closeClockMobile) {
-  closeClockMobile.addEventListener("click", () => {
-    toggleClock(false);
-  });
-}
-
-clockOverlay.addEventListener("click", (e) => {
-  if (e.target.closest('.theme-btn')) return;
-  resetHideTimer();
-});
-
-clockBtn.addEventListener("mouseenter", () => {
-  if (hideButtonsTimer) clearTimeout(hideButtonsTimer);
-  document.body.classList.remove("hide-buttons");
-});
-clockBtn.addEventListener("mouseleave", () => {
-  resetHideTimer();
-});
-
-themeBtn.addEventListener("mouseenter", () => {
-  if (hideButtonsTimer) clearTimeout(hideButtonsTimer);
-  document.body.classList.remove("hide-buttons");
-});
-themeBtn.addEventListener("mouseleave", () => {
-  resetHideTimer();
-});
+if (closeClockMobile) closeClockMobile.addEventListener("click", () => toggleClock(false));
+clockOverlay.addEventListener("click", (e) => { if (!e.target.closest('.theme-btn')) resetHideTimer(); });
+clockBtn.addEventListener("mouseenter", () => { if (hideButtonsTimer) clearTimeout(hideButtonsTimer); document.body.classList.remove("hide-buttons"); });
+clockBtn.addEventListener("mouseleave", resetHideTimer);
+themeBtn.addEventListener("mouseenter", () => { if (hideButtonsTimer) clearTimeout(hideButtonsTimer); document.body.classList.remove("hide-buttons"); });
+themeBtn.addEventListener("mouseleave", resetHideTimer);
 
 const layoutPicker = document.getElementById("layout-picker");
 const layoutPickerToggle = document.getElementById("layout-picker-toggle");
-const layoutPickerMenu = document.getElementById("layout-picker-menu");
 const layoutPickerCurrent = document.getElementById("layout-picker-current");
 const layoutOptions = document.querySelectorAll(".layout-option");
 const clockContainer = document.querySelector(".clock-container");
-
 const LAYOUT_NAMES = ["默认三列", "极简分屏", "上下结构", "纯粹时钟"];
 
 let currentLayoutIndex = parseInt(localStorage.getItem("clockLayoutIndex")) || 0;
-if (isNaN(currentLayoutIndex) || currentLayoutIndex < 0 || currentLayoutIndex > 3) {
-  currentLayoutIndex = 0;
-}
+if (isNaN(currentLayoutIndex) || currentLayoutIndex < 0 || currentLayoutIndex > 3) currentLayoutIndex = 0;
 
 function applyLayout() {
   if (!clockContainer) return;
-
   clockContainer.classList.remove("layout-minimal", "layout-stacked", "layout-pure");
+  if (currentLayoutIndex === 1) clockContainer.classList.add("layout-minimal");
+  else if (currentLayoutIndex === 2) clockContainer.classList.add("layout-stacked");
+  else if (currentLayoutIndex === 3) clockContainer.classList.add("layout-pure");
 
-  if (currentLayoutIndex === 1) {
-    clockContainer.classList.add("layout-minimal");
-  } else if (currentLayoutIndex === 2) {
-    clockContainer.classList.add("layout-stacked");
-  } else if (currentLayoutIndex === 3) {
-    clockContainer.classList.add("layout-pure");
-  }
-
-  if (layoutPickerCurrent) {
-    layoutPickerCurrent.textContent = LAYOUT_NAMES[currentLayoutIndex];
-  }
-
-  layoutOptions.forEach(opt => {
-    const idx = parseInt(opt.dataset.layout);
-    opt.classList.toggle("active", idx === currentLayoutIndex);
-  });
-
+  if (layoutPickerCurrent) layoutPickerCurrent.textContent = LAYOUT_NAMES[currentLayoutIndex];
+  layoutOptions.forEach(opt => opt.classList.toggle("active", parseInt(opt.dataset.layout) === currentLayoutIndex));
   localStorage.setItem("clockLayoutIndex", currentLayoutIndex);
 }
 
-function openLayoutMenu() {
-  if (!layoutPicker) return;
-  layoutPicker.classList.add("open");
-}
-
-function closeLayoutMenu() {
-  if (!layoutPicker) return;
-  layoutPicker.classList.remove("open");
-}
+function openLayoutMenu() { if (layoutPicker) layoutPicker.classList.add("open"); }
+function closeLayoutMenu() { if (layoutPicker) layoutPicker.classList.remove("open"); }
 
 if (layoutPickerToggle) {
   layoutPickerToggle.addEventListener("click", (e) => {
     e.stopPropagation();
-    if (layoutPicker.classList.contains("open")) {
-      closeLayoutMenu();
-    } else {
-      openLayoutMenu();
-    }
+    layoutPicker.classList.contains("open") ? closeLayoutMenu() : openLayoutMenu();
   });
 }
 
@@ -1607,52 +1173,34 @@ layoutOptions.forEach(opt => {
     e.stopPropagation();
     const idx = parseInt(opt.dataset.layout);
     if (!isNaN(idx) && idx >= 0 && idx <= 3) {
-      currentLayoutIndex = idx;
-      applyLayout();
-      closeLayoutMenu();
+      currentLayoutIndex = idx; applyLayout(); closeLayoutMenu();
     }
   });
 });
 
 document.addEventListener("click", (e) => {
-  if (!layoutPicker) return;
-  if (layoutPicker.classList.contains("open") && !layoutPicker.contains(e.target)) {
-    closeLayoutMenu();
-  }
+  if (layoutPicker && layoutPicker.classList.contains("open") && !layoutPicker.contains(e.target)) closeLayoutMenu();
 });
-
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && layoutPicker && layoutPicker.classList.contains("open")) {
-    closeLayoutMenu();
-  }
+  if (e.key === "Escape" && layoutPicker && layoutPicker.classList.contains("open")) closeLayoutMenu();
 });
-
 applyLayout();
 
 let letterScrollLocked = false;
 function preventLetterBgScroll(e) {
   if (!letterScrollLocked) return;
-
-  const isInsideLetterPaper = e.target.closest('.letter-paper');
-  if (!isInsideLetterPaper) {
-    if (e.cancelable) e.preventDefault();
-  }
+  if (!e.target.closest('.letter-paper') && e.cancelable) e.preventDefault();
 }
 
 function openLetter(id) {
   const modal = document.getElementById(id);
   if (modal) {
     modal.style.display = 'flex';
-
     letterScrollLocked = true;
     window.addEventListener('wheel', preventLetterBgScroll, { passive: false });
     window.addEventListener('touchmove', preventLetterBgScroll, { passive: false });
-
     document.body.classList.add('hide-buttons');
-
-    setTimeout(() => {
-      modal.classList.add('show');
-    }, 10);
+    setTimeout(() => modal.classList.add('show'), 10);
   }
 }
 
@@ -1660,22 +1208,15 @@ function closeLetter(id) {
   const modal = document.getElementById(id);
   if (modal) {
     modal.classList.remove('show');
-
     letterScrollLocked = false;
     window.removeEventListener('wheel', preventLetterBgScroll);
     window.removeEventListener('touchmove', preventLetterBgScroll);
-
     document.body.classList.remove('hide-buttons');
-
-    setTimeout(() => {
-      modal.style.display = 'none';
-    }, 400);
+    setTimeout(() => modal.style.display = 'none', 400);
   }
 }
 
-/* ========================================================= */
-/* ========== 完整功能的音乐播放器（重写防收回机制） ========== */
-/* ========================================================= */
+/* ========== 完整功能的音乐播放器 ========== */
 const bgm = document.getElementById("bgm");
 const musicControls = document.getElementById("music-controls");
 const musicToggleBtn = document.getElementById("music-toggle-btn");
@@ -1699,81 +1240,40 @@ let isRandomMusic = false;
 let isMusicEnabled = false;
 let fadeInterval = null;
 const MUSIC_VOLUME = 1;
+let isHoveringMusic = false, isTouchingMusic = false, lastInteractionTime = 0;
 
-let isHoveringMusic = false;
-let isTouchingMusic = false;
-let lastInteractionTime = 0; // 记录最后一次交互的时间戳
-
-const iconPlay = musicToggleBtn.querySelector(".icon-play");
-const iconPause = musicToggleBtn.querySelector(".icon-pause");
-const iconCd = musicToggleBtn.querySelector(".icon-cd");
-
-// ================= 状态切换逻辑 =================
-
-// 状态1：暂停（黑胶不转，仅显示黑胶）
 function setMusicMutedState() {
-  musicControls.classList.remove("state-collapsed"); 
+  musicControls.classList.remove("state-collapsed");
   musicToggleBtn.title = "开启音乐";
-  
-  // 隐藏歌名和按钮
   const expandedContent = document.querySelector(".music-expanded-content");
-  if (expandedContent) {
-    expandedContent.style.opacity = "0";
-    expandedContent.style.pointerEvents = "none";
-  }
+  if (expandedContent) { expandedContent.style.opacity = "0"; expandedContent.style.pointerEvents = "none"; }
 }
 
-// 状态2：展开操作（显示歌名、按钮，黑胶转动）
 function setMusicExpandedState() {
   musicControls.classList.remove("state-collapsed");
   musicToggleBtn.title = "暂停音乐";
-  lastInteractionTime = Date.now(); // 刷新交互时间
-
-  // 显示歌名和按钮
+  lastInteractionTime = Date.now();
   const expandedContent = document.querySelector(".music-expanded-content");
-  if (expandedContent) {
-    expandedContent.style.opacity = "1";
-    expandedContent.style.pointerEvents = "auto";
-  }
+  if (expandedContent) { expandedContent.style.opacity = "1"; expandedContent.style.pointerEvents = "auto"; }
 }
 
-// 状态3：CD收缩（只显示转动的黑胶）
 function setMusicCollapsedState() {
   if (!isMusicEnabled) return;
   musicControls.classList.add("state-collapsed");
   musicToggleBtn.title = "展开控制";
-  
-  // 隐藏歌名和按钮
   const expandedContent = document.querySelector(".music-expanded-content");
-  if (expandedContent) {
-    expandedContent.style.opacity = "0";
-    expandedContent.style.pointerEvents = "none";
-  }
+  if (expandedContent) { expandedContent.style.opacity = "0"; expandedContent.style.pointerEvents = "none"; }
 }
 
-// ★ 核心防收回修复：常驻全局检测器
-// 每 500 毫秒检查一次：
-// 1. 正在播放
-// 2. 当前不是 CD 状态
-// 3. 没打开歌单
-// 4. 鼠标不在播放器上（isHoveringMusic 为 false）
-// 5. 距离最后一次操作超过 2000ms
 setInterval(() => {
-  if (!isMusicEnabled) return;
-  if (musicControls.classList.contains("state-collapsed")) return;
-  if (musicControls.classList.contains("is-open")) return;
+  if (!isMusicEnabled || musicControls.classList.contains("state-collapsed") || musicControls.classList.contains("is-open")) return;
   if (isHoveringMusic || isTouchingMusic) return;
-
-  if (Date.now() - lastInteractionTime > 2000) {
-    setMusicCollapsedState();
-  }
+  if (Date.now() - lastInteractionTime > 2000) setMusicCollapsedState();
 }, 500);
 
-// 渲染歌单列表
 function renderMusicList() {
   if (!musicListContainer) return;
   musicListContainer.innerHTML = "";
-
   MUSIC_PLAYLIST.forEach((track, index) => {
     const btn = document.createElement("button");
     btn.className = "music-item" + (index === currentTrackIndex ? " active" : "");
@@ -1788,58 +1288,41 @@ function renderMusicList() {
   });
 }
 
-// 更新主 UI 状态与跑马灯
 function updateMusicUI() {
   if (!musicControls || !musicToggleBtn) return;
-
   musicControls.classList.toggle("is-muted", !isMusicEnabled);
-
   if (musicCurrentTitle) {
     musicCurrentTitle.textContent = MUSIC_PLAYLIST[currentTrackIndex].title;
-    
-    // 重置滚动状态
     musicCurrentTitle.classList.remove("scrolling");
     musicCurrentTitle.style.transform = "translateX(0)";
     musicCurrentTitle.style.removeProperty("--scroll-distance");
-    
-    // 延迟 400ms（等待卡片展开）再计算宽度
     setTimeout(() => {
       const containerWidth = musicCurrentTitle.parentElement.offsetWidth;
       const textWidth = musicCurrentTitle.scrollWidth;
-      
       if (textWidth > containerWidth && containerWidth > 0) {
-        const scrollDistance = textWidth - containerWidth + 10; 
+        const scrollDistance = textWidth - containerWidth + 10;
         musicCurrentTitle.style.setProperty("--scroll-distance", `-${scrollDistance}px`);
-        const duration = Math.max(3, scrollDistance * 0.1); 
+        const duration = Math.max(3, scrollDistance * 0.1);
         musicCurrentTitle.style.animationDuration = `${duration}s`;
         musicCurrentTitle.classList.add("scrolling");
       }
     }, 400);
   }
-
   if (musicRandomBtn) {
     musicRandomBtn.classList.toggle("active", isRandomMusic);
     musicRandomBtn.title = isRandomMusic ? "随机播放：开启" : "随机播放：关闭";
   }
-
   renderMusicList();
 }
 
-// 淡入淡出
 function fadeAudio(targetVolume, callback) {
   if (!bgm) return;
   clearInterval(fadeInterval);
-  const step = 0.05;
-  const intervalTime = 50;
-
+  const step = 0.05, intervalTime = 50;
   fadeInterval = setInterval(() => {
     const currentVolume = bgm.volume;
-    const nextVolume = currentVolume < targetVolume
-      ? Math.min(currentVolume + step, targetVolume)
-      : Math.max(currentVolume - step, targetVolume);
-
+    const nextVolume = currentVolume < targetVolume ? Math.min(currentVolume + step, targetVolume) : Math.max(currentVolume - step, targetVolume);
     bgm.volume = nextVolume;
-
     if (nextVolume === targetVolume) {
       clearInterval(fadeInterval);
       fadeInterval = null;
@@ -1848,134 +1331,71 @@ function fadeAudio(targetVolume, callback) {
   }, intervalTime);
 }
 
-// 加载指定歌曲
 function loadMusicTrack(index, autoplay = false) {
   if (!bgm || !MUSIC_PLAYLIST.length) return;
-
   currentTrackIndex = (index + MUSIC_PLAYLIST.length) % MUSIC_PLAYLIST.length;
   const track = MUSIC_PLAYLIST[currentTrackIndex];
-
   lastInteractionTime = Date.now();
-
   if (isMusicEnabled && !bgm.paused) {
     fadeAudio(0, () => {
-      bgm.pause();
-      bgm.src = track.src;
-      bgm.load();
-      updateMusicUI();
-
+      bgm.pause(); bgm.src = track.src; bgm.load(); updateMusicUI();
       if (autoplay && isMusicEnabled) {
         bgm.volume = 0;
-        bgm.play().then(() => {
-          fadeAudio(MUSIC_VOLUME);
-          setMusicExpandedState(); 
-        }).catch((err) => {
-          console.log("播放失败:", err);
-          isMusicEnabled = false;
-          updateMusicUI();
-          setMusicMutedState();
+        bgm.play().then(() => { fadeAudio(MUSIC_VOLUME); setMusicExpandedState(); }).catch(() => {
+          isMusicEnabled = false; updateMusicUI(); setMusicMutedState();
         });
       }
     });
   } else {
-    bgm.pause();
-    bgm.src = track.src;
-    bgm.load();
-    updateMusicUI();
-
+    bgm.pause(); bgm.src = track.src; bgm.load(); updateMusicUI();
     if (autoplay && isMusicEnabled) {
       bgm.volume = 0;
-      bgm.play().then(() => {
-        fadeAudio(MUSIC_VOLUME);
-        setMusicExpandedState();
-      }).catch((err) => {
-        console.log("播放失败:", err);
-        isMusicEnabled = false;
-        updateMusicUI();
-        setMusicMutedState();
+      bgm.play().then(() => { fadeAudio(MUSIC_VOLUME); setMusicExpandedState(); }).catch(() => {
+        isMusicEnabled = false; updateMusicUI(); setMusicMutedState();
       });
     }
   }
 }
 
-// 切换下一首
 function playNextTrack() {
   if (MUSIC_PLAYLIST.length <= 1) return;
-
   let nextIndex;
-  if (isRandomMusic) {
-    do {
-      nextIndex = Math.floor(Math.random() * MUSIC_PLAYLIST.length);
-    } while (nextIndex === currentTrackIndex);
-  } else {
-    nextIndex = (currentTrackIndex + 1) % MUSIC_PLAYLIST.length;
-  }
-
+  if (isRandomMusic) { do { nextIndex = Math.floor(Math.random() * MUSIC_PLAYLIST.length); } while (nextIndex === currentTrackIndex); }
+  else { nextIndex = (currentTrackIndex + 1) % MUSIC_PLAYLIST.length; }
   loadMusicTrack(nextIndex, isMusicEnabled);
 }
 
-// 切换上一首
 function playPrevTrack() {
   if (MUSIC_PLAYLIST.length <= 1) return;
-
   let prevIndex;
-  if (isRandomMusic) {
-    do {
-      prevIndex = Math.floor(Math.random() * MUSIC_PLAYLIST.length);
-    } while (prevIndex === currentTrackIndex);
-  } else {
-    prevIndex = (currentTrackIndex - 1 + MUSIC_PLAYLIST.length) % MUSIC_PLAYLIST.length;
-  }
-
+  if (isRandomMusic) { do { prevIndex = Math.floor(Math.random() * MUSIC_PLAYLIST.length); } while (prevIndex === currentTrackIndex); }
+  else { prevIndex = (currentTrackIndex - 1 + MUSIC_PLAYLIST.length) % MUSIC_PLAYLIST.length; }
   loadMusicTrack(prevIndex, isMusicEnabled);
 }
 
-// ================= 事件绑定 =================
-
-// 1. 主按钮点击事件
 musicToggleBtn.addEventListener("click", (e) => {
   e.stopPropagation();
   lastInteractionTime = Date.now();
-
   if (!isMusicEnabled) {
     isMusicEnabled = true;
     bgm.volume = 0;
-    bgm.play().then(() => {
-      updateMusicUI();
-      fadeAudio(MUSIC_VOLUME);
-      setMusicExpandedState();
-    }).catch(err => {
-      console.log("播放失败:", err);
-      isMusicEnabled = false;
-      setMusicMutedState();
+    bgm.play().then(() => { updateMusicUI(); fadeAudio(MUSIC_VOLUME); setMusicExpandedState(); }).catch(() => {
+      isMusicEnabled = false; setMusicMutedState();
     });
   } else if (musicControls.classList.contains("state-collapsed")) {
     setMusicExpandedState();
   } else {
-    isMusicEnabled = false;
-    updateMusicUI();
+    isMusicEnabled = false; updateMusicUI();
     fadeAudio(0, () => bgm.pause());
-    setMusicMutedState();
-    musicControls.classList.remove("is-open");
+    setMusicMutedState(); musicControls.classList.remove("is-open");
   }
 });
 
-// 2. 其它按钮（下一首、随机、歌单）点击时
 musicControls.addEventListener("click", (e) => {
-  lastInteractionTime = Date.now(); // 任何点击都刷新交互时间
-  
-  if (typeof resetHideTimer === "function" && document.body.classList.contains("in-clock-mode")) {
-    resetHideTimer();
-  }
-
-  if (e.target.closest("#music-toggle-btn")) return;
-  if (e.target.closest("#music-list-btn")) {
-    return;
-  }
-  // 切歌等操作，重新恢复展开状态并刷新时间
-  if (isMusicEnabled && !musicControls.classList.contains("state-collapsed")) {
-    setMusicExpandedState();
-  }
+  lastInteractionTime = Date.now();
+  if (typeof resetHideTimer === "function" && document.body.classList.contains("in-clock-mode")) resetHideTimer();
+  if (e.target.closest("#music-toggle-btn") || e.target.closest("#music-list-btn")) return;
+  if (isMusicEnabled && !musicControls.classList.contains("state-collapsed")) setMusicExpandedState();
 });
 
 if (musicNextBtn) musicNextBtn.addEventListener("click", playNextTrack);
@@ -1983,8 +1403,7 @@ if (musicPrevBtn) musicPrevBtn.addEventListener("click", playPrevTrack);
 
 if (musicRandomBtn) {
   musicRandomBtn.addEventListener("click", () => {
-    isRandomMusic = !isRandomMusic;
-    updateMusicUI();
+    isRandomMusic = !isRandomMusic; updateMusicUI();
     if (isRandomMusic && MUSIC_PLAYLIST.length > 1) playNextTrack();
   });
 }
@@ -1997,56 +1416,21 @@ if (musicListBtn) {
   });
 }
 
-// 3. 点击外部关闭歌单
 document.addEventListener("click", (e) => {
   if (musicControls && musicControls.classList.contains("is-open") && !musicControls.contains(e.target)) {
     musicControls.classList.remove("is-open");
-    lastInteractionTime = Date.now(); // 关闭时刷新时间，开始新一轮倒计时
+    lastInteractionTime = Date.now();
   }
 });
 
-// 4. 播放结束后自动下一首
-bgm.addEventListener("ended", () => {
-  if (isMusicEnabled) playNextTrack();
-});
+bgm.addEventListener("ended", () => { if (isMusicEnabled) playNextTrack(); });
 
-// 5. 鼠标悬停与触摸状态绑定（关键修复）
-musicControls.addEventListener("mouseenter", () => {
-  isHoveringMusic = true;
-  lastInteractionTime = Date.now(); // 鼠标进入也算一次交互
-  if (typeof resetHideTimer === "function" && document.body.classList.contains("in-clock-mode")) {
-    resetHideTimer();
-  }
-});
+musicControls.addEventListener("mouseenter", () => { isHoveringMusic = true; lastInteractionTime = Date.now(); if (typeof resetHideTimer === "function" && document.body.classList.contains("in-clock-mode")) resetHideTimer(); });
+musicControls.addEventListener("mousemove", () => { lastInteractionTime = Date.now(); if (typeof resetHideTimer === "function" && document.body.classList.contains("in-clock-mode")) resetHideTimer(); });
+musicControls.addEventListener("mouseleave", () => { isHoveringMusic = false; lastInteractionTime = Date.now(); });
+musicControls.addEventListener("touchstart", () => { isTouchingMusic = true; lastInteractionTime = Date.now(); if (typeof resetHideTimer === "function" && document.body.classList.contains("in-clock-mode")) resetHideTimer(); }, { passive: true });
+musicControls.addEventListener("touchend", () => { isTouchingMusic = false; lastInteractionTime = Date.now(); }, { passive: true });
 
-// 注意：删除 mousemove 清除定时器的逻辑，改为持续刷新时间戳
-musicControls.addEventListener("mousemove", () => {
-  lastInteractionTime = Date.now();
-  if (typeof resetHideTimer === "function" && document.body.classList.contains("in-clock-mode")) {
-    resetHideTimer();
-  }
-});
-
-musicControls.addEventListener("mouseleave", () => {
-  isHoveringMusic = false;
-  // 鼠标离开时，刷新交互时间，让 2000ms 倒计时从这一刻开始算
-  lastInteractionTime = Date.now();
-});
-
-musicControls.addEventListener("touchstart", () => {
-  isTouchingMusic = true;
-  lastInteractionTime = Date.now();
-  if (typeof resetHideTimer === "function" && document.body.classList.contains("in-clock-mode")) {
-    resetHideTimer();
-  }
-}, { passive: true });
-
-musicControls.addEventListener("touchend", () => {
-  isTouchingMusic = false;
-  lastInteractionTime = Date.now(); // 松手后开始倒计时
-}, { passive: true });
-
-// 初始化
 bgm.volume = 0;
 loadMusicTrack(0);
 updateMusicUI();
@@ -2054,32 +1438,273 @@ setMusicMutedState();
 
 /* ========== 加载遮罩层 ========== */
 const loadingScreen = document.getElementById("loading-screen");
-
 if (sessionStorage.getItem("hasVisited")) {
   if (loadingScreen) loadingScreen.style.display = "none";
 } else {
   sessionStorage.setItem("hasVisited", "true");
-
   let progress = 0;
   const loaderBar = document.getElementById("loader-bar");
-
   const progressInterval = setInterval(() => {
     progress += Math.random() * 10 + 5;
     if (progress > 90) progress = 90;
     if (loaderBar) loaderBar.style.width = progress + "%";
   }, 200);
-
   window.addEventListener("load", () => {
     clearInterval(progressInterval);
     if (loaderBar) loaderBar.style.width = "100%";
-
     setTimeout(() => {
-      if (loadingScreen) {
-        loadingScreen.classList.add("hidden");
-      }
-      setTimeout(() => {
-        if (loadingScreen) loadingScreen.remove();
-      }, 800);
+      if (loadingScreen) loadingScreen.classList.add("hidden");
+      setTimeout(() => { if (loadingScreen) loadingScreen.remove(); }, 800);
     }, 300);
   });
 }
+
+/* =========================================================
+   25. 老虎机（网页底部）—— 阶梯急刹 + 满屏彩带 + 6张浪漫图
+   ========================================================= */
+(function initSlotMachine() {
+  const machine = document.getElementById("slot-machine");
+  if (!machine) return;
+
+  const reelEls = [
+    document.getElementById("slot-reel-1"),
+    document.getElementById("slot-reel-2"),
+    document.getElementById("slot-reel-3")
+  ];
+  if (reelEls.some(el => !el)) return;
+
+  const ITEM_SIZE = 120;
+  const ITEM_SIZE_MOBILE = 86;
+  const WINDOW_SIZE = 240;
+  const WINDOW_SIZE_MOBILE = 172;
+
+  function getItemSize() { return window.matchMedia("(max-width: 700px)").matches ? ITEM_SIZE_MOBILE : ITEM_SIZE; }
+  function getWindowSize() { return window.matchMedia("(max-width: 700px)").matches ? WINDOW_SIZE_MOBILE : WINDOW_SIZE; }
+
+  // 暗黑/搞笑模式（5张）
+  const FUN_SLOT_IMAGES = [
+    "images/machine/joker/bathjoker.png",
+    "images/machine/joker/whitejoker.png",
+    "images/machine/joker/studentjoker.png",
+    "images/machine/joker/woffjoker.png",
+    "images/machine/joker/pinkjoker.png"
+  ];
+
+  // ★ 浪漫模式（6 张图）
+  const ROMANTIC_IMAGES = [
+    "images/machine/romantic/desaru.png",
+    "images/machine/romantic/genting.png",
+    "images/machine/romantic/home.png",
+    "images/machine/romantic/osoto.png",
+    "images/machine/romantic/street.png",
+    "images/machine/romantic/xiaod.png"
+  ];
+
+  function buildItemHTML(index) {
+    if (document.body.classList.contains("theme-fun")) {
+      return `<div class="slot-item"><img src="${FUN_SLOT_IMAGES[index % 5]}" alt=""></div>`;
+    } else {
+      return `<div class="slot-item"><img src="${ROMANTIC_IMAGES[index % 6]}" alt=""></div>`;
+    }
+  }
+
+  const REPEAT = 20;
+  const ICON_COUNT = 30;
+
+  /* =========================================================
+     ★ 性能优化版 applyCylinder
+     - DOM 数量、顺序、索引、translateY 距离全部保持原样
+     - 离窗口超过 windowSize * 0.75 的 item 只写一次样式后标记 released
+     - 后续帧直接 continue 跳过，不再做 asin / 写 transform / opacity
+     - 重新进入可视范围时清除标记，恢复逐帧渲染
+     - 动画路径、圆柱透视、急刹效果完全不变
+     ========================================================= */
+  function applyCylinder(reel, itemSize, windowSize, currentY) {
+    const items = reel.children;
+    const R = 200;
+    const RELEASE_RANGE = windowSize * 0.75;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const itemCenterY = i * itemSize + itemSize / 2 + currentY;
+      const dy = itemCenterY - windowSize / 2;
+
+      // ★ 已释放且仍在远处 → 直接跳过，不碰任何样式
+      if (Math.abs(dy) > RELEASE_RANGE) {
+        if (item.dataset.released !== "1") {
+          const theta = Math.asin(Math.max(-1, Math.min(1, dy / R)));
+          const yTranslate = Math.sin(theta) * R - dy;
+          const rotateX = -theta * (180 / Math.PI);
+          item.style.transform = `translateY(${yTranslate}px) translateZ(-100px) rotateX(${rotateX}deg) scaleY(0.1)`;
+          item.style.opacity = "0";
+          item.dataset.released = "1";
+        }
+        continue;
+      }
+
+      // ★ 重新进入可视范围 → 清除释放标记
+      if (item.dataset.released === "1") {
+        delete item.dataset.released;
+      }
+
+      const theta = Math.asin(Math.max(-1, Math.min(1, dy / R)));
+      const yTranslate = Math.sin(theta) * R - dy;
+      const zTranslate = Math.cos(theta) * R - R;
+      const rotateX = -theta * (180 / Math.PI);
+      const scaleY = Math.max(0.25, Math.cos(theta));
+      const opacity = Math.max(0.4, 1 - Math.abs(theta) * 1.0);
+
+      item.style.transform = `translateY(${yTranslate}px) translateZ(${zTranslate}px) rotateX(${rotateX}deg) scaleY(${scaleY})`;
+      item.style.opacity = opacity;
+    }
+  }
+
+  function fillReels() {
+    reelEls.forEach(reel => {
+      let html = "";
+      for (let r = 0; r < REPEAT; r++) {
+        for (let i = 0; i < ICON_COUNT; i++) {
+          html += buildItemHTML(i);
+        }
+      }
+      reel.innerHTML = html;
+
+      const itemSize = getItemSize();
+      const windowSize = getWindowSize();
+      const randomCenterIndex = Math.floor(Math.random() * 200) + 50;
+      const initY = (windowSize / 2) - (randomCenterIndex * itemSize + itemSize / 2);
+
+      reel.style.transition = "none";
+      reel.style.transform = `translateY(${initY}px)`;
+      applyCylinder(reel, itemSize, windowSize, initY);
+    });
+  }
+
+  fillReels();
+
+  const themeBtnEl = document.getElementById("theme-btn");
+  if (themeBtnEl) themeBtnEl.addEventListener("click", () => setTimeout(fillReels, 60));
+
+  let isSpinning = false;
+
+  // 满屏彩带效果
+  function shootConfetti() {
+    const isFun = document.body.classList.contains("theme-fun");
+    const colors = isFun
+      ? ["#c9a04a", "#e0b458", "#ffe08a", "#ffffff", "#8a7a68"]
+      : ["#d98c8c", "#e8c4c4", "#ff9a9e", "#fecfef", "#ffd1dc", "#a1c4fd"];
+
+    const shapes = ["square", "rect", "circle"];
+
+    for (let i = 0; i < 100; i++) {
+      setTimeout(() => {
+        const confetti = document.createElement("div");
+        confetti.classList.add("confetti");
+
+        const shape = shapes[Math.floor(Math.random() * shapes.length)];
+        confetti.classList.add(shape);
+
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.left = Math.random() * 100 + "vw";
+
+        const tx = (Math.random() - 0.5) * 400 + "px";
+        const ty = -(Math.random() * 800 + 400) + "px";
+        const rot = (Math.random() * 1440 - 720) + "deg";
+
+        confetti.style.setProperty("--tx", tx);
+        confetti.style.setProperty("--ty", ty);
+        confetti.style.setProperty("--rot", rot);
+
+        confetti.style.animationDuration = (Math.random() * 1 + 2) + "s";
+
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 3000);
+      }, i * 20);
+    }
+  }
+
+  function spin() {
+    if (isSpinning) return;
+    isSpinning = true;
+
+    machine.classList.add("pulling");
+    machine.classList.remove("jackpot");
+    setTimeout(() => machine.classList.remove("pulling"), 320);
+
+    const itemSize = getItemSize();
+    const windowSize = getWindowSize();
+
+    let isWin = Math.random() < 0.1;
+
+    const currentTypeCount = document.body.classList.contains("theme-fun") ? 5 : 6;
+    let winIndex = Math.floor(Math.random() * currentTypeCount);
+
+    let results = [];
+    let finished = 0;
+
+    const globalStartTime = performance.now();
+
+    reelEls.forEach((reel, idx) => {
+      let stopIndex;
+      if (isWin) {
+        stopIndex = winIndex;
+      } else {
+        do {
+          stopIndex = Math.floor(Math.random() * currentTypeCount);
+        } while (stopIndex === winIndex);
+        if (results.length === 2 && results[0] === results[1] && stopIndex === results[0]) {
+          stopIndex = (stopIndex + 1) % currentTypeCount;
+        }
+      }
+      results.push(stopIndex);
+
+      const duration = 1200 + idx * 1000;
+      const baseLoops = 8 + idx * 2;
+      const totalItems = baseLoops * ICON_COUNT + stopIndex;
+
+      const targetY = (windowSize / 2) - (totalItems * itemSize + itemSize / 2);
+      const startY = (windowSize / 2) - (itemSize * 1 + itemSize / 2);
+
+      reel.style.transition = "none";
+      reel.style.transform = `translateY(${startY}px)`;
+      applyCylinder(reel, itemSize, windowSize, startY);
+      void reel.offsetWidth;
+
+      function step(now) {
+        const elapsed = now - globalStartTime;
+
+        if (elapsed < duration) {
+          const t = elapsed / duration;
+          const eased = 1 - Math.pow(1 - t, 3);
+          const y = startY + (targetY - startY) * eased;
+          reel.style.transform = `translateY(${y}px)`;
+          applyCylinder(reel, itemSize, windowSize, y);
+          requestAnimationFrame(step);
+        } else {
+          reel.style.transition = "none";
+          reel.style.transform = `translateY(${targetY}px)`;
+          applyCylinder(reel, itemSize, windowSize, targetY);
+
+          finished++;
+          if (finished === reelEls.length) {
+            isSpinning = false;
+            if (isWin) {
+              machine.classList.add("jackpot");
+              setTimeout(() => machine.classList.remove("jackpot"), 700);
+              shootConfetti();
+            }
+          }
+        }
+      }
+      requestAnimationFrame(step);
+    });
+  }
+
+  machine.addEventListener("click", spin);
+
+  let resizeTimer = null;
+  window.addEventListener("resize", () => {
+    if (resizeTimer) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => { fillReels(); isSpinning = false; }, 200);
+  });
+})();
