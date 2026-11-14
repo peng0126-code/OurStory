@@ -1242,6 +1242,14 @@ let fadeInterval = null;
 const MUSIC_VOLUME = 1;
 let isHoveringMusic = false, isTouchingMusic = false, lastInteractionTime = 0;
 
+function refreshMusicInteractionTimer() {
+  lastInteractionTime = Date.now();
+
+  if (document.body.classList.contains("in-clock-mode")) {
+    resetHideTimer();
+  }
+}
+
 function setMusicMutedState() {
   musicControls.classList.remove("state-collapsed");
   musicToggleBtn.title = "开启音乐";
@@ -1375,7 +1383,7 @@ function playPrevTrack() {
 
 musicToggleBtn.addEventListener("click", (e) => {
   e.stopPropagation();
-  lastInteractionTime = Date.now();
+  refreshMusicInteractionTimer();
   if (!isMusicEnabled) {
     isMusicEnabled = true;
     bgm.volume = 0;
@@ -1398,21 +1406,39 @@ musicControls.addEventListener("click", (e) => {
   if (isMusicEnabled && !musicControls.classList.contains("state-collapsed")) setMusicExpandedState();
 });
 
-if (musicNextBtn) musicNextBtn.addEventListener("click", playNextTrack);
-if (musicPrevBtn) musicPrevBtn.addEventListener("click", playPrevTrack);
-
-if (musicRandomBtn) {
-  musicRandomBtn.addEventListener("click", () => {
-    isRandomMusic = !isRandomMusic; updateMusicUI();
-    if (isRandomMusic && MUSIC_PLAYLIST.length > 1) playNextTrack();
+if (musicNextBtn) {
+  musicNextBtn.addEventListener("click", () => {
+    refreshMusicInteractionTimer();
+    playNextTrack();
   });
 }
 
+if (musicPrevBtn) {
+  musicPrevBtn.addEventListener("click", () => {
+    refreshMusicInteractionTimer();
+    playPrevTrack();
+  });
+}
+
+if (musicRandomBtn) {
+  musicRandomBtn.addEventListener("click", () => {
+    refreshMusicInteractionTimer();
+
+    isRandomMusic = !isRandomMusic;
+    updateMusicUI();
+
+    if (isRandomMusic && MUSIC_PLAYLIST.length > 1) {
+      playNextTrack();
+    }
+  });
+}
 if (musicListBtn) {
   musicListBtn.addEventListener("click", (e) => {
     e.stopPropagation();
+
+    refreshMusicInteractionTimer();
+
     musicControls.classList.toggle("is-open");
-    lastInteractionTime = Date.now();
   });
 }
 
@@ -1459,9 +1485,7 @@ if (sessionStorage.getItem("hasVisited")) {
   });
 }
 
-/* =========================================================
-   25. 老虎机（网页底部）—— 虚拟化滚轮版 (完美 0.5:1:0.5 布局)
-   ========================================================= */
+/* ========== 25. 老虎机（网页底部）========== */
 (function initSlotMachine() {
   const machine = document.getElementById("slot-machine");
   if (!machine) return;
@@ -1475,8 +1499,8 @@ if (sessionStorage.getItem("hasVisited")) {
 
   const ITEM_SIZE = 120;
   const ITEM_SIZE_MOBILE = 86;
-  const WINDOW_SIZE = 240;
-  const WINDOW_SIZE_MOBILE = 172;
+  const WINDOW_SIZE = 360;
+  const WINDOW_SIZE_MOBILE = 258;
 
   function getItemSize() { return window.matchMedia("(max-width: 700px)").matches ? ITEM_SIZE_MOBILE : ITEM_SIZE; }
   function getWindowSize() { return window.matchMedia("(max-width: 700px)").matches ? WINDOW_SIZE_MOBILE : WINDOW_SIZE; }
@@ -1666,8 +1690,8 @@ if (sessionStorage.getItem("hasVisited")) {
       // 30 是原来的 ICON_COUNT，保持总圈数一致
       const totalItems = baseLoops * 30 + stopIndex;  
 
-      const targetY = (windowSize / 2) - (totalItems * itemSize + itemSize / 2);
-      const startY = (windowSize / 2) - (itemSize * 1 + itemSize / 2);
+      const targetY = windowSize / 2 - (totalItems * itemSize + itemSize / 2);
+      const startY = windowSize / 2 - (itemSize * 1 + itemSize / 2);
 
       renderReel(state, startY, itemSize, windowSize);
 
