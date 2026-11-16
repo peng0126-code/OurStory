@@ -378,7 +378,7 @@ function closeLightbox() {
     flipWrapper.style.opacity = "0";
     setTimeout(() => {
       lightbox.classList.remove("show");
-      setTimeout(() => resetLightboxVisual(), 100);
+      setTimeout(() => resetLightboxVisual(), 350);
     }, 250);
     return;
   }
@@ -437,7 +437,7 @@ function closeLightbox() {
         isFlipped = false;
         savedRect = null;
         resetLightboxVisual();
-        lightbox.style.transition = "opacity 0.1s ease, visibility 0.1s ease";
+        lightbox.style.transition = "opacity 0.35s ease, visibility 0.35s ease";
       }, 10);
     }, 420);
   };
