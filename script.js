@@ -322,6 +322,7 @@ function openLightbox(src, sourceImg) {
   }
 
   lightbox.classList.add("show");
+  document.body.classList.add("hide-buttons");
   window.addEventListener('wheel', preventScroll, { passive: false });
   window.addEventListener('touchmove', preventScroll, { passive: false });
 
@@ -439,6 +440,7 @@ function closeLightbox() {
         resetLightboxVisual();
         lightbox.style.transition = "opacity 0.35s ease, visibility 0.35s ease";
       }, 10);
+    document.body.classList.remove("hide-buttons");
     }, 420);
   };
 
@@ -779,7 +781,7 @@ function jumpAndSpeak(markerEl, event) {
   bubble.textContent = randomWord;
   bubble.style.cssText = `
     position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
-    background: var(--main); color: white; padding: 4px 10px; border-radius: 10px;
+    background: var(--main); color: black; padding: 4px 10px; border-radius: 10px;
     font-size: 12px; white-space: nowrap; pointer-events: none;
     animation: bubblePop 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; z-index: 99;
   `;
