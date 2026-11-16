@@ -1,3 +1,10 @@
+
+@font-face {
+  font-family: 'ShouXieFont';
+  src: url('C:/Users/KaiPeng/Desktop/Project - Theme/font/FuShengKaiTi.ttf') format('truetype');
+  font-display: swap;
+}
+
 /* ========= 1. 主题变量 ========= */
 :root {
   --bg-top: #fdf6f0;
@@ -44,7 +51,7 @@ img {
 }
 
 body {
-  font-family: "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family:"Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
   background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
   color: var(--text);
   line-height: 1.8;
@@ -151,7 +158,6 @@ header {
 }
 
 header h1 {
-  font-family: "Kaiti SC", "KaiTi", "STKaiti", serif;
   font-size: 3.2rem;
   color: var(--main);
   letter-spacing: 4px;
@@ -907,7 +913,6 @@ body.theme-fun .year-group.collapsed .year-header {
   align-items: center;
   padding: 2rem;
   box-sizing: border-box;
-  font-family: "Kaiti SC", "KaiTi", "STKaiti", "cursive", serif;
   font-size: 1.6rem;
   line-height: 1.8;
   text-align: center;
@@ -1888,9 +1893,12 @@ body.theme-fun .letter-btn {
   position: relative;
   transform: translateY(20px);
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  background-image: repeating-linear-gradient(transparent, transparent 31px, var(--main-light) 31px, var(--main-light) 32px);
-  background-position: 0 10px;
-  line-height: 32px;
+  
+  /* ★ 横线底纹 */
+  background-image: linear-gradient(to bottom, transparent 40px, var(--main-light) 40px, var(--main-light) 41px, transparent 41px);
+  background-size: 100% 42px;
+  background-position: 0 0;
+  background-attachment: local;
 }
 
 .letter-modal.show .letter-paper {
@@ -1898,27 +1906,47 @@ body.theme-fun .letter-btn {
 }
 
 .letter-paper h2 {
-  font-family: "Kaiti SC", "KaiTi", "STKaiti", serif;
+  font-family: "ShouXieFont", serif;
   color: var(--main);
   font-size: 1.6rem;
-  margin-bottom: 20px;
+  line-height: 42px;
+  margin-top: 0;
+  margin-bottom: 42px;
   text-align: center;
+  display: inline-block;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0 20px;
+  
+  /* ★ 关键修改：把文字背后的颜色改为透明，让线露出来 */
+  background: transparent; 
 }
 
 .letter-paper p {
+  font-family: "ShouXieFont", serif;
   color: var(--text);
-  font-size: 1rem;
-  margin-bottom: 16px;
+  font-size: 1.5rem;
+  line-height: 42px;
+  margin: 0;
+  padding: 0;
   text-indent: 2em;
 }
 
+.letter-paper p:empty {
+  height: 42px;
+}
+
 .letter-paper .signature {
-  text-align: right;
-  margin-top: 30px;
+  font-family: "ShouXieFont", serif;
   color: var(--text-mid);
-  font-family: "Kaiti SC", "KaiTi", "STKaiti", serif;
   font-size: 1.1rem;
+  line-height: 42px;
+  margin: 0;
+  padding: 0;
+  text-align: right;
   text-indent: 0;
+  font-weight: bold;
 }
 
 .close-letter {
@@ -1933,6 +1961,11 @@ body.theme-fun .letter-btn {
   line-height: 1;
   transition: color 0.3s;
   z-index: 10;
+  
+  /* ★ 关键修改：X 按钮的背景也改成透明 */
+  background: transparent; 
+  padding-left: 10px;
+  padding-bottom: 10px;
 }
 
 .close-letter:hover {
@@ -1940,7 +1973,7 @@ body.theme-fun .letter-btn {
 }
 
 body.theme-fun .letter-paper {
-  background-image: repeating-linear-gradient(transparent, transparent 31px, rgba(201, 160, 74, 0.1) 31px, rgba(201, 160, 74, 0.1) 32px);
+  background-image: linear-gradient(to bottom, transparent 40px, rgba(201, 160, 74, 0.2) 40px, rgba(201, 160, 74, 0.2) 41px, transparent 41px);
 }
 
 /* ========= 21. 小人跳跃动画 ========= */
@@ -2054,7 +2087,7 @@ body.theme-fun .letter-paper {
   transform-origin: top right;
 }
 
-body.in-clock-mode.hide-buttons #music-controls {
+body.hide-buttons #music-controls {
   transform: translateX(150px) !important;
   opacity: 0;
 }
