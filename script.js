@@ -1604,26 +1604,45 @@ if (sessionStorage.getItem("hasVisited")) {
     }
   }
 
-  function fillReels() {
+
+  // 记录每个滚轮目前显示的中心图片索引
+  const reelCenterIndices = [null, null, null];
+
+  function fillReels(randomize = false) {
     const itemSize = getItemSize();
     const windowSize = getWindowSize();
+
     reelEls.forEach((reel, idx) => {
       const state = reelStates[idx];
-      // 随机取一个索引位于窗口正中间
-      const randomCenterIndex = Math.floor(Math.random() * 200) + 50;
-      const initY = (windowSize / 2) - (randomCenterIndex * itemSize + itemSize / 2);
-      
-      // 容器本身不动，全靠子节点绝对定位
+
+      // 只有首次进入或切换主题时才随机
+      if (randomize || reelCenterIndices[idx] === null) {
+        reelCenterIndices[idx] = Math.floor(Math.random() * 200) + 50;
+      }
+
+      // 保留原本的图片，只重新计算显示位置
+      const centerIndex = reelCenterIndices[idx];
+      const initY = (windowSize / 2) -
+        (centerIndex * itemSize + itemSize / 2);
+
       reel.style.transition = "none";
-      reel.style.transform = "translateY(0px)"; 
+      reel.style.transform = "translateY(0px)";
+
       renderReel(state, initY, itemSize, windowSize);
     });
   }
 
-  fillReels();
+  // 第一次进入网页：随机显示
+  fillReels(true);
 
+  // 切换主题：重新随机显示
   const themeBtnEl = document.getElementById("theme-btn");
-  if (themeBtnEl) themeBtnEl.addEventListener("click", () => setTimeout(fillReels, 60));
+  if (themeBtnEl) {
+    themeBtnEl.addEventListener("click", () => {
+      setTimeout(() => fillReels(true), 60);
+    });
+  }
+
 
   let isSpinning = false;
 
@@ -1705,6 +1724,7 @@ if (sessionStorage.getItem("hasVisited")) {
           requestAnimationFrame(step);
         } else {
           renderReel(state, targetY, itemSize, windowSize);
+          reelCenterIndices[idx] = totalItems;
           finished++;
           if (finished === reelEls.length) {
             isSpinning = false;
@@ -1723,8 +1743,16 @@ if (sessionStorage.getItem("hasVisited")) {
   machine.addEventListener("click", spin);
 
   let resizeTimer = null;
+
   window.addEventListener("resize", () => {
     if (resizeTimer) clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => { fillReels(); isSpinning = false; }, 200);
+
+    resizeTimer = setTimeout(() => {
+      // 正在旋转时不干扰动画
+      if (isSpinning) return;
+
+      // 只重新计算位置，不重新随机图片
+      fillReels(false);
+    }, 200);
   });
 })();
