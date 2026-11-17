@@ -767,7 +767,7 @@ window.addEventListener("load", () => {
   }, 4000);
 });
 
-const loveWords = ["喜欢你！", "贴贴~", "今天也很想你", "薛之谦！", "❤️", "抱抱", "喵", "￣3￣"];
+const loveWords = ["喜欢你！", "贴贴~", "今天也很想你", "薛之谦！", "❤️", "抱抱", "喵🐱", "￣3￣", "平凡但幸福"];
 const normalMarker = document.getElementById("milestone-marker");
 const clockMarker = document.getElementById("clock-m-marker");
 
@@ -776,14 +776,22 @@ function jumpAndSpeak(markerEl, event) {
   markerEl.classList.remove("jump");
   void markerEl.offsetWidth;
   markerEl.classList.add("jump");
+  
   const randomWord = loveWords[Math.floor(Math.random() * loveWords.length)];
   const bubble = document.createElement("div");
   bubble.textContent = randomWord;
+  
+  // ★ 核心修改：判断当前是否为万兽模式（theme-fun）
+  const isFunTheme = document.body.classList.contains("theme-fun");
+  const textColor = isFunTheme ? "#0a0a0f" : "#ffffff"; // 万兽模式黑字（和你背景色一致），浪漫模式白字
+  
   bubble.style.cssText = `
     position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
-    background: var(--main); color: black; padding: 4px 10px; border-radius: 10px;
-    font-size: 12px; white-space: nowrap; pointer-events: none;
-    animation: bubblePop 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; z-index: 99;
+    background: var(--main); 
+    color: ${textColor}; /* 动态应用颜色 */
+    padding: 4px 10px; border-radius: 10px;
+    font-size: 12px; font-weight: bold; white-space: nowrap; pointer-events: none;
+    animation: bubblePop 2.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; z-index: 99;
   `;
   markerEl.appendChild(bubble);
   setTimeout(() => bubble.remove(), 1000);
@@ -1143,7 +1151,7 @@ const layoutPickerToggle = document.getElementById("layout-picker-toggle");
 const layoutPickerCurrent = document.getElementById("layout-picker-current");
 const layoutOptions = document.querySelectorAll(".layout-option");
 const clockContainer = document.querySelector(".clock-container");
-const LAYOUT_NAMES = ["默认三列", "极简分屏", "上下结构", "纯粹时钟"];
+const LAYOUT_NAMES = ["网格布局", "左右分屏", "上下结构", "极简时钟"];
 
 let currentLayoutIndex = parseInt(localStorage.getItem("clockLayoutIndex")) || 0;
 if (isNaN(currentLayoutIndex) || currentLayoutIndex < 0 || currentLayoutIndex > 3) currentLayoutIndex = 0;
