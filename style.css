@@ -1,7 +1,6 @@
-
 @font-face {
-  font-family: 'ShouXieFont';
-  src: url('C:/Users/KaiPeng/Desktop/Project - Theme/font/FuShengKaiTi.ttf') format('truetype');
+  font-family: 'MainFont';
+  src: url('font/YangRenDongZhuShiTi.woff2') format('truetype');
   font-display: swap;
 }
 
@@ -51,7 +50,7 @@ img {
 }
 
 body {
-  font-family:"Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: "MainFont", sans-serif;
   background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
   color: var(--text);
   line-height: 1.8;
@@ -1906,7 +1905,7 @@ body.theme-fun .letter-btn {
 }
 
 .letter-paper h2 {
-  font-family: "ShouXieFont", serif;
+  font-family: "MainFont", serif;
   color: var(--main);
   font-size: 1.6rem;
   line-height: 42px;
@@ -1924,9 +1923,9 @@ body.theme-fun .letter-btn {
 }
 
 .letter-paper p {
-  font-family: "ShouXieFont", serif;
+  font-family: "MainFont", serif;
   color: var(--text);
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   line-height: 42px;
   margin: 0;
   padding: 0;
@@ -1938,7 +1937,7 @@ body.theme-fun .letter-btn {
 }
 
 .letter-paper .signature {
-  font-family: "ShouXieFont", serif;
+  font-family: "MainFont", serif;
   color: var(--text-mid);
   font-size: 1.1rem;
   line-height: 42px;
