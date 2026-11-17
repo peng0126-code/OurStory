@@ -1662,7 +1662,7 @@ if (sessionStorage.getItem("hasVisited")) {
       ? ["#c9a04a", "#e0b458", "#ffe08a", "#ffffff", "#8a7a68"]
       : ["#d98c8c", "#e8c4c4", "#ff9a9e", "#fecfef", "#ffd1dc", "#a1c4fd"];
     const shapes = ["square", "rect", "circle"];
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 600; i++) {
       setTimeout(() => {
         const confetti = document.createElement("div");
         confetti.classList.add("confetti");
@@ -1672,9 +1672,9 @@ if (sessionStorage.getItem("hasVisited")) {
         confetti.style.setProperty("--tx", (Math.random() - 0.5) * 400 + "px");
         confetti.style.setProperty("--ty", -(Math.random() * 800 + 400) + "px");
         confetti.style.setProperty("--rot", (Math.random() * 1440 - 720) + "deg");
-        confetti.style.animationDuration = (Math.random() * 1 + 2) + "s";
+        confetti.style.animationDuration = (Math.random() * 1 + 6) + "s";
         document.body.appendChild(confetti);
-        setTimeout(() => confetti.remove(), 3000);
+        setTimeout(() => confetti.remove(), 8000);
       }, i * 20);
     }
   }
@@ -1740,7 +1740,7 @@ if (sessionStorage.getItem("hasVisited")) {
             isSpinning = false;
             if (isWin) {
               machine.classList.add("jackpot");
-              setTimeout(() => machine.classList.remove("jackpot"), 700);
+              setTimeout(() => machine.classList.remove("jackpot"), 8000);
               shootConfetti();
             }
           }
