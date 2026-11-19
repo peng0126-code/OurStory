@@ -500,6 +500,7 @@ function triggerFlip(direction) {
   if (!photoSecrets[imgName]) return;
   if (isFlipped) direction = -direction;
   isAnimating = true;
+  playSfx("music/soundeff/flip.mp3", 0.5);
   if (direction === 1) {
     flipWrapper.style.transform = isFlipped ? "rotateY(0deg)" : "rotateY(180deg)";
   } else {
@@ -561,6 +562,7 @@ lightbox.addEventListener("click", (e) => {
 
 /* ========== 6. 主题切换并保存状态 ========== */
 themeBtn.addEventListener("click", () => {
+  if (window.isCelebratingAnim) return; 
   document.body.classList.toggle("theme-fun");
   const isFun = document.body.classList.contains("theme-fun");
   themeBtn.textContent = isFun ? "👑" : "🌸";
@@ -1655,6 +1657,8 @@ if (sessionStorage.getItem("hasVisited")) {
 
 
   let isSpinning = false;
+  let isCelebrating = false;
+
 
   function shootConfetti() {
     const isFun = document.body.classList.contains("theme-fun");
@@ -1662,7 +1666,7 @@ if (sessionStorage.getItem("hasVisited")) {
       ? ["#c9a04a", "#e0b458", "#ffe08a", "#ffffff", "#8a7a68"]
       : ["#d98c8c", "#e8c4c4", "#ff9a9e", "#fecfef", "#ffd1dc", "#a1c4fd"];
     const shapes = ["square", "rect", "circle"];
-    for (let i = 0; i < 600; i++) {
+    for (let i = 0; i < 400; i++) {
       setTimeout(() => {
         const confetti = document.createElement("div");
         confetti.classList.add("confetti");
@@ -1672,7 +1676,7 @@ if (sessionStorage.getItem("hasVisited")) {
         confetti.style.setProperty("--tx", (Math.random() - 0.5) * 400 + "px");
         confetti.style.setProperty("--ty", -(Math.random() * 800 + 400) + "px");
         confetti.style.setProperty("--rot", (Math.random() * 1440 - 720) + "deg");
-        confetti.style.animationDuration = (Math.random() * 1 + 6) + "s";
+        confetti.style.animationDuration = (Math.random() * 1 + 5) + "s";
         document.body.appendChild(confetti);
         setTimeout(() => confetti.remove(), 8000);
       }, i * 20);
@@ -1680,8 +1684,11 @@ if (sessionStorage.getItem("hasVisited")) {
   }
 
   function spin() {
-    if (isSpinning) return;
+    if (isSpinning || isCelebrating) return;
     isSpinning = true;
+
+    stopLeverSound();
+    startLeverSound(); 
 
     machine.classList.add("pulling");
     machine.classList.remove("jackpot");
@@ -1735,12 +1742,20 @@ if (sessionStorage.getItem("hasVisited")) {
         } else {
           renderReel(state, targetY, itemSize, windowSize);
           reelCenterIndices[idx] = totalItems;
+          playSfx("music/soundeff/slot.mp3", 0.6);
           finished++;
           if (finished === reelEls.length) {
+            stopLeverSound();
             isSpinning = false;
             if (isWin) {
+              startJackpotSound(); 
               machine.classList.add("jackpot");
-              setTimeout(() => machine.classList.remove("jackpot"), 8000);
+              isCelebrating = true;
+              setTimeout(() => {
+                machine.classList.remove("jackpot");
+                isCelebrating = false;
+                stopJackpotSound(); 
+              }, 8000);
               shootConfetti();
             }
           }
@@ -1766,3 +1781,52 @@ if (sessionStorage.getItem("hasVisited")) {
     }, 200);
   });
 })();
+
+/* ========== 26. 声音与音效 ========== */
+
+function playSfx(src, volume = 0.6) {
+  const a = new Audio(src);
+  a.volume = volume;
+  a.play().catch(() => {});
+}
+
+// 点击小人
+normalMarker.addEventListener("click", () => {
+  playSfx("music/soundeff/jump.mp3");
+  jumpAndSpeak(normalMarker);
+});
+
+
+let leverSound = null;
+
+function startLeverSound() {
+  if (leverSound) return;
+  leverSound = new Audio("music/soundeff/roll.mp3");
+  leverSound.loop = true;
+  leverSound.volume = 0.5;
+  leverSound.play().catch(() => {});
+}
+
+function stopLeverSound() {
+  if (!leverSound) return;
+  leverSound.pause();
+  leverSound.currentTime = 0;
+  leverSound = null;
+}
+
+let jackpotSound = null;
+
+function startJackpotSound() {
+  if (jackpotSound) return;
+  jackpotSound = new Audio("music/soundeff/win.mp3");
+  jackpotSound.loop = true;
+  jackpotSound.volume = 0.5;
+  jackpotSound.play().catch(() => {});
+}
+
+function stopJackpotSound() {
+  if (!jackpotSound) return;
+  jackpotSound.pause();
+  jackpotSound.currentTime = 0;
+  jackpotSound = null;
+}
