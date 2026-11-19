@@ -1849,8 +1849,8 @@ const COUPON_POOL = [
   { text: "丧失一天洗碗权", emoji: "🍽️" },
   { text: "丧失一天洗碗权", emoji: "🍽️" },
   { text: "请吃一餐", emoji: "🍜" },
-  { text: "任选一部电影陪你看", emoji: "🎬" }
-  { text: "任选一部电影陪你看", emoji: "🎬" }
+  { text: "任选一部电影陪你看", emoji: "🎬" },
+  { text: "任选一部电影陪你看", emoji: "🎬" },
   { text: "任选一部电影陪你看", emoji: "🎬" }
 ];
 
