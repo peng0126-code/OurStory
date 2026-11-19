@@ -1697,7 +1697,7 @@ if (sessionStorage.getItem("hasVisited")) {
     const itemSize = getItemSize();
     const windowSize = getWindowSize();
 
-    let isWin = Math.random() < 0.1;
+    let isWin = Math.random() < 0.99;
     const typeCount = getTypeCount();
     let winIndex = Math.floor(Math.random() * typeCount);
 
@@ -1747,16 +1747,18 @@ if (sessionStorage.getItem("hasVisited")) {
             stopLeverSound();
             isSpinning = false;
             if (isWin) {
-              startJackpotSound(); 
-              machine.classList.add("jackpot");
-              isCelebrating = true;
-              setTimeout(() => {
-                machine.classList.remove("jackpot");
-                isCelebrating = false;
-                stopJackpotSound(); 
-              }, 8000);
-              shootConfetti();
-            }
+             startJackpotSound(); 
+             machine.classList.add("jackpot");
+             isCelebrating = true;
+             shootConfetti();
+             // 彩带飘一会儿再出奖券，更有仪式感
+             setTimeout(() => showCoupon(), 1200);
+             setTimeout(() => {
+               machine.classList.remove("jackpot");
+               isCelebrating = false;
+               stopJackpotSound(); 
+             }, 8000);
+           }
           }
         }
       }
@@ -1829,3 +1831,90 @@ function stopJackpotSound() {
   jackpotSound.currentTime = 0;
   jackpotSound = null;
 }
+
+/* ========== 27. 中奖奖券 ========== */
+const COUPON_POOL = [
+  { text: "试着点看看里程碑的小人", emoji: "❓" },
+  { text: "网页底部藏着一封信", emoji: "❓" },
+  { text: "一些照片能够翻转哦", emoji: "❓" },
+  { text: "霸王茶姬或其他奶茶一杯", emoji: "🧋" },
+  { text: "抱抱卷 ×1", emoji: "🤗" },
+  { text: "亲亲卷 ×1", emoji: "😘" },
+  { text: "免吵架卷 ×1", emoji: "🕊️" },
+  { text: "丧失一天洗碗权", emoji: "🍽️" },
+  { text: "请吃一餐", emoji: "🍜" },
+  { text: "任选一部电影陪你看", emoji: "🎬" }
+];
+
+function formatCouponTime(d) {
+  const yyyy = d.getFullYear();
+  const MM = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  let hh = d.getHours();
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  const ss = String(d.getSeconds()).padStart(2, "0");
+  const tt = hh >= 12 ? "PM" : "AM";
+  hh = hh % 12; hh = hh ? hh : 12;
+  hh = String(hh).padStart(2, "0");
+  return `${dd}/${MM}/${yyyy} ${hh}:${mm}:${ss} ${tt}`;
+}
+
+function showCoupon() {
+  const modal = document.getElementById("coupon-modal");
+  const card = document.getElementById("coupon-card");
+  const textEl = document.getElementById("coupon-text");
+  const emojiEl = document.getElementById("coupon-emoji");
+  const timeEl = document.getElementById("coupon-time");
+  if (!modal || !card || !textEl) return;
+
+  const pick = COUPON_POOL[Math.floor(Math.random() * COUPON_POOL.length)];
+  textEl.textContent = pick.text;
+  if (emojiEl) emojiEl.textContent = pick.emoji;
+  if (timeEl) timeEl.textContent = formatCouponTime(getMalaysiaNow());
+
+  modal.classList.add("show");
+  document.body.classList.add("hide-buttons");
+}
+
+function closeCoupon() {
+  const modal = document.getElementById("coupon-modal");
+  if (!modal) return;
+  modal.classList.remove("show");
+  document.body.classList.remove("hide-buttons");
+}
+
+document.getElementById("coupon-close-btn")?.addEventListener("click", closeCoupon);
+
+document.getElementById("coupon-share-btn")?.addEventListener("click", async () => {
+  const card = document.getElementById("coupon-card");
+  if (!card) return;
+  if (typeof html2canvas === "undefined") {
+    alert("分享功能加载失败，请刷新重试");
+    return;
+  }
+
+  try {
+    const canvas = await html2canvas(card, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: null
+    });
+
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+      const file = new File([blob], "coupon.png", { type: "image/png" });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: "我的奖券" });
+        } catch (e) {
+          // 用户取消，不处理
+        }
+      } else {
+        alert("当前浏览器不支持直接分享图片，请长按奖券保存后再发送");
+      }
+    }, "image/png");
+  } catch (e) {
+    alert("生成奖券图片失败，请重试");
+  }
+});
