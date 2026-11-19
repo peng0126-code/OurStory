@@ -1740,9 +1740,9 @@ if (sessionStorage.getItem("hasVisited")) {
           renderReel(state, y, itemSize, windowSize);
           requestAnimationFrame(step);
         } else {
+          playSfx("music/soundeff/slot.mp3", 0.6);
           renderReel(state, targetY, itemSize, windowSize);
           reelCenterIndices[idx] = totalItems;
-          playSfx("music/soundeff/slot.mp3", 0.6);
           finished++;
           if (finished === reelEls.length) {
             stopLeverSound();
