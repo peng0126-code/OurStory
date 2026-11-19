@@ -1697,7 +1697,7 @@ if (sessionStorage.getItem("hasVisited")) {
     const itemSize = getItemSize();
     const windowSize = getWindowSize();
 
-    let isWin = Math.random() < 0.99;
+    let isWin = Math.random() < 0.15;
     const typeCount = getTypeCount();
     let winIndex = Math.floor(Math.random() * typeCount);
 
