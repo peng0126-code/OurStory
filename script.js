@@ -1837,12 +1837,20 @@ const COUPON_POOL = [
   { text: "试着点看看里程碑的小人", emoji: "❓" },
   { text: "网页底部藏着一封信", emoji: "❓" },
   { text: "一些照片能够翻转哦", emoji: "❓" },
-  { text: "霸王茶姬或其他奶茶一杯", emoji: "🧋" },
+  { text: "霸王茶姬或其他奶茶 ×1", emoji: "🧋" },
   { text: "抱抱卷 ×1", emoji: "🤗" },
+  { text: "抱抱卷 ×1", emoji: "🤗" },
+  { text: "抱抱卷 ×1", emoji: "🤗" },
+  { text: "亲亲卷 ×1", emoji: "😘" },
+  { text: "亲亲卷 ×1", emoji: "😘" },
   { text: "亲亲卷 ×1", emoji: "😘" },
   { text: "免吵架卷 ×1", emoji: "🕊️" },
   { text: "丧失一天洗碗权", emoji: "🍽️" },
+  { text: "丧失一天洗碗权", emoji: "🍽️" },
+  { text: "丧失一天洗碗权", emoji: "🍽️" },
   { text: "请吃一餐", emoji: "🍜" },
+  { text: "任选一部电影陪你看", emoji: "🎬" }
+  { text: "任选一部电影陪你看", emoji: "🎬" }
   { text: "任选一部电影陪你看", emoji: "🎬" }
 ];
 
