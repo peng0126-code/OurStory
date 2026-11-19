@@ -2942,3 +2942,157 @@ body.theme-fun .slot-lever-knob {
 body.theme-fun .slot-machine.jackpot .slot-body {
   animation: jackpotBodyGlowFun 1.5s infinite ease-in-out !important;
 }
+
+
+/* ========= 奖券弹窗 ========= */
+.coupon-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+.coupon-modal.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.coupon-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  transform: scale(0.85) translateY(20px);
+  transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+.coupon-modal.show .coupon-wrap {
+  transform: scale(1) translateY(0);
+}
+
+.coupon-card {
+  width: 320px;
+  max-width: 82vw;
+  background: #fffaf3;
+  border-radius: 14px;
+  padding: 22px 20px 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  position: relative;
+  border: 2px dashed #d98c8c;
+  overflow: hidden;
+}
+body.theme-fun .coupon-card {
+  background: #1a1410;
+  border-color: #c9a04a;
+  color: #e8dcc8;
+}
+
+/* 两侧半圆缺口，做出「撕票」感 */
+.coupon-card::before,
+.coupon-card::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+.coupon-card::before { left: -12px; }
+.coupon-card::after  { right: -12px; }
+
+.coupon-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.coupon-emoji {
+  font-size: 28px;
+  line-height: 1;
+}
+.coupon-label {
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  color: #a87c7c;
+}
+body.theme-fun .coupon-label { color: #b8a898; }
+
+.coupon-divider {
+  height: 1px;
+  margin: 14px 0;
+  background: repeating-linear-gradient(
+    90deg,
+    #d98c8c 0 8px,
+    transparent 8px 14px
+  );
+}
+body.theme-fun .coupon-divider {
+  background: repeating-linear-gradient(
+    90deg,
+    #c9a04a 0 8px,
+    transparent 8px 14px
+  );
+}
+
+.coupon-main {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 6px 0;
+  color: #d98c8c;
+  letter-spacing: 1px;
+}
+body.theme-fun .coupon-main { color: #e0b458; }
+
+.coupon-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.coupon-brand {
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  color: #bbb;
+}
+.coupon-time {
+  font-size: 0.75rem;
+  color: #a87c7c;
+  letter-spacing: 0.5px;
+}
+
+.coupon-actions {
+  display: flex;
+  gap: 14px;
+}
+.coupon-btn {
+  border: none;
+  border-radius: 24px;
+  padding: 10px 26px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.coupon-btn:active { transform: scale(0.95); }
+.coupon-btn-share {
+  background: #d98c8c;
+  color: #fff;
+}
+body.theme-fun .coupon-btn-share {
+  background: #c9a04a;
+  color: #0a0a0f;
+}
+.coupon-btn-close {
+  background: rgba(255, 255, 255, 0.85);
+  color: #666;
+}
+body.theme-fun .coupon-btn-close {
+  background: rgba(255, 255, 255, 0.15);
+  color: #e8dcc8;
+}
