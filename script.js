@@ -783,14 +783,13 @@ function jumpAndSpeak(markerEl, event) {
   const bubble = document.createElement("div");
   bubble.textContent = randomWord;
   
-  // ★ 核心修改：判断当前是否为万兽模式（theme-fun）
   const isFunTheme = document.body.classList.contains("theme-fun");
-  const textColor = isFunTheme ? "#0a0a0f" : "#ffffff"; // 万兽模式黑字（和你背景色一致），浪漫模式白字
+  const textColor = isFunTheme ? "#0a0a0f" : "#ffffff";
   
   bubble.style.cssText = `
     position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
     background: var(--main); 
-    color: ${textColor}; /* 动态应用颜色 */
+    color: ${textColor};
     padding: 4px 10px; border-radius: 10px;
     font-size: 12px; font-weight: bold; white-space: nowrap; pointer-events: none;
     animation: bubblePop 2.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; z-index: 99;
@@ -1541,7 +1540,6 @@ if (sessionStorage.getItem("hasVisited")) {
     return document.body.classList.contains("theme-fun") ? 5 : 6;
   }
 
-  // 虚拟化参数：池子扩大到 6 个节点，确保上下半个视角都有图片
   const POOL_SIZE = 6; 
   const R = 200;
   
@@ -1570,32 +1568,26 @@ if (sessionStorage.getItem("hasVisited")) {
     }
   }
 
-  /* 
-   * 核心渲染：按像素绝对定位，确保完美的 0.5 : 1 : 0.5 视觉
-   */
   function renderReel(state, currentY, itemSize, windowSize) {
     const { pool } = state;
     const typeCount = getTypeCount();
     const windowCenter = windowSize / 2;
 
-    // 核心：计算当前哪个索引位于正中间（对应图片的中心点）
     const centerVirtual = (windowCenter - itemSize / 2 - currentY) / itemSize;
     const baseIndex = Math.round(centerVirtual);
 
     for (let i = 0; i < POOL_SIZE; i++) {
       const node = pool[i];
-      const vIndex = baseIndex + (i - 2); // 池子分布为：上2个，中间1个，下2个，再多1个缓冲
+      const vIndex = baseIndex + (i - 2);
       
       if (node.virtualIndex !== vIndex) {
         node.virtualIndex = vIndex;
         setItemImage(node, typeCount);
       }
 
-      // 计算这个节点距离窗口正中心的像素偏移量
       const itemCenterY = vIndex * itemSize + itemSize / 2 + currentY;
       const dy = itemCenterY - windowCenter;
 
-      // 如果偏移超出可视范围（上下各 1.5 个身位），直接隐藏
       if (Math.abs(dy) > itemSize * 1.5) {
         node.el.style.display = "none";
         continue;
@@ -1603,7 +1595,6 @@ if (sessionStorage.getItem("hasVisited")) {
 
       node.el.style.display = "block";
 
-      // --- 视觉 3D 效果计算（保留圆柱透视感） ---
       const theta = Math.asin(Math.max(-1, Math.min(1, dy / R)));
       const yTranslate = Math.sin(theta) * R - dy;
       const zTranslate = Math.cos(theta) * R - R;
@@ -1616,8 +1607,6 @@ if (sessionStorage.getItem("hasVisited")) {
     }
   }
 
-
-  // 记录每个滚轮目前显示的中心图片索引
   const reelCenterIndices = [null, null, null];
 
   function fillReels(randomize = false) {
@@ -1627,12 +1616,10 @@ if (sessionStorage.getItem("hasVisited")) {
     reelEls.forEach((reel, idx) => {
       const state = reelStates[idx];
 
-      // 只有首次进入或切换主题时才随机
       if (randomize || reelCenterIndices[idx] === null) {
         reelCenterIndices[idx] = Math.floor(Math.random() * 200) + 50;
       }
 
-      // 保留原本的图片，只重新计算显示位置
       const centerIndex = reelCenterIndices[idx];
       const initY = (windowSize / 2) -
         (centerIndex * itemSize + itemSize / 2);
@@ -1644,10 +1631,8 @@ if (sessionStorage.getItem("hasVisited")) {
     });
   }
 
-  // 第一次进入网页：随机显示
   fillReels(true);
 
-  // 切换主题：重新随机显示
   const themeBtnEl = document.getElementById("theme-btn");
   if (themeBtnEl) {
     themeBtnEl.addEventListener("click", () => {
@@ -1655,10 +1640,10 @@ if (sessionStorage.getItem("hasVisited")) {
     });
   }
 
-
   let isSpinning = false;
   let isCelebrating = false;
-
+  let activeConfetti = [];
+  let jackpotTimer = null;
 
   function shootConfetti() {
     const isFun = document.body.classList.contains("theme-fun");
@@ -1666,6 +1651,9 @@ if (sessionStorage.getItem("hasVisited")) {
       ? ["#c9a04a", "#e0b458", "#ffe08a", "#ffffff", "#8a7a68"]
       : ["#d98c8c", "#e8c4c4", "#ff9a9e", "#fecfef", "#ffd1dc", "#a1c4fd"];
     const shapes = ["square", "rect", "circle"];
+
+    activeConfetti = [];
+
     for (let i = 0; i < 400; i++) {
       setTimeout(() => {
         const confetti = document.createElement("div");
@@ -1678,10 +1666,35 @@ if (sessionStorage.getItem("hasVisited")) {
         confetti.style.setProperty("--rot", (Math.random() * 1440 - 720) + "deg");
         confetti.style.animationDuration = (Math.random() * 1 + 5) + "s";
         document.body.appendChild(confetti);
-        setTimeout(() => confetti.remove(), 8000);
+
+        activeConfetti.push(confetti);
+
+        setTimeout(() => {
+          confetti.remove();
+          const idx = activeConfetti.indexOf(confetti);
+          if (idx > -1) activeConfetti.splice(idx, 1);
+        }, 8000);
       }, i * 20);
     }
   }
+
+  function forceEndJackpot() {
+    clearTimeout(jackpotTimer);
+    jackpotTimer = null;
+
+    machine.classList.remove("jackpot");
+    isCelebrating = false;
+    stopJackpotSound();
+
+    activeConfetti.forEach(el => {
+      el.style.transition = "opacity 0.3s ease";
+      el.style.opacity = "0";
+      setTimeout(() => el.remove(), 300);
+    });
+    activeConfetti = [];
+  }
+
+  window.forceEndJackpot = forceEndJackpot;
 
   function spin() {
     if (isSpinning || isCelebrating) return;
@@ -1697,7 +1710,7 @@ if (sessionStorage.getItem("hasVisited")) {
     const itemSize = getItemSize();
     const windowSize = getWindowSize();
 
-    let isWin = Math.random() < 0.12;
+    let isWin = Math.random() < 0.99;
     const typeCount = getTypeCount();
     let winIndex = Math.floor(Math.random() * typeCount);
 
@@ -1723,7 +1736,6 @@ if (sessionStorage.getItem("hasVisited")) {
 
       const duration = 1200 + idx * 1000;
       const baseLoops = 8 + idx * 2;
-      // 30 是原来的 ICON_COUNT，保持总圈数一致
       const totalItems = baseLoops * 30 + stopIndex;  
 
       const targetY = windowSize / 2 - (totalItems * itemSize + itemSize / 2);
@@ -1735,30 +1747,35 @@ if (sessionStorage.getItem("hasVisited")) {
         const elapsed = now - globalStartTime;
         if (elapsed < duration) {
           const t = elapsed / duration;
-          const eased = 1 - Math.pow(1 - t, 3); // 原版急刹缓动
+          const eased = 1 - Math.pow(1 - t, 3);
           const y = startY + (targetY - startY) * eased;
           renderReel(state, y, itemSize, windowSize);
           requestAnimationFrame(step);
         } else {
           renderReel(state, targetY, itemSize, windowSize);
           reelCenterIndices[idx] = totalItems;
+
+          playSfx("music/soundeff/stop.mp3", 0.55);
+
           finished++;
           if (finished === reelEls.length) {
             stopLeverSound();
             isSpinning = false;
             if (isWin) {
-             startJackpotSound(); 
-             machine.classList.add("jackpot");
-             isCelebrating = true;
-             shootConfetti();
-             // 彩带飘一会儿再出奖券，更有仪式感
-             setTimeout(() => showCoupon(), 1200);
-             setTimeout(() => {
-               machine.classList.remove("jackpot");
-               isCelebrating = false;
-               stopJackpotSound(); 
-             }, 8000);
-           }
+              startJackpotSound(); 
+              machine.classList.add("jackpot");
+              isCelebrating = true;
+              shootConfetti();
+              setTimeout(() => showCoupon(), 1200);
+
+              clearTimeout(jackpotTimer);
+              jackpotTimer = setTimeout(() => {
+                machine.classList.remove("jackpot");
+                isCelebrating = false;
+                stopJackpotSound();
+                jackpotTimer = null;
+              }, 8000);
+            }
           }
         }
       }
@@ -1774,10 +1791,7 @@ if (sessionStorage.getItem("hasVisited")) {
     if (resizeTimer) clearTimeout(resizeTimer);
 
     resizeTimer = setTimeout(() => {
-      // 正在旋转时不干扰动画
       if (isSpinning) return;
-
-      // 只重新计算位置，不重新随机图片
       fillReels(false);
     }, 200);
   });
@@ -1791,12 +1805,10 @@ function playSfx(src, volume = 0.6) {
   a.play().catch(() => {});
 }
 
-// 点击小人
 normalMarker.addEventListener("click", () => {
   playSfx("music/soundeff/jump.mp3");
   jumpAndSpeak(normalMarker);
 });
-
 
 let leverSound = null;
 
@@ -1853,7 +1865,7 @@ function pickWeighted(pool) {
     r -= item.weight;
     if (r < 0) return item;
   }
-  return pool[pool.length - 1]; // 兜底
+  return pool[pool.length - 1];
 }
 
 function formatCouponTime(d) {
@@ -1891,6 +1903,10 @@ function closeCoupon() {
   if (!modal) return;
   modal.classList.remove("show");
   document.body.classList.remove("hide-buttons");
+
+  if (typeof window.forceEndJackpot === "function") {
+    window.forceEndJackpot();
+  }
 }
 
 document.getElementById("coupon-close-btn")?.addEventListener("click", closeCoupon);
