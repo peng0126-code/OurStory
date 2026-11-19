@@ -1697,7 +1697,7 @@ if (sessionStorage.getItem("hasVisited")) {
     const itemSize = getItemSize();
     const windowSize = getWindowSize();
 
-    let isWin = Math.random() < 0.15;
+    let isWin = Math.random() < 0.12;
     const typeCount = getTypeCount();
     let winIndex = Math.floor(Math.random() * typeCount);
 
@@ -1834,25 +1834,27 @@ function stopJackpotSound() {
 
 /* ========== 27. 中奖奖券 ========== */
 const COUPON_POOL = [
-  { text: "试着点看看里程碑的小人", emoji: "❓" },
-  { text: "网页底部藏着一封信", emoji: "❓" },
-  { text: "一些照片能够翻转哦", emoji: "❓" },
-  { text: "霸王茶姬或其他奶茶 ×1", emoji: "🧋" },
-  { text: "抱抱卷 ×1", emoji: "🤗" },
-  { text: "抱抱卷 ×1", emoji: "🤗" },
-  { text: "抱抱卷 ×1", emoji: "🤗" },
-  { text: "亲亲卷 ×1", emoji: "😘" },
-  { text: "亲亲卷 ×1", emoji: "😘" },
-  { text: "亲亲卷 ×1", emoji: "😘" },
-  { text: "免吵架卷 ×1", emoji: "🕊️" },
-  { text: "丧失一天洗碗权", emoji: "🍽️" },
-  { text: "丧失一天洗碗权", emoji: "🍽️" },
-  { text: "丧失一天洗碗权", emoji: "🍽️" },
-  { text: "请吃一餐", emoji: "🍜" },
-  { text: "任选一部电影陪你看", emoji: "🎬" },
-  { text: "任选一部电影陪你看", emoji: "🎬" },
-  { text: "任选一部电影陪你看", emoji: "🎬" }
+  { text: "试着点看看里程碑的小人", emoji: "❓", weight: 1 },
+  { text: "网页底部藏着一封信", emoji: "❓", weight: 1  },
+  { text: "一些照片能够翻转哦", emoji: "❓", weight: 1  },
+  { text: "霸王茶姬或其他奶茶 ×1", emoji: "🧋", weight: 1  },
+  { text: "抱抱卷 ×1", emoji: "🤗", weight: 5  },
+  { text: "亲亲卷 ×1", emoji: "😘", weight: 5  },
+  { text: "免吵架卷 ×1", emoji: "🕊️", weight: 1  },
+  { text: "丧失一天洗碗权", emoji: "🍽️", weight: 5  },
+  { text: "请吃一餐", emoji: "🍜", weight: 1  },
+  { text: "任选一部电影陪你看", emoji: "🎬", weight: 5  }
 ];
+
+function pickWeighted(pool) {
+  const total = pool.reduce((sum, item) => sum + item.weight, 0);
+  let r = Math.random() * total;
+  for (const item of pool) {
+    r -= item.weight;
+    if (r < 0) return item;
+  }
+  return pool[pool.length - 1]; // 兜底
+}
 
 function formatCouponTime(d) {
   const yyyy = d.getFullYear();
@@ -1875,7 +1877,7 @@ function showCoupon() {
   const timeEl = document.getElementById("coupon-time");
   if (!modal || !card || !textEl) return;
 
-  const pick = COUPON_POOL[Math.floor(Math.random() * COUPON_POOL.length)];
+  const pick = pickWeighted(COUPON_POOL);
   textEl.textContent = pick.text;
   if (emojiEl) emojiEl.textContent = pick.emoji;
   if (timeEl) timeEl.textContent = formatCouponTime(getMalaysiaNow());
